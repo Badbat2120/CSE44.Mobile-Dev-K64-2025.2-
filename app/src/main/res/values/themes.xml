@@ -2,7 +2,9 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.Litera" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/blue_500</item>
+        <item name="colorPrimaryVariant">@color/blue_700</item>
+        <item name="colorOnPrimary">@android:color/white</item>
     </style>
 
     <style name="Theme.Litera" parent="Base.Theme.Litera" />
