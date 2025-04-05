@@ -7,4 +7,10 @@
 
     <string name="minimum_password">Password too short, enter minimum 6 characters!</string>
     <string name="auth_failed">Authentication failed. Please try again.</string>
+    <string name="_156_npages">156\nPages</string>
+    <string name="_187_nreviews">187\nReviews</string>
+    <string name="chapter">Chapter</string>
+    <string name="read">📖 Read</string>
+    <string name="buy_physical_books">🛒 Buy physical books</string>
+    <string name="book_cover">Book cover</string>
 </resources>

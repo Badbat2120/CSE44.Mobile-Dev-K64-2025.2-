@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#FFFFFF">
+
+    <!-- Nút Back -->
+    <ImageView
+        android:id="@+id/backButton"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/z6477555708449_e07dd1b80564abda2ca046e04cefb138"
+        android:layout_gravity="start"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Tên sách -->
+    <TextView
+        android:id="@+id/bookTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:gravity="center"
+        android:hint="Namebook"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <!-- Chương -->
+    <TextView
+        android:id="@+id/chapterNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Chapter : 2"
+        android:textStyle="bold"
+        android:textSize="14sp"
+        android:gravity="center"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Nội dung văn bản -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <TextView
+            android:id="@+id/bookContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nội dung sách"
+            android:lineSpacingExtra="4dp"
+            android:textColor="#000000"
+            android:textSize="15sp" />
+    </ScrollView>
+
+    <!-- Thanh trạng thái ở dưới cùng -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:gravity="center">
+
+        <!-- Thanh tiến trình -->
+        <ImageView
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_progress_bar"
+            android:layout_gravity="center" />
+
+        <!-- Số trang -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:hint="số trang đang đọc"
+            android:textColor="#888888"
+            android:textSize="12sp" />
+
+        <!-- Icon điều hướng -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="8dp">
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_menu1"
+                android:layout_margin="8dp"/>
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_menu2"
+                android:layout_margin="8dp"/>
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_menu3"
+                android:layout_margin="8dp"/>
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:src="@drawable/ic_menu4"
+                android:layout_margin="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
