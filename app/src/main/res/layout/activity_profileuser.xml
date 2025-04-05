@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF">
@@ -14,6 +15,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:backgroundTint="#2196F3"
             android:padding="16dp">
 
             <ImageView
@@ -21,7 +23,8 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_alignParentStart="true"
-                android:backgroundTint="#2196F3" />
+                android:backgroundTint="#2196F3"
+                app:srcCompat="@drawable/z6477555708449_e07dd1b80564abda2ca046e04cefb138" />
 
         </RelativeLayout>
 

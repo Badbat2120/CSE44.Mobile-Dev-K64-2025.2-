@@ -138,8 +138,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/linearLayout"
-            android:layout_marginTop="8dp"
             android:layout_gravity="center"
+            android:layout_marginTop="17dp"
             android:text="Sign in with Google" />
 
         <ProgressBar

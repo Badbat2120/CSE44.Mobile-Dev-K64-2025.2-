@@ -1,12 +1,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Menu item Đăng xuất -->
     <item
-        android:id="@+id/action_logout"
-        android:title="Logout" />
+        android:id="@+id/nav_home"
 
+        android:title="Home"/>
     <item
-        android:id="@+id/user_info"
-        android:title="Login" />
-    <item android:title="Item" />
-    <item android:title="Register" />
+        android:id="@+id/nav_books"
+
+        android:title="Books"/>
+    <item
+        android:id="@+id/nav_profile"
+
+        android:title="Profile"/>
 </menu>

@@ -1,122 +1,187 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.example.litera.views.activities.MainActivity">
+    android:layout_height="match_parent">
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <!-- Nội dung chính -->
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:padding="16dp"
+        android:layout_marginBottom="60dp">
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <!-- Header -->
-            <RelativeLayout
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp">
+                <!-- Avatar bên trái -->
 
+
+                <!-- Avatar bên trái -->
                 <ImageView
-                    android:id="@+id/imgMenu"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_alignParentStart="true"
-                    android:padding="8dp"
-                    android:src="@drawable/menu_icon_5" />
+                    android:background="@drawable/menu_icon_5"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/menu_icon_5"
+                    />
 
+                <!-- Spacer -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <!-- Hello Tommy bên phải -->
                 <TextView
-                    android:id="@+id/tvHello"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:hint="tên người dùng"
-                    android:textSize="18sp"
+                    android:hint="Tên người dùng"
+                    android:textSize="16sp"
                     android:textStyle="bold" />
 
                 <ImageView
-                    android:id="@+id/imgProfile"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347"
+                    android:background="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347" />
-            </RelativeLayout>
+                    />
+            </LinearLayout>
 
-            <!-- Search Bar -->
-            <EditText
-                android:id="@+id/etSearch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:drawableStart="@android:drawable/ic_menu_search"
-                android:hint="Search by Title, Author, Genre"
-                android:padding="10dp" />
-
-            <!-- Popular Authors -->
+            <!-- App Title -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Popular Authors"
+                android:text="Litera"
+                android:textSize="24sp"
                 android:textStyle="bold"
-                android:paddingTop="10dp" />
+                android:textColor="#3F51B5"
+                android:layout_marginBottom="8dp"/>
 
-            <HorizontalScrollView
+            <!-- Search Bar -->
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none">
+                android:layout_height="50dp"
+                app:cardCornerRadius="24dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="12dp">
+
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-                    <!-- Author Avatars Here -->
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center_vertical"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp">
+
+                    <SearchView
+
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                     />
+
+                    <EditText
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Search by title, author, genre"
+                        android:paddingStart="12dp"
+                        android:background="@android:color/transparent"/>
                 </LinearLayout>
-            </HorizontalScrollView>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Banner -->
+
+            <!-- Popular Authors -->
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="160dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/z6477401502352_356614eec45b2f7855ff3ca6e75ace14"
+                android:scaleType="centerCrop"
+                android:src="@drawable/z6477401502352_356614eec45b2f7855ff3ca6e75ace14" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="Popular Authors"
+                android:textColor="#2196F3"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_authors"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"/>
 
             <!-- Continue Reading -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Continue Reading"
-                android:textStyle="bold"
-                android:paddingTop="10dp" />
+                android:textColor="#2196F3"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvContinueReading"
+                android:id="@+id/recycler_continue"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
+                android:layout_height="200dp"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"/>
 
             <!-- Trending Books -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Trending books"
+                android:text="Trending Books"
+                android:textColor="#2196F3"
                 android:textStyle="bold"
-                android:paddingTop="10dp" />
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"/>
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabGenres"
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/chip_group"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:tabMode="scrollable" />
+                app:singleSelection="true"
+                app:chipSpacing="8dp"
+                android:layout_marginBottom="8dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvTrendingBooks"
+                android:id="@+id/recycler_trending"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
         </LinearLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.core.widget.NestedScrollView>
 
-    <!-- Navigation Drawer -->
-    <com.google.android.material.navigation.NavigationView
-        android:id="@+id/navigationView"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start" />
+    <!-- Bottom Navigation -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="bottom"
+        app:labelVisibilityMode="labeled"
+        android:background="@color/white"/>
+<!--        app:menu="@menu/bottom_nav_menu"-->
+<!--        app:itemIconTint="@color/nav_icon_selector"-->
+<!--        app:itemTextColor="@color/nav_text_selector"-->
 
-</androidx.drawerlayout.widget.DrawerLayout>
-
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
