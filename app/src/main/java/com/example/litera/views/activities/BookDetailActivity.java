@@ -1,4 +1,4 @@
-package com.example.litera.views.activities.Views;
+package com.example.litera.views.activities;
 
 import android.os.Bundle;
 
