@@ -1,165 +1,166 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="20dp"
-    android:background="#FFFFFF">
+    android:layout_height="match_parent">
 
-
-
-    <!-- Tiêu đề -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create your account"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:gravity="center"
-        android:textColor="#000000" />
-
-    <!-- Mô tả -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create an account and explore a tailored library\nof captivating stories."
-        android:textSize="14sp"
-        android:textColor="#666666"
-        android:gravity="center"
-        android:layout_marginTop="8dp" />
-
-    <!-- Email label -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Email"
-        android:textSize="14sp"
-        android:layout_marginTop="24dp" />
-
-    <!-- Email input -->
-    <EditText
-        android:id="@+id/etEmail"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:hint="Email"
-        android:padding="12dp"
-
-        android:inputType="textEmailAddress" />
-
-    <!-- Password label -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Password"
-        android:textSize="14sp"
-        android:layout_marginTop="16dp" />
-
-    <!-- Password input với icon con mắt -->
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-      >
-
-        <EditText
-            android:id="@+id/etPassword"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:hint="Password"
-            android:padding="12dp"
-            android:inputType="textPassword"
-            android:background="@android:color/transparent" />
-
-        <ImageView
-            android:id="@+id/ivTogglePassword"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:layout_marginEnd="12dp"
-            android:src="@drawable/ic_visibility_off" />
-    </RelativeLayout>
-
-    <!-- Nút tạo tài khoản -->
-    <Button
-        android:id="@+id/btn_register"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="24dp"
-        android:backgroundTint="#2563EB"
-        android:text="Create new account"
-        android:textColor="#FFFFFF" />
-
-    <!-- Link login -->
-    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_gravity="center"
-        android:layout_marginTop="12dp">
+        android:layout_centerInParent="true"
+        android:padding="16dp">
 
+        <!-- Tiêu đề -->
         <TextView
+            android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Already have an account? "
+            android:text="Create your account"
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
+        <!-- Mô tả -->
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create an account and explore a tailored library\nof captivating stories."
+            android:textSize="18sp"
+            android:textColor="#666666"
+            android:layout_below="@id/tvTitle"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp" />
+
+        <!-- Email label -->
+        <TextView
+            android:id="@+id/tvEmail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Email address"
             android:textSize="14sp"
-            android:textColor="#888888" />
+            android:layout_below="@+id/tvDescription"
+            android:layout_marginTop="30dp"
+            android:textStyle="bold" />
+
+        <!-- Email input -->
+
+        <!-- Password label -->
+        <EditText
+            android:id="@+id/etEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvEmail"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/textbox_background"
+            android:hint="Email"
+            android:inputType="textEmailAddress"
+            android:minHeight="48dp" />
+
+        <TextView
+            android:id="@+id/tvPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Password"
+            android:textSize="14sp"
+            android:layout_below="@id/etEmail"
+            android:layout_marginTop="16dp"
+            android:textStyle="bold"/>
+
+        <!-- Password input với icon con mắt -->
+        <RelativeLayout
+            android:id="@+id/relativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvPassword"
+            android:layout_marginTop="8dp">
+
+            <EditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:inputType="textPassword"
+                android:minHeight="48dp"
+                android:background="@drawable/textbox_background"
+                android:paddingEnd="50dp" />
+
+            <ImageButton
+                android:id="@+id/btn_toggle_password"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/ic_visibility_off"
+                android:contentDescription="Toggle password visibility"
+                tools:ignore="TouchTargetSizeCheck" />
+        </RelativeLayout>
+
+        <!-- Nút tạo tài khoản -->
+        <Button
+            android:id="@+id/btn_register"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/relativeLayout"
+            android:layout_marginTop="16dp"
+            android:text="Create new account" />
 
         <TextView
             android:id="@+id/tvLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Login"
-            android:textColor="#2563EB"
-            android:textSize="14sp" />
-    </LinearLayout>
+            android:layout_below="@+id/btn_register"
+            android:layout_marginTop="8dp"
+            android:layout_centerHorizontal="true"
+            android:text="Already have an account? Login" />
 
-    <!-- Divider "or" -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center"
-        android:layout_marginTop="24dp">
+        <!-- Divider "or" -->
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvLogin"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            android:gravity="center">
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1"
-            android:background="#DDDDDD" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="#DDDDDD" />
 
-        <TextView
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="or"
+                android:textSize="16sp"
+                android:textColor="#888888"
+                android:paddingHorizontal="8dp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="#DDDDDD" />
+        </LinearLayout>
+
+        <!-- Nút Sign up with Google -->
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/googleSignInButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/linearLayout"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:text="Sign up with Google" />
+
+        <ProgressBar
+            android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="  or  "
-            android:textColor="#888888" />
+            android:visibility="gone"
+            android:layout_centerInParent="true" />
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1"
-            android:background="#DDDDDD" />
-    </LinearLayout>
+    </RelativeLayout>
 
-    <!-- Nút Sign up with Google -->
-    <Button
-        android:id="@+id/btnGoogle"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:text="Sign up with Google"
-        android:layout_marginTop="16dp"
-        android:textColor="#2563EB"
-        android:background="#FFFFFF"
-
-        android:drawablePadding="12dp"
-        android:gravity="center_vertical"
-        android:paddingStart="12dp" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone" />
-</LinearLayout>
+</RelativeLayout>
