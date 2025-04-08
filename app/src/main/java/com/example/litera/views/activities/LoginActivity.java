@@ -36,11 +36,11 @@ public class LoginActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
 
-        inputEmail = findViewById(R.id.email);
-        inputPassword = findViewById(R.id.password);
+        inputEmail = findViewById(R.id.etEmail);
+        inputPassword = findViewById(R.id.etPassword);
         progressBar = findViewById(R.id.progressBar);
-        btnLogin = findViewById(R.id.btn_login);
-        tvRegister = findViewById(R.id.tv_register);
+        btnLogin = findViewById(R.id.btnLogin);
+        tvRegister = findViewById(R.id.tvRegister);
         btnTogglePassword = findViewById(R.id.btn_toggle_password);
 
         btnTogglePassword.setOnClickListener(new View.OnClickListener() {

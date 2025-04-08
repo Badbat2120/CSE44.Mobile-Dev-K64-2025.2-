@@ -37,7 +37,7 @@ public class RegisterActivity extends AppCompatActivity {
         inputEmail = findViewById(R.id.etEmail);
         inputPassword = findViewById(R.id.etPassword);
         progressBar = findViewById(R.id.progressBar);
-        btnSignUp = findViewById(R.id.btn_register);
+        btnSignUp = findViewById(R.id.btnRegister);
         tvLogin = findViewById(R.id.tvLogin);
 
         btnSignUp.setOnClickListener(new View.OnClickListener() {
