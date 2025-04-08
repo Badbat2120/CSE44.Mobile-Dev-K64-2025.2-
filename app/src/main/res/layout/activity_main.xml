@@ -26,16 +26,13 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="8dp">
                 <!-- Avatar bên trái -->
-
-
-                <!-- Avatar bên trái -->
                 <ImageView
+                    android:id="@+id/imgMenu"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:background="@drawable/menu_icon_5"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/menu_icon_5"
-                    />
+                    android:src="@drawable/menu_icon_5" />
 
                 <!-- Spacer -->
                 <View
@@ -45,6 +42,7 @@
 
                 <!-- Hello Tommy bên phải -->
                 <TextView
+                    android:id="@+id/tvHello"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:hint="Tên người dùng"
@@ -52,12 +50,12 @@
                     android:textStyle="bold" />
 
                 <ImageView
+                    android:id="@+id/imgProfile"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347"
                     android:background="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347"
-                    android:scaleType="centerCrop"
-                    />
+                    android:scaleType="centerCrop" />
             </LinearLayout>
 
             <!-- App Title -->
@@ -86,12 +84,11 @@
                     android:paddingEnd="12dp">
 
                     <SearchView
-
                         android:layout_width="24dp"
-                        android:layout_height="24dp"
-                     />
+                        android:layout_height="24dp" />
 
                     <EditText
+                        android:id="@+id/etSearch"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
@@ -102,9 +99,6 @@
             </androidx.cardview.widget.CardView>
 
             <!-- Banner -->
-
-            <!-- Popular Authors -->
-
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
@@ -113,6 +107,7 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/z6477401502352_356614eec45b2f7855ff3ca6e75ace14" />
 
+            <!-- Popular Authors -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -123,7 +118,7 @@
                 android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_authors"
+                android:id="@+id/rvContinueReading"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:orientation="horizontal"
@@ -140,7 +135,7 @@
                 android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_continue"
+                android:id="@+id/rvTrendingBooks"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:orientation="horizontal"
@@ -156,12 +151,11 @@
                 android:textSize="16sp"
                 android:layout_marginBottom="8dp"/>
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/chip_group"
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabGenres"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:singleSelection="true"
-                app:chipSpacing="8dp"
+                app:tabMode="scrollable"
                 android:layout_marginBottom="8dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -180,8 +174,4 @@
         android:layout_gravity="bottom"
         app:labelVisibilityMode="labeled"
         android:background="@color/white"/>
-<!--        app:menu="@menu/bottom_nav_menu"-->
-<!--        app:itemIconTint="@color/nav_icon_selector"-->
-<!--        app:itemTextColor="@color/nav_text_selector"-->
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

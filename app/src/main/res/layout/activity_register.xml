@@ -84,7 +84,7 @@
 
     <!-- Nút tạo tài khoản -->
     <Button
-        android:id="@+id/btnCreateAccount"
+        android:id="@+id/btn_register"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginTop="24dp"
