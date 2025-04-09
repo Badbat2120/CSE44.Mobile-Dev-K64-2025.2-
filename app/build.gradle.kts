@@ -33,6 +33,11 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.firebase:firebase-firestore:24.4.1")
+    implementation ("com.google.firebase:firebase-auth:22.0.2")
+    implementation ("com.github.bumptech.glide:glide:4.15.1")
+    implementation(libs.firebase.storage)
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.15.1")
     implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation(libs.appcompat)

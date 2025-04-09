@@ -118,9 +118,9 @@
                 android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvContinueReading"
+                android:id="@+id/rvPopularAuthors"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="200dp"
                 android:orientation="horizontal"
                 android:layout_marginBottom="16dp"/>
 
@@ -135,7 +135,7 @@
                 android:textStyle="bold" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvTrendingBooks"
+                android:id="@+id/rvContinueReading"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:orientation="horizontal"
@@ -151,6 +151,12 @@
                 android:textSize="16sp"
                 android:layout_marginBottom="8dp"/>
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvTrendingBooks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:nestedScrollingEnabled="false"/>
+
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabGenres"
                 android:layout_width="match_parent"
@@ -158,11 +164,6 @@
                 app:tabMode="scrollable"
                 android:layout_marginBottom="8dp"/>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_trending"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"/>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
