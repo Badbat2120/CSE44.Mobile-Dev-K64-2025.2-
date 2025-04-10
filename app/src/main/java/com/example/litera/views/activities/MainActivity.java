@@ -44,7 +44,36 @@ public class MainActivity extends AppCompatActivity {
         rvTrendingBooks = findViewById(R.id.rvTrendingBooks);
         rvPopularAuthors = findViewById(R.id.rvPopularAuthors);
         tabGenres = findViewById(R.id.tabGenres);
+        TextView tvViewAllAuthors = findViewById(R.id.tvViewAllAuthors);
+        TextView tvViewAllContinueReading = findViewById(R.id.tvViewAllContinueReading);
+        TextView tvViewAllTrendingBooks = findViewById(R.id.tvViewAllTrendingBooks);
 
+        tvViewAllTrendingBooks.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to AddToCartActivity
+                Intent intent = new Intent(MainActivity.this, AddToCartActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        tvViewAllAuthors.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to AddToCartActivity
+                Intent intent = new Intent(MainActivity.this, AddToCartActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        tvViewAllContinueReading.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to AddToCartActivity
+                Intent intent = new Intent(MainActivity.this, AddToCartActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // Xử lý sự kiện đăng xuất khi bấm vào avatar
         imgProfile.setOnClickListener(new View.OnClickListener() {
@@ -81,6 +110,15 @@ public class MainActivity extends AppCompatActivity {
         rvPopularAuthors.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         AuthorAdapter popularAuthorAdapter = new AuthorAdapter();
         rvPopularAuthors.setAdapter(popularAuthorAdapter);
+
+        tvViewAllAuthors.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to AuthorListActivity
+                Intent intent = new Intent(MainActivity.this, AuthorListActivity.class);
+                startActivity(intent);
+            }
+        });
 
         // Observe LiveData for Popular Authors
         mainViewModel.getPopularAuthors().observe(this, popularAuthorAdapter::submitList);

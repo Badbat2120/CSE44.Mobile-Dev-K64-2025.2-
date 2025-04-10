@@ -43,6 +43,7 @@
         android:paddingHorizontal="16dp"/>
 
     <Button
+        android:id="@+id/btnStartJourney"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Start your journey"
