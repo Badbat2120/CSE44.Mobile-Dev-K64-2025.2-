@@ -1,4 +1,4 @@
-package com.example.litera.views.activities.model;
+package com.example.litera.models;
 
 public class User {
     private String name;

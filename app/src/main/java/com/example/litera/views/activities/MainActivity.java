@@ -13,9 +13,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.litera.R;
-import com.example.litera.views.activities.adapter.AuthorAdapter;
-import com.example.litera.views.activities.adapter.BookAdapter;
-import com.example.litera.views.activities.viewmodel.MainViewModel;
+import com.example.litera.views.adapters.AuthorAdapter;
+import com.example.litera.views.adapters.BookAdapter;
+import com.example.litera.viewmodels.MainViewModel;
+
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;

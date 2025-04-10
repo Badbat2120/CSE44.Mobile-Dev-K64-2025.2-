@@ -1,4 +1,4 @@
-package com.example.litera.views.activities.adapter;
+package com.example.litera.views.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.litera.R;
-import com.example.litera.views.activities.model.Book;
+import com.example.litera.models.Book;
 
 import java.util.ArrayList;
 import java.util.List;

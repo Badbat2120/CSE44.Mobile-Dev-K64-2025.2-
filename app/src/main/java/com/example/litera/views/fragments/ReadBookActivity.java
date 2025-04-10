@@ -1,4 +1,4 @@
-package com.example.litera.views.activities.views;
+package com.example.litera.views.fragments;
 
 import android.os.Bundle;
 import android.widget.TextView;
@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.litera.R;
-import com.example.litera.views.activities.viewmodel.ReadBookViewModel;
+import com.example.litera.viewmodels.ReadBookViewModel;
 
 public class ReadBookActivity extends AppCompatActivity {
 

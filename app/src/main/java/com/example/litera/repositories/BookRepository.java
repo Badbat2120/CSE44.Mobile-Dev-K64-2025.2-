@@ -1,10 +1,10 @@
-package com.example.litera.views.activities.repository;
+package com.example.litera.repositories;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.litera.views.activities.model.Author;
-import com.example.litera.views.activities.model.Book;
+import com.example.litera.models.Book;
+import com.example.litera.models.Author;
 
 import java.util.ArrayList;
 import java.util.List;

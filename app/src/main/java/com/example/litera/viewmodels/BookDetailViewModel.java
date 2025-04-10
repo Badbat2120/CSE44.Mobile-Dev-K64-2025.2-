@@ -1,11 +1,11 @@
-package com.example.litera.views.activities.viewmodel;
+package com.example.litera.viewmodels;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.litera.views.activities.model.Book;
-import com.example.litera.views.activities.repository.BookRepository;
+import com.example.litera.models.Book;
+import com.example.litera.repositories.BookRepository;
 
 public class BookDetailViewModel extends ViewModel {
 

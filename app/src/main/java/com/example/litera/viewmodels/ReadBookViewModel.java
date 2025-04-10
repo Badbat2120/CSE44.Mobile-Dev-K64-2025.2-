@@ -1,4 +1,4 @@
-package com.example.litera.views.activities.viewmodel;
+package com.example.litera.viewmodels;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
