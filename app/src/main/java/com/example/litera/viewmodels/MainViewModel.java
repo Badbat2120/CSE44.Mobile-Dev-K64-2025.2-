@@ -87,6 +87,9 @@ public class MainViewModel extends ViewModel {
         bookRepository.getBookById(bookId)
                 .thenAccept(book -> {
                     if (book != null) {
+                        // Đảm bảo rằng các trường mới được xử lý đúng
+                        validateBookFields(book);
+
                         // Nếu có authorId, tải thông tin tác giả
                         if (book.getAuthorId() != null && !book.getAuthorId().isEmpty()) {
                             // Sử dụng authorRepository thay vì bookRepository
@@ -117,6 +120,33 @@ public class MainViewModel extends ViewModel {
                 });
     }
 
+    /**
+     * Phương thức mới để kiểm tra và đảm bảo các trường mới (pricePhysic) được xử lý đúng
+     */
+    private void validateBookFields(Book book) {
+        // Kiểm tra trường price
+        if (book.getPrice() == null || book.getPrice().isEmpty()) {
+            book.setPrice("0.00"); // Giá mặc định
+        }
+
+        // Kiểm tra trường pricePhysic - Trường mới trong Firebase
+        if (book.getPricePhysic() == null || book.getPricePhysic().isEmpty()) {
+            if (book.getPrice() != null && !book.getPrice().isEmpty()) {
+                // Nếu không có giá sách vật lý, sử dụng giá sách điện tử cộng thêm 10$ làm mặc định
+                try {
+                    float priceValue = Float.parseFloat(book.getPrice());
+                    float physicalPrice = priceValue + 10.0f;
+                    book.setPricePhysic(String.format("%.2f", physicalPrice));
+                } catch (NumberFormatException e) {
+                    book.setPricePhysic("19.99"); // Giá mặc định nếu không thể chuyển đổi
+                    Log.e(TAG, "Error parsing price: " + book.getPrice(), e);
+                }
+            } else {
+                book.setPricePhysic("19.99"); // Giá mặc định
+            }
+        }
+    }
+
     // Phương thức helper để tải tác giả theo ID
     private void loadAuthorById(String authorId, MutableLiveData<Author> liveData) {
         authorRepository.getAuthorById(authorId)
@@ -135,13 +165,19 @@ public class MainViewModel extends ViewModel {
     }
 
     private void loadTrendingBooks() {
-        bookRepository.getBooks()
-                .thenAccept(allBooks -> {
+        // Đánh dấu là đang tải
+        isLoading.setValue(true);
+
+        // Sử dụng phương thức getTrendingBooks() từ repository thay vì getBooks()
+        bookRepository.getTrendingBooks()
+                .thenAccept(trendingBooks -> {
                     // Tải thông tin tác giả cho mỗi cuốn sách
-                    for (Book book : allBooks) {
+                    for (Book book : trendingBooks) {
+                        // Đảm bảo các trường mới được xử lý đúng
+                        validateBookFields(book);
+
                         if (book.getAuthorId() != null && !book.getAuthorId().isEmpty()) {
                             // Sử dụng authorRepository để lấy thông tin tác giả
-
                             authorRepository.getAuthorById(book.getAuthorId())
                                     .thenAccept(book::setAuthor)
                                     .exceptionally(e -> {
@@ -150,12 +186,18 @@ public class MainViewModel extends ViewModel {
                                     });
                         }
                     }
-                    // Lọc hoặc sắp xếp sách trending ở đây nếu cần
-                    trendingBooks.postValue(allBooks);
+
+                    // Cập nhật dữ liệu và thông báo đã tải xong
+                    this.trendingBooks.postValue(trendingBooks);
+                    isLoading.postValue(false);
+
+                    // Log để debug
+                    Log.d(TAG, "Loaded " + trendingBooks.size() + " trending books");
                 })
                 .exceptionally(e -> {
                     Log.e(TAG, "Error loading trending books", e);
                     errorMessage.postValue("Lỗi khi tải sách nổi bật: " + e.getMessage());
+                    isLoading.postValue(false);
                     return null;
                 });
     }
@@ -166,6 +208,9 @@ public class MainViewModel extends ViewModel {
                 .thenAccept(allBooks -> {
                     // Tải thông tin tác giả cho mỗi cuốn sách
                     for (Book book : allBooks) {
+                        // Đảm bảo các trường mới được xử lý đúng
+                        validateBookFields(book);
+
                         if (book.getAuthorId() != null && !book.getAuthorId().isEmpty()) {
                             // Sử dụng authorRepository để lấy thông tin tác giả
                             authorRepository.getAuthorById(book.getAuthorId())

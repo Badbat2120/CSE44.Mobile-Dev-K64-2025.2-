@@ -11,6 +11,7 @@ public class Book {
     private String imageUrl;
     private String contentUrl;
     private String price;
+    private String pricePhysic; // Thêm trường mới này
     private String rating;
 
     // Đối tượng Author đầy đủ - được đánh dấu @Exclude để Firestore bỏ qua khi serialize/deserialize
@@ -21,13 +22,15 @@ public class Book {
         // Constructor rỗng cần thiết cho Firestore
     }
 
-    public Book(String id, String title, String authorId, String description, String imageUrl, String price, String rating) {
+    public Book(String id, String title, String authorId, String description, String imageUrl,
+                String price, String pricePhysic, String rating) {
         this.id = id;
         this.title = title;
         this.authorId = authorId;
         this.description = description;
         this.imageUrl = imageUrl;
         this.price = price;
+        this.pricePhysic = pricePhysic;
         this.rating = rating;
     }
 
@@ -97,6 +100,15 @@ public class Book {
 
     public void setPrice(String price) {
         this.price = price;
+    }
+
+    // Thêm getter và setter cho pricePhysic
+    public String getPricePhysic() {
+        return pricePhysic;
+    }
+
+    public void setPricePhysic(String pricePhysic) {
+        this.pricePhysic = pricePhysic;
     }
 
     public String getRating() {

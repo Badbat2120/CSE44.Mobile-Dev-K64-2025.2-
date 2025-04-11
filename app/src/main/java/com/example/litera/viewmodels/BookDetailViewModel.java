@@ -4,19 +4,24 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.litera.models.Author;
 import com.example.litera.models.Book;
+import com.example.litera.repositories.AuthorRepository;
 import com.example.litera.repositories.BookRepository;
+
+import java.util.concurrent.CompletableFuture;
 
 public class BookDetailViewModel extends ViewModel {
 
+    private final BookRepository bookRepository;
+    private final AuthorRepository authorRepository;
     private final MutableLiveData<Book> selectedBook = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
-    private final BookRepository bookRepository;
 
     public BookDetailViewModel() {
-        // Initialize repository
-        bookRepository = BookRepository.getInstance();
+        this.bookRepository = BookRepository.getInstance();
+        this.authorRepository = new AuthorRepository();
     }
 
     public LiveData<Book> getSelectedBook() {
@@ -32,18 +37,42 @@ public class BookDetailViewModel extends ViewModel {
     }
 
     public void selectBook(String bookId) {
-        // Show loading indicator
         isLoading.setValue(true);
+        errorMessage.setValue(null);
 
-        // Fetch book by ID from Firebase via repository
         bookRepository.getBookById(bookId)
                 .thenAccept(book -> {
-                    selectedBook.postValue(book);
-                    isLoading.postValue(false);
+                    if (book != null) {
+                        // Lấy thông tin author
+                        String authorId = book.getAuthorId(); // Chú ý: dùng getAuthorId() thay vì getAuthor()
+                        if (authorId != null && !authorId.isEmpty()) {
+                            authorRepository.getAuthorById(authorId)
+                                    .thenAccept(author -> {
+                                        book.setAuthor(author);
+                                        selectedBook.postValue(book);
+                                        isLoading.postValue(false);
+                                    })
+                                    .exceptionally(e -> {
+                                        // Nếu không lấy được author, vẫn hiển thị book
+                                        selectedBook.postValue(book);
+                                        isLoading.postValue(false);
+                                        errorMessage.postValue("Could not load author details: " + e.getMessage());
+                                        return null;
+                                    });
+                        } else {
+                            // Không có authorId
+                            selectedBook.postValue(book);
+                            isLoading.postValue(false);
+                        }
+                    } else {
+                        // Không tìm thấy book
+                        isLoading.postValue(false);
+                        errorMessage.postValue("Book not found");
+                    }
                 })
                 .exceptionally(e -> {
-                    errorMessage.postValue("Failed to load book details: " + e.getMessage());
                     isLoading.postValue(false);
+                    errorMessage.postValue("Error loading book: " + e.getMessage());
                     return null;
                 });
     }

@@ -195,8 +195,18 @@ public class AddToCartActivity extends AppCompatActivity {
             bookPrice.setText("$19.99"); // Default price
         }
 
-        // Update buy button text with price
-        updateBuyButtonText(bookPrice.getText().toString());
+        // Update buy button text with pricePhysic instead of price
+        String pricePhysic = book.getPricePhysic();
+        if (pricePhysic != null && !pricePhysic.isEmpty()) {
+            // Make sure pricePhysic starts with "$" symbol
+            if (!pricePhysic.startsWith("$")) {
+                pricePhysic = "$" + pricePhysic;
+            }
+            updateBuyButtonText(pricePhysic);
+        } else {
+            // Fallback to default price if pricePhysic is not available
+            updateBuyButtonText("$19.99");
+        }
 
         // Set rating
         String ratingStr = book.getRating();
@@ -206,7 +216,6 @@ public class AddToCartActivity extends AppCompatActivity {
                 ratingBar.setRating(ratingValue);
             } catch (NumberFormatException e) {
                 ratingBar.setRating(4.5f); // Default value
-                throw new RuntimeException("displayBookData fail: ", e);
             }
         } else {
             ratingBar.setRating(4.5f); // Default value

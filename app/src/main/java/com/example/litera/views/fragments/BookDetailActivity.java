@@ -24,6 +24,7 @@ import com.example.litera.views.activities.AddToCartActivity;
 
 public class BookDetailActivity extends AppCompatActivity {
 
+    private static final String TAG = "BookDetailActivity";
     private BookDetailViewModel bookDetailViewModel;
     private ProgressBar progressBar;
 
@@ -37,14 +38,12 @@ public class BookDetailActivity extends AppCompatActivity {
         TextView bookTitle = findViewById(R.id.bookTitle);
         TextView bookAuthor = findViewById(R.id.bookAuthor);
         TextView bookDescription = findViewById(R.id.description);
+        TextView priceValue = findViewById(R.id.priceValue);
         Button addToCart = findViewById(R.id.btnAddToCart);
         ImageButton btnBack = findViewById(R.id.btnBack);
-        // Add progressBar to your layout
-        // progressBar = findViewById(R.id.progressBar);
 
         // Initialize ViewModel
         bookDetailViewModel = new ViewModelProvider(this).get(BookDetailViewModel.class);
-
 
         // Observe LiveData
         bookDetailViewModel.getSelectedBook().observe(this, book -> {
@@ -57,13 +56,25 @@ public class BookDetailActivity extends AppCompatActivity {
                 }
                 bookDescription.setText(book.getDescription());
 
+                // Hiển thị giá tiền của sách điện tử
+                String price = book.getPrice();
+                if (price != null && !price.isEmpty()) {
+                    // Thêm $ nếu chưa có
+                    if (!price.startsWith("$")) {
+                        price = "$" + price;
+                    }
+                    priceValue.setText(price);
+                } else {
+                    priceValue.setText("$0.00");
+                }
+
                 // Lấy URL gốc từ Firebase
                 String originalUrl = book.getImageUrl();
-                Log.d("BookDetail", "Original Google Drive URL: " + originalUrl);
+                Log.d(TAG, "Original Google Drive URL: " + originalUrl);
 
                 // Chuyển đổi URL Google Drive sang URL trực tiếp
                 String directUrl = GoogleDriveUtils.convertToDirect(originalUrl);
-                Log.d("BookDetail", "Direct URL for loading: " + directUrl);
+                Log.d(TAG, "Direct URL for loading: " + directUrl);
 
                 // Tải ảnh bằng Glide với URL đã được chuyển đổi
                 if (directUrl != null) {

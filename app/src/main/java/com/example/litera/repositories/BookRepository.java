@@ -65,8 +65,9 @@ public class BookRepository {
     public CompletableFuture<List<Book>> getTrendingBooks() {
         CompletableFuture<List<Book>> future = new CompletableFuture<>();
 
+        // Sử dụng whereEqualTo để lọc trực tiếp trong Firestore
         db.collection("books")
-                .whereEqualTo("trending", true) // Assuming you have a "trending" field in Firestore
+                .whereEqualTo("trending", true)
                 .limit(10)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -75,7 +76,9 @@ public class BookRepository {
                         Book book = document.toObject(Book.class);
                         book.setId(document.getId());
                         books.add(book);
+                        Log.d(TAG, "Found trending book: " + book.getTitle());
                     }
+                    Log.d(TAG, "Total trending books found: " + books.size());
                     future.complete(books);
                 })
                 .addOnFailureListener(e -> {
