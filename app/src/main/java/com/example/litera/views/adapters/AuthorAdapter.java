@@ -11,7 +11,6 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.litera.R;
 import com.example.litera.models.Author;
@@ -23,6 +22,7 @@ import java.util.List;
 public class AuthorAdapter extends RecyclerView.Adapter<AuthorAdapter.AuthorViewHolder> {
 
     private final List<Author> authors = new ArrayList<>();
+    private static final String TAG = "AuthorAdapter";
 
     @NonNull
     @Override
@@ -36,13 +36,18 @@ public class AuthorAdapter extends RecyclerView.Adapter<AuthorAdapter.AuthorView
         Author author = authors.get(position);
         holder.authorName.setText(author.getName());
 
-        // Lấy URL Google Drive và chuyển đổi nó
+        // Lấy URL từ đối tượng Author
         String driveUrl = author.getImageUrl();
-        String directUrl = GoogleDriveUtils.convertToDirect(driveUrl);
 
-        Log.d("AuthorAdapter", "Author: " + author.getName());
-        Log.d("AuthorAdapter", "Original Drive URL: " + driveUrl);
-        Log.d("AuthorAdapter", "Direct URL for loading: " + directUrl);
+        // Kiểm tra null và chuyển đổi URL
+        String directUrl = null;
+        if (driveUrl != null && !driveUrl.isEmpty()) {
+            directUrl = GoogleDriveUtils.convertToDirect(driveUrl);
+        }
+
+        Log.d(TAG, "Author: " + author.getName());
+        Log.d(TAG, "Original Drive URL: " + (driveUrl != null ? driveUrl : "null"));
+        Log.d(TAG, "Direct URL for loading: " + (directUrl != null ? directUrl : "null"));
 
         // Tải ảnh với Glide
         if (directUrl != null) {

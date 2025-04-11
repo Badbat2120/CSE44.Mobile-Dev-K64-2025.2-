@@ -1,42 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="140dp"
-    android:layout_height="220dp"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="4dp">
+    android:layout_width="160dp"
+    android:layout_height="match_parent"
+    android:layout_margin="6dp"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="3dp">
 
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
+        <!-- Ảnh bìa sách -->
         <ImageView
-            android:id="@+id/book_image"
+            android:id="@+id/bookImage"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="3"
-            android:scaleType="centerCrop"/>
-<!--            android:src="@drawable/book_placeholder"/>-->
+            android:layout_weight="1"
+            android:scaleType="centerCrop"
+            android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347" />
 
-        <TextView
-            android:id="@+id/book_title"
+        <!-- Thông tin sách -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="4dp"
-            android:text="Book Title"
-            android:textStyle="bold"
-            android:maxLines="2"
-            android:textSize="14sp"/>
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:background="#FFFFFF">
 
-        <TextView
-            android:id="@+id/book_author"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingStart="4dp"
-            android:paddingBottom="4dp"
-            android:text="Author"
-            android:textSize="12sp"/>
+            <!-- Tiêu đề sách -->
+            <TextView
+                android:id="@+id/bookTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Book Title"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <!-- Tác giả -->
+            <TextView
+                android:id="@+id/bookAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Author Name"
+                android:textSize="12sp"
+                android:textColor="#757575"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <!-- Thanh tiến trình -->
+            <ProgressBar
+                android:id="@+id/readProgress"
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_marginTop="6dp"
+                android:progress="75"
+                android:progressTint="#2196F3" />
+
+            <!-- Phần trăm đã đọc -->
+            <TextView
+                android:id="@+id/readPercentage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="75% completed"
+                android:textSize="10sp"
+                android:textColor="#2196F3"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

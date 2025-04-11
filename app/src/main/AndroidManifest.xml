@@ -16,6 +16,7 @@
         android:theme="@style/Theme.Litera"
         tools:targetApi="31" >
 
+
         <activity
             android:name=".views.fragments.BookDetailActivity"
             android:exported="true" /> <!-- BookListActivity -->
@@ -34,13 +35,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".views.activities.ProfileUserActivity" />
-        <activity android:name=".views.activities.AuthorListActivity" />
-        <activity android:name=".views.activities.BookListActivity" />
-        <activity android:name=".views.activities.AddToCartActivity" />
-        <activity android:name=".views.activities.StartActivity" />
-        <activity android:name=".views.activities.ChangePassActivity" />
-        <activity android:name=".views.activities.FavBookActivity" />
+        <activity android:name=".views.activities.ProfileUserActivity"
+            android:exported="true" />
+        <activity android:name=".views.activities.AuthorListActivity"
+            android:exported="true" />
+        <activity android:name=".views.activities.BookListActivity"
+            android:exported="true" />
+        <activity android:name=".views.activities.AddToCartActivity"
+            android:exported="true" />
+        <activity android:name=".views.activities.StartActivity"
+            android:exported="true" />
+        <activity android:name=".views.activities.ChangePassActivity"
+            android:exported="true" />
+        <activity android:name=".views.activities.FavBookActivity"
+            android:exported="true" />
 
         <!-- Meta-data for Google Sign-In -->
         <meta-data

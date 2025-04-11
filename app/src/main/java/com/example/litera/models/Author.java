@@ -1,17 +1,27 @@
 package com.example.litera.models;
 
-public class Author {
-    private String name;
-    private String imageUrl;
+import com.google.firebase.firestore.PropertyName;
 
-    // Default constructor for Firebase
+public class Author {
+    private String id;
+    private String name;
+    private String imageUrl; // Sẽ được ánh xạ với trường "pfp" trong Firestore
+
+    // Constructor rỗng cần thiết cho Firestore
     public Author() {
-        // Required empty constructor for Firebase
     }
 
     public Author(String name, String imageUrl) {
         this.name = name;
         this.imageUrl = imageUrl;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -22,10 +32,13 @@ public class Author {
         this.name = name;
     }
 
+    // Map imageUrl với trường pfp trong Firestore
+    @PropertyName("pfp")
     public String getImageUrl() {
         return imageUrl;
     }
 
+    @PropertyName("pfp")
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }

@@ -1,27 +1,37 @@
 package com.example.litera.models;
 
+import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.PropertyName;
+
 public class Book {
     private String id;
     private String title;
-    private String author;
+    private String authorId;  // ID của tác giả trong database
     private String description;
     private String imageUrl;
+    private String contentUrl;
+    private String price;
+    private String rating;
 
-    // Default constructor for Firebase
+    // Đối tượng Author đầy đủ - được đánh dấu @Exclude để Firestore bỏ qua khi serialize/deserialize
+    @Exclude
+    private Author author;
+
     public Book() {
-        // Required empty constructor for Firebase
+        // Constructor rỗng cần thiết cho Firestore
     }
 
-    // Constructor
-    public Book(String id, String title, String author, String description, String imageUrl) {
+    public Book(String id, String title, String authorId, String description, String imageUrl, String price, String rating) {
         this.id = id;
         this.title = title;
-        this.author = author;
+        this.authorId = authorId;
         this.description = description;
         this.imageUrl = imageUrl;
+        this.price = price;
+        this.rating = rating;
     }
 
-    // Getters and Setters
+    // Getters và setters
     public String getId() {
         return id;
     }
@@ -38,12 +48,16 @@ public class Book {
         this.title = title;
     }
 
-    public String getAuthor() {
-        return author;
+    // Đổi tên phương thức getter để phù hợp với trường trong Firestore
+    @PropertyName("author")
+    public String getAuthorId() {
+        return authorId;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    // Đổi tên phương thức setter để phù hợp với trường trong Firestore
+    @PropertyName("author")
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
     }
 
     public String getDescription() {
@@ -54,11 +68,62 @@ public class Book {
         this.description = description;
     }
 
+    // Đổi tên getter/setter cho imageUrl để phù hợp với trường 'cover' trong Firestore
+    @PropertyName("cover")
     public String getImageUrl() {
         return imageUrl;
     }
 
+    @PropertyName("cover")
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getContentUrl() {
+        return contentUrl;
+    }
+
+    public void setContentUrl(String contentUrl) {
+        this.contentUrl = contentUrl;
+    }
+
+    public String getPrice() {
+        return price;
+    }
+
+    public void setPrice(String price) {
+        this.price = price;
+    }
+
+    public String getRating() {
+        return rating;
+    }
+
+    public void setRating(String rating) {
+        this.rating = rating;
+    }
+
+    // Getter và setter cho đối tượng Author
+    @Exclude
+    public Author getAuthor() {
+        return author;
+    }
+
+    @Exclude
+    public void setAuthor(Author author) {
+        this.author = author;
+    }
+
+    // Thêm getter/setter cho trường trending nếu cần
+    private boolean trending;
+
+    @PropertyName("trending")
+    public boolean isTrending() {
+        return trending;
+    }
+
+    @PropertyName("trending")
+    public void setTrending(boolean trending) {
+        this.trending = trending;
     }
 }

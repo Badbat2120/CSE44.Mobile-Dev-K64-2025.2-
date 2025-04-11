@@ -8,24 +8,25 @@
 
     <!-- Nội dung chính -->
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="60dp"
         android:fillViewport="true"
-        android:padding="16dp"
-        android:layout_marginBottom="60dp">
+        android:padding="16dp">
 
         <LinearLayout
-            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
             <!-- Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:orientation="horizontal">
                 <!-- Avatar bên trái -->
                 <ImageView
                     android:id="@+id/imgMenu"
@@ -39,7 +40,7 @@
                 <View
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:layout_weight="15"/>
+                    android:layout_weight="15" />
 
                 <!-- Hello Tommy bên phải -->
 
@@ -54,34 +55,34 @@
                 <View
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1" />
 
                 <ImageView
                     android:id="@+id/imgProfile"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347"
                     android:background="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347"
-                    android:scaleType="centerCrop" />
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347" />
             </LinearLayout>
 
             <!-- App Title -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
                 android:text="Litera"
-                android:textSize="24sp"
-                android:textStyle="bold"
                 android:textColor="#3F51B5"
-                android:layout_marginBottom="8dp"/>
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
             <!-- Search Bar -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
+                android:layout_marginBottom="12dp"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="4dp"
-                android:layout_marginBottom="12dp">
+                app:cardElevation="4dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -107,21 +108,28 @@
             </androidx.cardview.widget.CardView>
 
             <!-- Banner -->
-            <ImageView
+            <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
                 android:layout_marginBottom="16dp"
-                android:background="@drawable/z6477401502352_356614eec45b2f7855ff3ca6e75ace14"
-                android:scaleType="centerCrop"
-                android:src="@drawable/z6477401502352_356614eec45b2f7855ff3ca6e75ace14" />
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/z6477401502352_356614eec45b2f7855ff3ca6e75ace14"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/z6477401502352_356614eec45b2f7855ff3ca6e75ace14" />
+            </androidx.cardview.widget.CardView>
 
             <!-- Popular Authors -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -159,23 +167,23 @@
                 android:id="@+id/rvPopularAuthors"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
                 android:background="#FAFAFA"
                 android:clipToPadding="false"
+                android:orientation="horizontal"
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
                 android:visibility="visible"
-                android:layout_marginBottom="16dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_author"/>
+                tools:listitem="@layout/item_author" />
 
             <!-- Continue Reading -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -208,28 +216,36 @@
                 </FrameLayout>
             </LinearLayout>
 
+            <!-- Continue Reading RecyclerView - ĐƯỢC CHỈNH SỬA ĐỂ TRÔNG ĐẸP HƠN -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvContinueReading"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="220dp"
+                android:layout_marginBottom="20dp"
+                android:background="#FAFAFA"
+                android:clipToPadding="false"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp"/>
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_book" />
 
             <!-- Trending Books -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:layout_marginBottom="8dp"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="8dp">
+                android:orientation="horizontal">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Trending Books"
                     android:textColor="#2196F3"
-                    android:textStyle="bold"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <View
                     android:layout_width="0dp"
@@ -253,18 +269,31 @@
                 </FrameLayout>
             </LinearLayout>
 
+            <!-- Trending Books RecyclerView - ĐƯỢC CHỈNH SỬA ĐỂ HIỂN THỊ DẠNG LƯỚI -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTrendingBooks"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"/>
+                android:layout_marginBottom="16dp"
+                android:background="#FAFAFA"
+                android:clipToPadding="false"
+                android:minHeight="400dp"
+                android:nestedScrollingEnabled="false"
+                android:paddingStart="2dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="2dp"
+                android:paddingBottom="4dp"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="2"
+                tools:itemCount="4"
+                tools:listitem="@layout/item_trending_book" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabGenres"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:tabMode="scrollable"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="16dp"
+                app:tabMode="scrollable" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -276,5 +305,6 @@
         android:layout_height="60dp"
         android:layout_gravity="bottom"
         app:labelVisibilityMode="labeled"
-        android:background="@color/white"/>
+        android:background="@color/white"
+        />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

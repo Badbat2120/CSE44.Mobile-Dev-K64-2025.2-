@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.example.litera.models.Author;
 import com.example.litera.models.Book;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -14,6 +15,8 @@ import java.util.concurrent.CompletableFuture;
 public class BookRepository {
 
     private static BookRepository instance;
+    private static final String TAG = "BookRepository";
+    private final AuthorRepository authorRepository;
     private final FirebaseFirestore db;
 
     // Cache for books to avoid frequent Firestore calls
@@ -21,6 +24,7 @@ public class BookRepository {
 
     private BookRepository() {
         db = FirebaseFirestore.getInstance();
+        this.authorRepository = new AuthorRepository();
     }
 
     public static synchronized BookRepository getInstance() {
@@ -44,18 +48,15 @@ public class BookRepository {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Book> books = new ArrayList<>();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String id = document.getId();
-                        String title = document.getString("title");
-                        String author = document.getString("author");
-                        String description = document.getString("description");
-                        String imageUrl = document.getString("cover");
-
-                        books.add(new Book(id, title, author, description, imageUrl));
+                        Book book = document.toObject(Book.class);
+                        book.setId(document.getId());
+                        books.add(book);
                     }
                     booksCache = books;
                     future.complete(books);
                 })
                 .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching books", e);
                     future.completeExceptionally(e);
                 });
         return future;
@@ -71,17 +72,14 @@ public class BookRepository {
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     List<Book> books = new ArrayList<>();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String id = document.getId();
-                        String title = document.getString("title");
-                        String author = document.getString("author");
-                        String description = document.getString("description");
-                        String imageUrl = document.getString("cover");
-
-                        books.add(new Book(id, title, author, description, imageUrl));
+                        Book book = document.toObject(Book.class);
+                        book.setId(document.getId());
+                        books.add(book);
                     }
                     future.complete(books);
                 })
                 .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching trending books", e);
                     future.completeExceptionally(e);
                 });
         return future;
@@ -108,35 +106,6 @@ public class BookRepository {
         return future;
     }
 
-    public CompletableFuture<List<Author>> getPopularAuthors() {
-        CompletableFuture<List<Author>> future = new CompletableFuture<>();
-
-        Log.d("BookRepository", "Fetching popular authors from Firebase...");
-
-        db.collection("authors")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    List<Author> authors = new ArrayList<>();
-                    Log.d("BookRepository", "Retrieved " + queryDocumentSnapshots.size() + " author documents");
-
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        String name = document.getString("name");
-                        String imageUrl = document.getString("pfp");
-
-                        Log.d("BookRepository", "Author: " + name + ", URL: " + imageUrl);
-                        authors.add(new Author(name, imageUrl));
-                    }
-
-                    Log.d("BookRepository", "Returning " + authors.size() + " authors");
-                    future.complete(authors);
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("BookRepository", "Error fetching authors", e);
-                    future.completeExceptionally(e);
-                });
-        return future;
-    }
-
     // Method to get a book by ID
     public CompletableFuture<Book> getBookById(String bookId) {
         CompletableFuture<Book> future = new CompletableFuture<>();
@@ -145,20 +114,51 @@ public class BookRepository {
                 .get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (documentSnapshot.exists()) {
-                        String id = documentSnapshot.getId();
-                        String title = documentSnapshot.getString("title");
-                        String author = documentSnapshot.getString("author");
-                        String description = documentSnapshot.getString("description");
-                        String imageUrl = documentSnapshot.getString("cover");
+                        Book book = documentSnapshot.toObject(Book.class);
+                        if (book != null) {
+                            book.setId(documentSnapshot.getId());
 
-                        Book book = new Book(id, title, author, description, imageUrl);
-                        future.complete(book);
+                            // Lấy thông tin tác giả
+                            String authorId = book.getAuthorId();
+                            if (authorId != null && !authorId.isEmpty()) {
+                                authorRepository.getAuthorById(authorId)
+                                        .thenAccept(author -> {
+                                            if (author != null) {
+                                                book.setAuthor(author);
+                                            }
+                                            future.complete(book);
+                                        })
+                                        .exceptionally(e -> {
+                                            Log.e(TAG, "Error fetching author for book: " + bookId, e);
+                                            // Vẫn trả về book ngay cả khi không lấy được thông tin tác giả
+                                            future.complete(book);
+                                            return null;
+                                        });
+                            } else {
+                                future.complete(book);
+                            }
+                        } else {
+                            future.complete(null);
+                        }
                     } else {
                         future.complete(null);
                     }
                 })
-                .addOnFailureListener(future::completeExceptionally);
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error fetching book by ID: " + bookId, e);
+                    future.completeExceptionally(e);
+                });
 
         return future;
+    }
+
+    // Method to get author by ID
+    public CompletableFuture<Author> getAuthorById(String authorId) {
+        return authorRepository.getAuthorById(authorId);
+    }
+
+    // Method to clear cache
+    public void clearCache() {
+        booksCache = null;
     }
 }

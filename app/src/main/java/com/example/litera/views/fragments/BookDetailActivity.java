@@ -1,8 +1,10 @@
 package com.example.litera.views.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -17,6 +19,7 @@ import com.example.litera.R;
 import com.example.litera.utils.GoogleDriveUtils;
 import com.example.litera.viewmodels.BookDetailViewModel;
 import com.example.litera.models.Book;
+import com.example.litera.views.activities.AddToCartActivity;
 
 public class BookDetailActivity extends AppCompatActivity {
 
@@ -33,6 +36,7 @@ public class BookDetailActivity extends AppCompatActivity {
         TextView bookTitle = findViewById(R.id.bookTitle);
         TextView bookAuthor = findViewById(R.id.bookAuthor);
         TextView bookDescription = findViewById(R.id.description);
+        Button addToCart = findViewById(R.id.btnAddToCart);
         // Add progressBar to your layout
         // progressBar = findViewById(R.id.progressBar);
 
@@ -44,7 +48,11 @@ public class BookDetailActivity extends AppCompatActivity {
         bookDetailViewModel.getSelectedBook().observe(this, book -> {
             if (book != null) {
                 bookTitle.setText(book.getTitle());
-                bookAuthor.setText(book.getAuthor());
+                if (book.getAuthor() != null) {
+                    bookAuthor.setText(book.getAuthor().getName());
+                } else {
+                    bookAuthor.setText("Unknown author");
+                }
                 bookDescription.setText(book.getDescription());
 
                 // Lấy URL gốc từ Firebase
@@ -60,7 +68,7 @@ public class BookDetailActivity extends AppCompatActivity {
                     Glide.with(this)
                             .load(directUrl)
                             .placeholder(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
-                            .error(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
+                            .error(R.drawable.sao)
                             .into(bookCover);
                 } else {
                     // Sử dụng ảnh mặc định nếu không thể chuyển đổi URL
@@ -91,5 +99,13 @@ public class BookDetailActivity extends AppCompatActivity {
             Toast.makeText(this, "Book ID not provided", Toast.LENGTH_SHORT).show();
             finish();
         }
+
+        // Set up button click listener
+        addToCart.setOnClickListener(v -> {
+            Intent intent = new Intent(BookDetailActivity.this, AddToCartActivity.class);
+            // Pass the book ID to the AddToCartActivity
+            intent.putExtra("bookId", bookId);
+            startActivity(intent);
+        });
     }
 }
