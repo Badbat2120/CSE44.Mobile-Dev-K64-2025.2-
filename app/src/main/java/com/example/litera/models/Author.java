@@ -4,6 +4,11 @@ public class Author {
     private String name;
     private String imageUrl;
 
+    // Default constructor for Firebase
+    public Author() {
+        // Required empty constructor for Firebase
+    }
+
     public Author(String name, String imageUrl) {
         this.name = name;
         this.imageUrl = imageUrl;

@@ -5,8 +5,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -19,24 +20,22 @@ import com.example.litera.views.adapters.BookAdapter;
 import com.example.litera.viewmodels.MainViewModel;
 
 import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
-    private FirebaseFirestore db;
     private ImageView imgMenu, imgProfile;
     private TextView tvHello;
     private EditText etSearch;
     private RecyclerView rvContinueReading, rvTrendingBooks, rvPopularAuthors;
     private TabLayout tabGenres;
     private MainViewModel mainViewModel;
+    private ProgressBar progressBar; // Add this to your layout
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Ánh xạ View
+        // Initialize UI elements
         imgMenu = findViewById(R.id.imgMenu);
         imgProfile = findViewById(R.id.imgProfile);
         tvHello = findViewById(R.id.tvHello);
@@ -48,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
         TextView tvViewAllAuthors = findViewById(R.id.tvViewAllAuthors);
         TextView tvViewAllContinueReading = findViewById(R.id.tvViewAllContinueReading);
         TextView tvViewAllTrendingBooks = findViewById(R.id.tvViewAllTrendingBooks);
+
+        // Add a progress bar in your layout and reference it here
+        // progressBar = findViewById(R.id.progressBar);
 
         tvViewAllTrendingBooks.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -67,11 +69,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Xử lý sự kiện đăng xuất khi bấm vào avatar
+        // Handle profile click
         imgProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Chuyển đến activity_profile_user
+                // Navigate to ProfileUserActivity
                 Intent intent = new Intent(MainActivity.this, ProfileUserActivity.class);
                 startActivity(intent);
             }
@@ -85,24 +87,17 @@ public class MainActivity extends AppCompatActivity {
         BookAdapter trendingBooksAdapter = new BookAdapter();
         rvTrendingBooks.setAdapter(trendingBooksAdapter);
 
-        // Observe LiveData for Trending Books
-        // Update Adapter
-        mainViewModel.getTrendingBooks().observe(this, trendingBooksAdapter::submitList);
-
         // Setup RecyclerView for Continue Reading
         rvContinueReading.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         BookAdapter continueReadingAdapter = new BookAdapter();
         rvContinueReading.setAdapter(continueReadingAdapter);
-
-        // Observe LiveData for Continue Reading
-        // Update Adapter
-        mainViewModel.getContinueReadingBooks().observe(this, continueReadingAdapter::submitList);
 
         // Setup RecyclerView for Popular Authors
         rvPopularAuthors.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         AuthorAdapter popularAuthorAdapter = new AuthorAdapter();
         rvPopularAuthors.setAdapter(popularAuthorAdapter);
 
+        // Handle navigation
         tvViewAllAuthors.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         tvViewAllContinueReading.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Navigate to AddToCartActivity
+                // Navigate to BookListActivity
                 Intent intent = new Intent(MainActivity.this, BookListActivity.class);
                 startActivity(intent);
             }
@@ -124,18 +119,39 @@ public class MainActivity extends AppCompatActivity {
         tvViewAllTrendingBooks.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Navigate to AddToCartActivity
+                // Navigate to BookListActivity
                 Intent intent = new Intent(MainActivity.this, BookListActivity.class);
                 startActivity(intent);
             }
         });
 
-        // Observe LiveData for Popular Authors
-        mainViewModel.getPopularAuthors().observe(this, popularAuthorAdapter::submitList);
+        // Observe ViewModel data
+        observeViewModel(trendingBooksAdapter, continueReadingAdapter, popularAuthorAdapter);
+    }
 
+    private void observeViewModel(BookAdapter trendingAdapter, BookAdapter continueReadingAdapter, AuthorAdapter authorAdapter) {
+        // Observe trending books
+        mainViewModel.getTrendingBooks().observe(this, trendingAdapter::submitList);
 
-        // Thêm các xử lý khác nếu cần như:
-        // - Thiết lập tab cho TabLayout
-        // - Xử lý tìm kiếm,...
+        // Observe continue reading books
+        mainViewModel.getContinueReadingBooks().observe(this, continueReadingAdapter::submitList);
+
+        
+        // Observe popular authors
+        mainViewModel.getPopularAuthors().observe(this, authorAdapter::submitList);
+
+        // Observe loading state
+        mainViewModel.getIsLoading().observe(this, isLoading -> {
+            if (progressBar != null) {
+                progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            }
+        });
+
+        // Observe error messages
+        mainViewModel.getErrorMessage().observe(this, error -> {
+            if (error != null && !error.isEmpty()) {
+                Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }

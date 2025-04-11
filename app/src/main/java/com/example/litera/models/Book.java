@@ -7,6 +7,11 @@ public class Book {
     private String description;
     private String imageUrl;
 
+    // Default constructor for Firebase
+    public Book() {
+        // Required empty constructor for Firebase
+    }
+
     // Constructor
     public Book(String id, String title, String author, String description, String imageUrl) {
         this.id = id;

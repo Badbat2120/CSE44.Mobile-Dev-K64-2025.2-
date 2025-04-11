@@ -158,9 +158,16 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvPopularAuthors"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
+                android:layout_height="100dp"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp"/>
+                android:background="#FAFAFA"
+                android:clipToPadding="false"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                android:visibility="visible"
+                android:layout_marginBottom="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_author"/>
 
             <!-- Continue Reading -->
             <LinearLayout

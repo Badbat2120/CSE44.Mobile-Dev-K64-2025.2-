@@ -1,5 +1,6 @@
 package com.example.litera.views.adapters;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,8 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.RequestOptions;
 import com.example.litera.R;
 import com.example.litera.models.Author;
+import com.example.litera.utils.GoogleDriveUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +36,29 @@ public class AuthorAdapter extends RecyclerView.Adapter<AuthorAdapter.AuthorView
         Author author = authors.get(position);
         holder.authorName.setText(author.getName());
 
-        // Load author image using Glide
-        Glide.with(holder.itemView.getContext())
-                .load(author.getImageUrl())
-                .placeholder(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347) // Placeholder image
-                .into(holder.authorImage);
+        // Lấy URL Google Drive và chuyển đổi nó
+        String driveUrl = author.getImageUrl();
+        String directUrl = GoogleDriveUtils.convertToDirect(driveUrl);
+
+        Log.d("AuthorAdapter", "Author: " + author.getName());
+        Log.d("AuthorAdapter", "Original Drive URL: " + driveUrl);
+        Log.d("AuthorAdapter", "Direct URL for loading: " + directUrl);
+
+        // Tải ảnh với Glide
+        if (directUrl != null) {
+            // Sử dụng RequestOptions để làm tròn ảnh của tác giả
+            RequestOptions requestOptions = new RequestOptions()
+                    .placeholder(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
+                    .error(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
+                    .circleCrop();
+
+            Glide.with(holder.itemView.getContext())
+                    .load(directUrl)
+                    .apply(requestOptions)
+                    .into(holder.authorImage);
+        } else {
+            holder.authorImage.setImageResource(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347);
+        }
     }
 
     @Override
@@ -46,7 +68,9 @@ public class AuthorAdapter extends RecyclerView.Adapter<AuthorAdapter.AuthorView
 
     public void submitList(List<Author> newAuthors) {
         authors.clear();
-        authors.addAll(newAuthors);
+        if (newAuthors != null) {
+            authors.addAll(newAuthors);
+        }
         notifyDataSetChanged();
     }
 

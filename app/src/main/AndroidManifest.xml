@@ -16,10 +16,9 @@
         android:theme="@style/Theme.Litera"
         tools:targetApi="31" >
 
-        <!-- BookDetailActivity -->
         <activity
-            android:name=".views.activities.BookDetailActivity"
-            android:exported="true" /> <!-- RegisterActivity -->
+            android:name=".views.fragments.BookDetailActivity"
+            android:exported="true" /> <!-- BookListActivity -->
         <activity
             android:name=".views.activities.RegisterActivity"
             android:exported="true" /> <!-- LoginActivity -->
