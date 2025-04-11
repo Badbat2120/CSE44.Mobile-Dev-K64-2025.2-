@@ -7,9 +7,11 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.text.InputType;
 import android.view.View;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,50 +21,36 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.material.textfield.TextInputEditText;
 
 public class LoginActivity extends AppCompatActivity {
-    private EditText inputEmail, inputPassword;
+    private TextInputEditText inputEmail, inputPassword;
     private FirebaseAuth auth;
     private ProgressBar progressBar;
     private Button btnLogin;
     private TextView tvRegister;
-    private ImageButton btnTogglePassword;
-    private boolean isPasswordVisible = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance();
 
-        inputEmail = findViewById(R.id.etEmail);
-        inputPassword = findViewById(R.id.etPassword);
+        // Initialize views
+        inputEmail = findViewById(R.id.etEmail); // Correctly reference TextInputEditText
+        inputPassword = findViewById(R.id.etPassword); // Correctly reference TextInputEditText
         progressBar = findViewById(R.id.progressBar);
         btnLogin = findViewById(R.id.btnLogin);
         tvRegister = findViewById(R.id.tvRegister);
-        btnTogglePassword = findViewById(R.id.btn_toggle_password);
 
-        btnTogglePassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isPasswordVisible) {
-                    inputPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                    btnTogglePassword.setImageResource(R.drawable.ic_visibility_off);
-                } else {
-                    inputPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                    btnTogglePassword.setImageResource(R.drawable.ic_visibility_off);
-                }
-                inputPassword.setSelection(inputPassword.getText().length());
-                isPasswordVisible = !isPasswordVisible;
-            }
-        });
-
+        // Handle login button click
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = inputEmail.getText().toString();
-                String password = inputPassword.getText().toString();
+                String email = inputEmail.getText().toString().trim();
+                String password = inputPassword.getText().toString().trim();
 
                 if (TextUtils.isEmpty(email)) {
                     Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
@@ -76,6 +64,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 progressBar.setVisibility(View.VISIBLE);
 
+                // Authenticate user
                 auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
@@ -97,6 +86,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        // Handle "Sign up" text click
         SpannableString ss = new SpannableString("Don't have an account? Sign up");
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override

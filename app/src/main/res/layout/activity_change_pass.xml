@@ -8,22 +8,14 @@
     android:orientation="vertical"
     android:padding="16dp"
     >
-
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="#2196F3"
-        android:padding="16dp">
-
-        <ImageView
-            android:id="@+id/back_button"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_alignParentStart="true"
-            android:backgroundTint="#2196F3"
-            app:srcCompat="@drawable/z6477555708449_e07dd1b80564abda2ca046e04cefb138" />
-
-    </RelativeLayout>
+        android:background="@drawable/baseline_arrow_back_ios_new_24"
+        android:contentDescription="Back"
+        android:tint="#000000"
+        android:layout_marginBottom="16dp" />
 
     <TextView
         android:layout_width="wrap_content"

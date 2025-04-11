@@ -58,6 +58,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        imgMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish(); // Optional: Close MainActivity
+            }
+        });
+
         // Xử lý sự kiện đăng xuất khi bấm vào avatar
         imgProfile.setOnClickListener(new View.OnClickListener() {
             @Override

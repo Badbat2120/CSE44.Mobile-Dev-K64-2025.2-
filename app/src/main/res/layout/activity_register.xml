@@ -1,7 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -9,7 +10,7 @@
         android:layout_centerInParent="true"
         android:padding="16dp">
 
-        <!-- Tiêu đề -->
+        <!-- Title -->
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
@@ -18,7 +19,7 @@
             android:textSize="30sp"
             android:textStyle="bold" />
 
-        <!-- Mô tả -->
+        <!-- Description -->
         <TextView
             android:id="@+id/tvDescription"
             android:layout_width="wrap_content"
@@ -30,85 +31,54 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="8dp" />
 
-        <!-- Email label -->
-        <TextView
-            android:id="@+id/tvEmail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Email address"
-            android:textSize="14sp"
-            android:layout_below="@+id/tvDescription"
-            android:layout_marginTop="30dp"
-            android:textStyle="bold" />
-
         <!-- Email input -->
-
-        <!-- Password label -->
-        <EditText
-            android:id="@+id/etEmail"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tvEmail"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/textbox_background"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:minHeight="48dp" />
-
-        <TextView
-            android:id="@+id/tvPassword"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Password"
-            android:textSize="14sp"
-            android:layout_below="@id/etEmail"
+            android:layout_below="@id/tvDescription"
             android:layout_marginTop="16dp"
-            android:textStyle="bold"/>
+            android:hint="Email address">
 
-        <!-- Password input với icon con mắt -->
-        <RelativeLayout
-            android:id="@+id/relativeLayout"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Password input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tvPassword"
-            android:layout_marginTop="8dp">
+            android:layout_below="@id/textInputLayoutEmail"
+            android:layout_marginTop="16dp"
+            android:hint="Password"
+            app:passwordToggleEnabled="true">
 
-            <EditText
+            <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Password"
-                android:inputType="textPassword"
-                android:minHeight="48dp"
-                android:background="@drawable/textbox_background"
-                android:paddingEnd="50dp" />
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-            <ImageButton
-                android:id="@+id/btn_toggle_password"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@drawable/ic_visibility_off"
-                android:contentDescription="Toggle password visibility"
-                tools:ignore="TouchTargetSizeCheck" />
-        </RelativeLayout>
-
-        <!-- Nút tạo tài khoản -->
+        <!-- Register button -->
         <Button
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/relativeLayout"
+            android:layout_below="@id/textInputLayoutPassword"
             android:layout_marginTop="16dp"
             android:text="Create new account" />
 
+        <!-- Login link -->
         <TextView
             android:id="@+id/tvLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/btnRegister"
+            android:layout_below="@id/btnRegister"
             android:layout_marginTop="8dp"
             android:layout_centerHorizontal="true"
             android:text="Already have an account? Login" />
@@ -144,7 +114,7 @@
                 android:background="#DDDDDD" />
         </LinearLayout>
 
-        <!-- Nút Sign up with Google -->
+        <!-- Google Sign-up button -->
         <com.google.android.gms.common.SignInButton
             android:id="@+id/googleSignInButton"
             android:layout_width="match_parent"
@@ -154,6 +124,7 @@
             android:layout_marginTop="16dp"
             android:text="Sign up with Google" />
 
+        <!-- Progress bar -->
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
