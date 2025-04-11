@@ -58,24 +58,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        tvViewAllAuthors.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navigate to AddToCartActivity
-                Intent intent = new Intent(MainActivity.this, AddToCartActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        tvViewAllContinueReading.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Navigate to AddToCartActivity
-                Intent intent = new Intent(MainActivity.this, AddToCartActivity.class);
-                startActivity(intent);
-            }
-        });
-
         // Xử lý sự kiện đăng xuất khi bấm vào avatar
         imgProfile.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,6 +99,24 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 // Navigate to AuthorListActivity
                 Intent intent = new Intent(MainActivity.this, AuthorListActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        tvViewAllContinueReading.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to AddToCartActivity
+                Intent intent = new Intent(MainActivity.this, BookListActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        tvViewAllTrendingBooks.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Navigate to AddToCartActivity
+                Intent intent = new Intent(MainActivity.this, BookListActivity.class);
                 startActivity(intent);
             }
         });

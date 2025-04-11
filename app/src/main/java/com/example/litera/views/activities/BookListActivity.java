@@ -6,10 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.litera.R;
 
-public class AuthorListActivity extends AppCompatActivity {
+public class BookListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.item_author);
+        setContentView(R.layout.item_book);
     }
 }
