@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -37,6 +38,7 @@ public class BookDetailActivity extends AppCompatActivity {
         TextView bookAuthor = findViewById(R.id.bookAuthor);
         TextView bookDescription = findViewById(R.id.description);
         Button addToCart = findViewById(R.id.btnAddToCart);
+        ImageButton btnBack = findViewById(R.id.btnBack);
         // Add progressBar to your layout
         // progressBar = findViewById(R.id.progressBar);
 
@@ -107,5 +109,8 @@ public class BookDetailActivity extends AppCompatActivity {
             intent.putExtra("bookId", bookId);
             startActivity(intent);
         });
+
+        // Back button
+        btnBack.setOnClickListener(v -> finish());
     }
 }

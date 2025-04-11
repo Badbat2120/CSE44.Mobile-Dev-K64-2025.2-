@@ -17,18 +17,21 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.litera.R;
+import com.example.litera.repositories.UserRepository;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
     private TextInputEditText inputEmail, inputPassword;
     private FirebaseAuth auth;
+    private UserRepository userRepository;
     private ProgressBar progressBar;
     private Button btnLogin;
-    private TextView tvRegister;
+    private TextView tvRegister, tvForgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,13 +40,21 @@ public class LoginActivity extends AppCompatActivity {
 
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance();
+        userRepository = new UserRepository();
 
         // Initialize views
-        inputEmail = findViewById(R.id.etEmail); // Correctly reference TextInputEditText
-        inputPassword = findViewById(R.id.etPassword); // Correctly reference TextInputEditText
+        inputEmail = findViewById(R.id.etEmail);
+        inputPassword = findViewById(R.id.etPassword);
         progressBar = findViewById(R.id.progressBar);
         btnLogin = findViewById(R.id.btnLogin);
         tvRegister = findViewById(R.id.tvRegister);
+        tvForgotPassword = findViewById(R.id.tvForgotPassword); // Thêm vào layout nếu chưa có
+
+        // Kiểm tra nếu người dùng đã đăng nhập
+        if (auth.getCurrentUser() != null) {
+            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            finish();
+        }
 
         // Handle login button click
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -70,16 +81,43 @@ public class LoginActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 progressBar.setVisibility(View.GONE);
-                                if (!task.isSuccessful()) {
-                                    if (password.length() < 6) {
-                                        inputPassword.setError(getString(R.string.minimum_password));
-                                    } else {
-                                        Toast.makeText(LoginActivity.this, getString(R.string.auth_failed), Toast.LENGTH_LONG).show();
+                                if (task.isSuccessful()) {
+                                    // Đăng nhập thành công, kiểm tra xem người dùng có trong Firestore không
+                                    FirebaseUser firebaseUser = auth.getCurrentUser();
+                                    if (firebaseUser != null) {
+                                        userRepository.getUserByEmail(email, new UserRepository.OnUserFetchListener() {
+                                            @Override
+                                            public void onSuccess(com.example.litera.models.User user) {
+                                                // Người dùng đã có trong Firestore, chuyển đến MainActivity
+                                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                                startActivity(intent);
+                                                finish();
+                                            }
+
+                                            @Override
+                                            public void onFailure(String error) {
+                                                // Người dùng chỉ có trong Auth nhưng không có trong Firestore
+                                                // Tạo profile trong Firestore
+                                                String name = email.split("@")[0]; // Tạm thời lấy tên từ email
+                                                userRepository.createUser(name, email, new UserRepository.OnUserCreationListener() {
+                                                    @Override
+                                                    public void onSuccess() {
+                                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                                        startActivity(intent);
+                                                        finish();
+                                                    }
+
+                                                    @Override
+                                                    public void onFailure(String error) {
+                                                        Toast.makeText(LoginActivity.this, "Error creating user profile: " + error, Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+                                            }
+                                        });
                                     }
                                 } else {
-                                    Intent intent = new Intent(LoginActivity.this, StartActivity.class);
-                                    startActivity(intent);
-                                    finish();
+                                    // Đăng nhập thất bại
+                                    Toast.makeText(LoginActivity.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                                 }
                             }
                         });
@@ -98,5 +136,33 @@ public class LoginActivity extends AppCompatActivity {
 
         tvRegister.setText(ss);
         tvRegister.setMovementMethod(LinkMovementMethod.getInstance());
+
+        // Handle "Forgot Password" text click if available
+        if (tvForgotPassword != null) {
+            tvForgotPassword.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String email = inputEmail.getText().toString().trim();
+                    if (TextUtils.isEmpty(email)) {
+                        Toast.makeText(getApplicationContext(), "Enter your email to reset password", Toast.LENGTH_SHORT).show();
+                    } else {
+                        resetPassword(email);
+                    }
+                }
+            });
+        }
+    }
+
+    private void resetPassword(String email) {
+        progressBar.setVisibility(View.VISIBLE);
+        auth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    progressBar.setVisibility(View.GONE);
+                    if (task.isSuccessful()) {
+                        Toast.makeText(LoginActivity.this, "Password reset email sent", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Failed to send reset email: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 }

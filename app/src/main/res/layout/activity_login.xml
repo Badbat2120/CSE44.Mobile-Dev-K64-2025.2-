@@ -5,13 +5,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_centerVertical="true"
         android:padding="16dp">
 
-        <!-- Other views -->
-
+        <!-- Title -->
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
@@ -20,6 +19,7 @@
             android:textSize="30sp"
             android:textStyle="bold"/>
 
+        <!-- Description -->
         <TextView
             android:id="@+id/tvDescription"
             android:layout_width="wrap_content"
@@ -29,13 +29,14 @@
             android:textSize="18sp"
             android:layout_marginTop="8dp" />
 
+        <!-- Email field -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tvDescription"
             android:layout_marginTop="16dp"
-            android:hint="@string/email">
+            android:hint="Email">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etEmail"
@@ -44,7 +45,7 @@
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
-
+        <!-- Password field -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/passwordInputLayout"
             android:layout_width="match_parent"
@@ -62,15 +63,30 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Forgot Password (Thêm mới) -->
+        <TextView
+            android:id="@+id/tvForgotPassword"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/passwordInputLayout"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="8dp"
+            android:text="Forgot Password?"
+            android:textColor="#3F51B5"
+            android:padding="4dp"
+            android:clickable="true"
+            android:focusable="true" />
 
+        <!-- Login button -->
         <Button
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/passwordInputLayout"
-            android:text="@string/login"
+            android:layout_below="@+id/tvForgotPassword"
+            android:text="Login"
             android:layout_marginTop="16dp" />
 
+        <!-- Register link -->
         <TextView
             android:id="@+id/tvRegister"
             android:layout_width="wrap_content"
@@ -78,8 +94,12 @@
             android:layout_below="@+id/btnLogin"
             android:layout_marginTop="8dp"
             android:layout_centerHorizontal="true"
-            android:text="Don't have an account? Sign up" />
+            android:text="Don't have an account? Sign up"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="4dp" />
 
+        <!-- Divider -->
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
@@ -110,15 +130,15 @@
                 android:background="@android:color/darker_gray"/>
         </LinearLayout>
 
+        <!-- Google Sign-in button -->
         <com.google.android.gms.common.SignInButton
             android:id="@+id/googleSignInButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/linearLayout"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:text="Sign in with Google" />
+            android:layout_marginTop="16dp" />
 
+        <!-- Progress bar -->
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"

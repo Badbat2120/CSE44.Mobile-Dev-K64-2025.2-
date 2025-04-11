@@ -15,27 +15,39 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Litera"
         tools:targetApi="31">
+
+        <!-- SplashActivity làm LAUNCHER -->
         <activity
-            android:name=".views.activities.TopUpWalletActivity"
-            android:exported="false" />
-        <activity
-            android:name=".views.fragments.BookDetailActivity"
-            android:exported="true" /> <!-- BookListActivity -->
-        <activity
-            android:name=".views.activities.RegisterActivity"
-            android:exported="true" /> <!-- LoginActivity -->
-        <activity
-            android:name=".views.activities.LoginActivity"
-            android:exported="true" /> <!-- MainActivity -->
-        <activity
-            android:name=".views.activities.MainActivity"
-            android:exported="true">
+            android:name=".views.activities.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".views.activities.TopUpWalletActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".views.fragments.BookDetailActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".views.activities.RegisterActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".views.activities.LoginActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".views.activities.MainActivity"
+            android:exported="true">
+        </activity>
+
         <activity
             android:name=".views.activities.ProfileUserActivity"
             android:exported="true" />
@@ -59,7 +71,9 @@
             android:exported="true" />
         <activity
             android:name=".views.activities.ReadBookActivity"
-            android:exported="true" /> <!-- Meta-data for Google Sign-In -->
+            android:exported="true" />
+
+        <!-- Meta-data for Google Sign-In -->
         <meta-data
             android:name="com.google.android.gms.auth.api.identity.GOOGLE_SIGN_IN_API"
             android:value="true" />

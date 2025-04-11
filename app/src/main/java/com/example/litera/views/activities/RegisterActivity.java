@@ -14,15 +14,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.litera.R;
+import com.example.litera.repositories.UserRepository;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText inputEmail, inputPassword;
+    private TextInputEditText inputName, inputEmail, inputPassword;
     private FirebaseAuth auth;
+    private UserRepository userRepository;
     private ProgressBar progressBar;
     private Button btnSignUp;
     private TextView tvLogin;
@@ -32,8 +35,12 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
+        // Khởi tạo Firebase Auth và UserRepository
         auth = FirebaseAuth.getInstance();
+        userRepository = new UserRepository();
 
+        // Liên kết các thành phần giao diện người dùng
+        inputName = findViewById(R.id.etName); // Thêm TextInputEditText cho tên
         inputEmail = findViewById(R.id.etEmail);
         inputPassword = findViewById(R.id.etPassword);
         progressBar = findViewById(R.id.progressBar);
@@ -43,8 +50,15 @@ public class RegisterActivity extends AppCompatActivity {
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String name = inputName.getText().toString().trim();
                 String email = inputEmail.getText().toString().trim();
                 String password = inputPassword.getText().toString().trim();
+
+                // Kiểm tra đầu vào
+                if (TextUtils.isEmpty(name)) {
+                    Toast.makeText(getApplicationContext(), "Enter your name!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 if (TextUtils.isEmpty(email)) {
                     Toast.makeText(getApplicationContext(), "Enter email address!", Toast.LENGTH_SHORT).show();
@@ -63,30 +77,45 @@ public class RegisterActivity extends AppCompatActivity {
 
                 progressBar.setVisibility(View.VISIBLE);
 
+                // Tạo người dùng với Firebase Authentication
                 auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressBar.setVisibility(View.GONE);
-                                if (!task.isSuccessful()) {
-                                    Toast.makeText(RegisterActivity.this, "Authentication failed." + task.getException(),
-                                            Toast.LENGTH_SHORT).show();
+                                if (task.isSuccessful()) {
+                                    // Tạo tài liệu người dùng trong Firestore
+                                    userRepository.createUser(name, email, new UserRepository.OnUserCreationListener() {
+                                        @Override
+                                        public void onSuccess() {
+                                            progressBar.setVisibility(View.GONE);
+                                            Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
+                                            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                                            finish();
+                                        }
+
+                                        @Override
+                                        public void onFailure(String error) {
+                                            progressBar.setVisibility(View.GONE);
+                                            Toast.makeText(RegisterActivity.this, "Failed to create user profile: " + error, Toast.LENGTH_LONG).show();
+                                        }
+                                    });
                                 } else {
-                                    startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                                    finish();
+                                    progressBar.setVisibility(View.GONE);
+                                    Toast.makeText(RegisterActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
                                 }
                             }
                         });
             }
         });
 
-        // Làm cho chỉ chữ "Login" bấm được
+        // Thiết lập chữ "Login" có thể nhấp được
         SpannableString ss = new SpannableString("Already have an account? Login");
 
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View widget) {
                 startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                finish();
             }
         };
 

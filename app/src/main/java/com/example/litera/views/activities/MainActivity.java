@@ -2,6 +2,7 @@ package com.example.litera.views.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,13 +16,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.litera.R;
+import com.example.litera.models.User;
 import com.example.litera.views.adapters.AuthorAdapter;
 import com.example.litera.views.adapters.BookAdapter;
 import com.example.litera.viewmodels.MainViewModel;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+
     private ImageView imgMenu, imgProfile;
     private TextView tvHello;
     private EditText etSearch;
@@ -29,6 +36,10 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabGenres;
     private MainViewModel mainViewModel;
     private ProgressBar progressBar; // Add this to your layout
+
+    // Firebase
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     // Khai báo adapter ở mức class để có thể sử dụng trong các phương thức khác
     private BookAdapter trendingBooksAdapter;
@@ -39,6 +50,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // Initialize Firebase
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         // Initialize UI elements
         imgMenu = findViewById(R.id.imgMenu);
@@ -54,6 +69,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Add a progress bar in your layout and reference it here
         // progressBar = findViewById(R.id.progressBar);
+
+        // Hiển thị tên người dùng
+        loadUserNameAndDisplay();
 
         imgMenu.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -82,6 +100,53 @@ public class MainActivity extends AppCompatActivity {
 
         // Observe ViewModel data
         observeViewModel();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Tải lại tên người dùng mỗi khi quay lại MainActivity
+        loadUserNameAndDisplay();
+    }
+
+    /**
+     * Tải tên người dùng từ Firestore và hiển thị lên tvHello
+     */
+    private void loadUserNameAndDisplay() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String email = currentUser.getEmail();
+
+            // Tìm document chứa email này trong collection users
+            db.collection("users")
+                    .whereEqualTo("email", email)
+                    .limit(1)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                            // Lấy document đầu tiên
+                            String name = task.getResult().getDocuments().get(0).getString("name");
+                            if (name != null && !name.isEmpty()) {
+                                tvHello.setText("Xin chào " + name);
+                            } else {
+                                // Sử dụng phần đầu của email làm tên mặc định
+                                String defaultName = email.split("@")[0];
+                                tvHello.setText("Xin chào " + defaultName);
+                            }
+                        } else {
+                            Log.w(TAG, "Error getting user document", task.getException());
+                            // Hiển thị thông báo chào mặc định
+                            tvHello.setText("Xin chào người đọc");
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e(TAG, "Error querying users collection", e);
+                        tvHello.setText("Xin chào người đọc");
+                    });
+        } else {
+            // Không có người dùng đăng nhập
+            tvHello.setText("Xin chào người đọc");
+        }
     }
 
     private void setupAdapters() {
