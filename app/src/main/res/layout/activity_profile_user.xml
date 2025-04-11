@@ -6,75 +6,120 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:padding="20dp">
+        android:layout_height="match_parent">
 
-        <ImageButton
-            android:id="@+id/btnBack"
+        <!-- Balance Card -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardBalance"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:background="@drawable/baseline_arrow_back_ios_new_24"
-            android:contentDescription="Back"
-            android:tint="#000000"
-            android:layout_marginBottom="16dp" />
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            app:contentPadding="8dp">
 
-        <ImageView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_marginTop="16dp"
-            android:scaleType="centerCrop" />
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/userName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="tên"
-            android:textColor="#000000"
-            android:textSize="22sp"
-            android:textStyle="bold" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Balance"
+                    android:textColor="#888888"
+                    android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/userEmail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
-            android:hint="email"
-            android:textColor="#888888"
-            android:textSize="14sp" />
+                <TextView
+                    android:id="@+id/userBalance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$0.00"
+                    android:textColor="#1E90FF"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-        <Button
-            android:id="@+id/btnFavourites"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Favourite"
-            android:backgroundTint="#1E90FF"
-            android:textColor="#FFFFFF"
-            android:padding="12dp"
-            android:layout_marginBottom="12dp"/>
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="20dp">
 
-        <Button
-            android:id="@+id/btnChangePass"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Change Password"
-            android:backgroundTint="#1E90FF"
-            android:textColor="#FFFFFF"
-            android:padding="12dp"
-            android:layout_marginBottom="12dp"/>
+            <ImageButton
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:background="@drawable/baseline_arrow_back_ios_new_24"
+                android:contentDescription="Back"
+                android:tint="#000000"
+                android:layout_marginBottom="16dp" />
 
-        <Button
-            android:id="@+id/btnTopUpWallet"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="To Up Wallet"
-            android:backgroundTint="#1E90FF"
-            android:textColor="#FFFFFF"
-            android:padding="12dp"/>
-    </LinearLayout>
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/userAvatar"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="16dp"
+                android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347"
+                app:civ_border_width="2dp"
+                app:civ_border_color="#1E90FF" />
+
+            <TextView
+                android:id="@+id/userName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:hint="tên"
+                android:textColor="#000000"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/userEmail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:hint="email"
+                android:textColor="#888888"
+                android:textSize="14sp" />
+
+            <Button
+                android:id="@+id/btnFavourites"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Favourite"
+                android:backgroundTint="#1E90FF"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp"/>
+
+            <Button
+                android:id="@+id/btnChangePass"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Change Password"
+                android:backgroundTint="#1E90FF"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp"/>
+
+            <Button
+                android:id="@+id/btnTopUpWallet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Top Up Wallet"
+                android:backgroundTint="#1E90FF"
+                android:textColor="#FFFFFF"
+                android:padding="12dp"/>
+
+        </LinearLayout>
+    </RelativeLayout>
 </FrameLayout>

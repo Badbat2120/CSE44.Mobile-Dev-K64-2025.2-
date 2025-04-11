@@ -42,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize UI elements
         imgMenu = findViewById(R.id.imgMenu);
-        imgProfile = findViewById(R.id.imgProfile);
         tvHello = findViewById(R.id.tvHello);
         etSearch = findViewById(R.id.etSearch);
         rvContinueReading = findViewById(R.id.rvContinueReading);
@@ -63,10 +62,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Handle profile click
-        imgProfile.setOnClickListener(v -> {
-            // Navigate to ProfileUserActivity
-            Intent intent = new Intent(MainActivity.this, ProfileUserActivity.class);
-            startActivity(intent);
+        ImageView imgProfile = findViewById(R.id.imgProfile);
+        imgProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ProfileUserActivity.class);
+                startActivity(intent);
+            }
         });
 
         // Initialize ViewModel

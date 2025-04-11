@@ -37,6 +37,7 @@ android {
 }
 
 dependencies {
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
     implementation ("com.google.android.gms:play-services-location:21.0.1")
     implementation ("com.google.firebase:firebase-firestore:24.4.1")
     implementation ("com.google.firebase:firebase-auth:22.0.2")
