@@ -39,9 +39,10 @@
                 <View
                     android:layout_width="0dp"
                     android:layout_height="0dp"
-                    android:layout_weight="1"/>
+                    android:layout_weight="15"/>
 
                 <!-- Hello Tommy bên phải -->
+
                 <TextView
                     android:id="@+id/tvHello"
                     android:layout_width="wrap_content"
@@ -49,6 +50,11 @@
                     android:hint="Tên người dùng"
                     android:textSize="16sp"
                     android:textStyle="bold" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
 
                 <ImageView
                     android:id="@+id/imgProfile"
@@ -143,7 +149,7 @@
                         android:focusable="true"
                         android:padding="8dp"
                         android:text="view all"
-                        android:textColor="#000000"
+                        android:textColor="#A9A9A9"
                         android:textSize="14sp"
                         tools:ignore="TouchTargetSizeCheck" />
                 </FrameLayout>
@@ -189,7 +195,7 @@
                         android:focusable="true"
                         android:padding="8dp"
                         android:text="view all"
-                        android:textColor="#000000"
+                        android:textColor="#A9A9A9"
                         android:textSize="14sp"
                         tools:ignore="TouchTargetSizeCheck" />
                 </FrameLayout>
@@ -235,7 +241,7 @@
                         android:focusable="true"
                         android:padding="8dp"
                         android:text="view all"
-                        android:textColor="#000000"
+                        android:textColor="#A9A9A9"
                         android:textSize="14sp" />
                 </FrameLayout>
             </LinearLayout>

@@ -23,7 +23,7 @@ public class AuthorAdapter extends RecyclerView.Adapter<AuthorAdapter.AuthorView
     @NonNull
     @Override
     public AuthorViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_tg, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_author, parent, false);
         return new AuthorViewHolder(view);
     }
 

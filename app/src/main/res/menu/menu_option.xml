@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home"
+        android:title="Home"/>
+    <item
+        android:id="@+id/nav_fav_books"
+        android:title="Favourite Books"/>
+    <item
+        android:id="@+id/nav_profile"
+        android:title="Profile"/>
+    <item
+        android:id="@+id/nav_login"
+        android:title="Log in"/>
+    <item
+        android:id="@+id/nav_signup"
+        android:title="Sign up"/>
+    <item
+        android:id="@+id/nav_logout"
+        android:title="Log out"/>
+</menu>

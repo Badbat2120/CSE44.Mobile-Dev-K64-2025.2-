@@ -10,6 +10,6 @@ public class AuthorListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.item_tg); // Set the layout to item_tg.xml
+        setContentView(R.layout.item_author); // Set the layout to item_tg.xml
     }
 }
