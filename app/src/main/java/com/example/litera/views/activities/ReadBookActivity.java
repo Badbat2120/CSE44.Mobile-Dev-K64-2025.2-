@@ -1,4 +1,4 @@
-package com.example.litera.views.fragments;
+package com.example.litera.views.activities;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.litera.R;
-import com.example.litera.models.Book;
 import com.example.litera.utils.DownloadAndProcessEpubTask;
 import com.example.litera.utils.GoogleDriveUtils;
 import com.example.litera.viewmodels.MainViewModel;

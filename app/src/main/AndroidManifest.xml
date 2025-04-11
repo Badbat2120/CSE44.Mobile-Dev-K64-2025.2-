@@ -50,7 +50,7 @@
             android:exported="true" />
         <activity android:name=".views.activities.FavBookActivity"
             android:exported="true" />
-        <activity android:name=".views.fragments.ReadBookActivity"
+        <activity android:name=".views.activities.ReadBookActivity"
             android:exported="true" />
 
         <!-- Meta-data for Google Sign-In -->

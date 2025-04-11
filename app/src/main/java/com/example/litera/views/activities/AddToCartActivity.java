@@ -2,7 +2,6 @@ package com.example.litera.views.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -18,7 +17,6 @@ import com.example.litera.R;
 import com.example.litera.models.Book;
 import com.example.litera.utils.GoogleDriveUtils;
 import com.example.litera.viewmodels.MainViewModel;
-import com.example.litera.views.fragments.ReadBookActivity;
 import com.google.android.material.snackbar.Snackbar;
 
 public class AddToCartActivity extends AppCompatActivity {
