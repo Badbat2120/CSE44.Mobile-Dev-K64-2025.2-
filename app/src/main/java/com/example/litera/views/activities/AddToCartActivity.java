@@ -18,6 +18,7 @@ import com.example.litera.R;
 import com.example.litera.models.Book;
 import com.example.litera.utils.GoogleDriveUtils;
 import com.example.litera.viewmodels.MainViewModel;
+import com.example.litera.views.fragments.ReadBookActivity;
 import com.google.android.material.snackbar.Snackbar;
 
 public class AddToCartActivity extends AppCompatActivity {
@@ -82,8 +83,10 @@ public class AddToCartActivity extends AppCompatActivity {
         // Read button
         readButton.setOnClickListener(v -> {
             if (bookId != null && !bookId.isEmpty()) {
-                // Navigate to read book screen if available
-                Toast.makeText(this, "Preparing book content...", Toast.LENGTH_SHORT).show();
+                // Navigate to read book screen
+                Intent intent = new Intent(AddToCartActivity.this, ReadBookActivity.class);
+                intent.putExtra("bookId", bookId);
+                startActivity(intent);
             } else {
                 Toast.makeText(this, "Cannot load book content", Toast.LENGTH_SHORT).show();
             }
@@ -223,15 +226,6 @@ public class AddToCartActivity extends AppCompatActivity {
         } else {
             // Set default image
             bookCover.setImageResource(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347);
-        }
-
-        // Enable or disable read button based on content availability
-        if (book.getContentUrl() != null && !book.getContentUrl().isEmpty()) {
-            readButton.setEnabled(true);
-            readButton.setText("Read");
-        } else {
-            readButton.setEnabled(false);
-            readButton.setText("No content available");
         }
     }
 

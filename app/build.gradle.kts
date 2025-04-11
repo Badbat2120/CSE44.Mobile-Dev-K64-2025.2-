@@ -24,6 +24,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            manifestPlaceholders["firebaseAnalyticsEnabled"] = "false"
+        }
+        debug {
+            manifestPlaceholders["firebaseAnalyticsEnabled"] = "false"
         }
     }
     compileOptions {
@@ -33,6 +37,7 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
     implementation ("com.google.firebase:firebase-firestore:24.4.1")
     implementation ("com.google.firebase:firebase-auth:22.0.2")
     implementation ("com.github.bumptech.glide:glide:4.15.1")

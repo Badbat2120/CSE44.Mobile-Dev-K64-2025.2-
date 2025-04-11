@@ -79,10 +79,14 @@ public class Book {
         this.imageUrl = imageUrl;
     }
 
+    // Đánh dấu rằng getter này map với trường "content" trong Firebase
+    @PropertyName("content")
     public String getContentUrl() {
         return contentUrl;
     }
 
+    // Đánh dấu rằng setter này nhận giá trị từ trường "content" trong Firebase
+    @PropertyName("content")
     public void setContentUrl(String contentUrl) {
         this.contentUrl = contentUrl;
     }

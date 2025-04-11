@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -48,6 +49,8 @@
         <activity android:name=".views.activities.ChangePassActivity"
             android:exported="true" />
         <activity android:name=".views.activities.FavBookActivity"
+            android:exported="true" />
+        <activity android:name=".views.fragments.ReadBookActivity"
             android:exported="true" />
 
         <!-- Meta-data for Google Sign-In -->

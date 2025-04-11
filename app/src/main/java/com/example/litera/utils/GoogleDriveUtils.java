@@ -1,141 +1,53 @@
 package com.example.litera.utils;
 
-import android.util.Log;
-
-/**
- * Utility class for handling Google Drive URLs
- */
 public class GoogleDriveUtils {
-    private static final String TAG = "GoogleDriveUtils";
 
     /**
-     * Convert Google Drive URL to direct download URL that can be used with Glide
-     *
-     * @param driveUrl Google Drive URL (can be sharing URL or view URL)
-     * @return Direct download URL or original URL if conversion failed
+     * Chuyển đổi URL Google Drive chia sẻ thành URL trực tiếp để tải xuống
+     * @param driveUrl URL Google Drive (dạng https://drive.google.com/file/d/FILE_ID/view)
+     * @return URL trực tiếp để tải xuống
      */
     public static String convertToDirect(String driveUrl) {
         if (driveUrl == null || driveUrl.isEmpty()) {
-            Log.d(TAG, "Empty URL provided");
             return null;
         }
 
-        try {
-            Log.d(TAG, "Original Google Drive URL: " + driveUrl);
-
-            // Case 1: URL format - https://drive.google.com/file/d/{fileId}/view
-            if (driveUrl.contains("drive.google.com/file/d/")) {
-                String fileId = extractFileId(driveUrl);
-                if (fileId != null) {
-                    String directUrl = "https://drive.google.com/uc?export=view&id=" + fileId;
-                    Log.d(TAG, "Converted to direct URL: " + directUrl);
-                    return directUrl;
-                }
-            }
-
-            // Case 2: URL format - https://drive.google.com/open?id={fileId}
-            else if (driveUrl.contains("drive.google.com/open?id=")) {
-                String fileId = driveUrl.substring(driveUrl.indexOf("id=") + 3);
-                if (fileId.contains("&")) {
-                    fileId = fileId.substring(0, fileId.indexOf("&"));
-                }
-                String directUrl = "https://drive.google.com/uc?export=view&id=" + fileId;
-                Log.d(TAG, "Converted to direct URL: " + directUrl);
-                return directUrl;
-            }
-
-            // Case 3: URL format - https://docs.google.com/document/d/{fileId}/edit
-            else if (driveUrl.contains("docs.google.com/")) {
-                String fileId = extractFileId(driveUrl);
-                if (fileId != null) {
-                    String directUrl = "https://drive.google.com/uc?export=view&id=" + fileId;
-                    Log.d(TAG, "Converted to direct URL: " + directUrl);
-                    return directUrl;
-                }
-            }
-
-            // Case 4: Already a direct URL
-            else if (driveUrl.contains("drive.google.com/uc?")) {
-                Log.d(TAG, "Already a direct URL: " + driveUrl);
-                return driveUrl;
-            }
-
-            // Case 5: Google Drive thumbnail URL
-            else if (driveUrl.contains("drive.google.com/thumbnail?")) {
-                Log.d(TAG, "Already a thumbnail URL: " + driveUrl);
-                return driveUrl;
-            }
-
-            // Case 6: Sharing URL format - https://drive.google.com/drive/folders/{folderId}?usp=sharing
-            else if (driveUrl.contains("drive.google.com/drive/folders/")) {
-                // We can't directly access a folder, only files
-                Log.w(TAG, "Folder URL can't be converted to direct download: " + driveUrl);
-                return null;
-            }
-
-            // Case 7: URL is already a web content URL
-            else if (driveUrl.startsWith("http") && (
-                    driveUrl.endsWith(".jpg") || driveUrl.endsWith(".jpeg") ||
-                            driveUrl.endsWith(".png") || driveUrl.endsWith(".gif") ||
-                            driveUrl.contains("/image/") || driveUrl.contains("/photo/"))) {
-                Log.d(TAG, "Already appears to be a web image URL: " + driveUrl);
-                return driveUrl;
-            }
-
-            // Could not convert URL
-            Log.w(TAG, "Could not convert Google Drive URL: " + driveUrl);
-            return driveUrl;
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error converting Google Drive URL: " + driveUrl, e);
+        // Nếu đã là URL trực tiếp, trả về ngay
+        if (driveUrl.contains("export=download")) {
             return driveUrl;
         }
+
+        // Trích xuất File ID từ URL Google Drive
+        String fileId = extractFileId(driveUrl);
+        if (fileId == null) {
+            return driveUrl; // Không thể trích xuất ID, trả về URL gốc
+        }
+
+        // Tạo URL trực tiếp để tải xuống
+        return "https://drive.google.com/uc?export=download&id=" + fileId;
     }
 
     /**
-     * Extract file ID from various Google Drive URL formats
+     * Trích xuất File ID từ Google Drive URL
      */
-    private static String extractFileId(String url) {
-        try {
-            String fileId = null;
-
-            // Format: /file/d/{fileId}/
-            if (url.contains("/file/d/")) {
-                fileId = url.substring(url.indexOf("/file/d/") + 8);
-                if (fileId.contains("/")) {
-                    fileId = fileId.substring(0, fileId.indexOf("/"));
-                }
+    private static String extractFileId(String driveUrl) {
+        // Mẫu URL tiêu chuẩn: https://drive.google.com/file/d/FILE_ID/view
+        if (driveUrl.contains("/file/d/")) {
+            String[] parts = driveUrl.split("/file/d/");
+            if (parts.length > 1) {
+                String fileId = parts[1].split("/")[0];
+                return fileId;
             }
-            // Format: /document/d/{fileId}/
-            else if (url.contains("/document/d/")) {
-                fileId = url.substring(url.indexOf("/document/d/") + 12);
-                if (fileId.contains("/")) {
-                    fileId = fileId.substring(0, fileId.indexOf("/"));
-                }
-            }
-            // Format: /presentation/d/{fileId}/
-            else if (url.contains("/presentation/d/")) {
-                fileId = url.substring(url.indexOf("/presentation/d/") + 16);
-                if (fileId.contains("/")) {
-                    fileId = fileId.substring(0, fileId.indexOf("/"));
-                }
-            }
-            // Format: /spreadsheets/d/{fileId}/
-            else if (url.contains("/spreadsheets/d/")) {
-                fileId = url.substring(url.indexOf("/spreadsheets/d/") + 16);
-                if (fileId.contains("/")) {
-                    fileId = fileId.substring(0, fileId.indexOf("/"));
-                }
-            }
-
-            if (fileId != null && fileId.contains("?")) {
-                fileId = fileId.substring(0, fileId.indexOf("?"));
-            }
-
-            return fileId;
-        } catch (Exception e) {
-            Log.e(TAG, "Error extracting file ID from URL: " + url, e);
-            return null;
         }
+
+        // Mẫu URL thay thế: https://drive.google.com/open?id=FILE_ID
+        if (driveUrl.contains("id=")) {
+            String[] parts = driveUrl.split("id=");
+            if (parts.length > 1) {
+                return parts[1].split("&")[0];
+            }
+        }
+
+        return null;
     }
 }
