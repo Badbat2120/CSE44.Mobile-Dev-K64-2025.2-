@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
-    <!-- Toolbar -->
+    <!-- Toolbar layout containing a back button and the book title -->
     <RelativeLayout
         android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
@@ -13,6 +13,7 @@
         android:background="#FFFFFF"
         android:elevation="4dp">
 
+        <!-- Back button to navigate to the previous screen -->
         <ImageButton
             android:id="@+id/btnBack"
             android:layout_width="48dp"
@@ -23,6 +24,7 @@
             android:contentDescription="Back"
             android:src="@android:drawable/ic_menu_close_clear_cancel" />
 
+        <!-- TextView to display the title of the book being read -->
         <TextView
             android:id="@+id/bookTitle"
             android:layout_width="wrap_content"
@@ -38,14 +40,14 @@
             android:textStyle="bold" />
     </RelativeLayout>
 
-    <!-- Content -->
+    <!-- WebView to display the book content -->
     <WebView
         android:id="@+id/webView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbarLayout" />
 
-    <!-- Progress Bar -->
+    <!-- ProgressBar to indicate loading state -->
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"

@@ -39,13 +39,13 @@
                     android:textSize="24sp"
                     android:textStyle="bold" />
 
-                <!-- Hello Tommy bên phải -->
+                <!-- Hello user bên phải -->
                 <TextView
                     android:id="@+id/tvHello"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:hint="Tên người dùng"
+                    android:hint="Name user"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
