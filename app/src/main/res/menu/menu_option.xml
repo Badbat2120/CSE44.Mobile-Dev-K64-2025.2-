@@ -1,21 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Menu item for navigating to the Home screen -->
     <item
         android:id="@+id/nav_home"
         android:title="Home"/>
+
+    <!-- Menu item for navigating to the Favourite Books screen -->
     <item
         android:id="@+id/nav_fav_books"
         android:title="Favourite Books"/>
+
+    <!-- Menu item for navigating to the Profile screen -->
     <item
         android:id="@+id/nav_profile"
         android:title="Profile"/>
+
+    <!-- Menu item for navigating to the Log in screen -->
     <item
         android:id="@+id/nav_login"
         android:title="Log in"/>
+
+    <!-- Menu item for navigating to the Sign up screen -->
     <item
         android:id="@+id/nav_signup"
         android:title="Sign up"/>
+
+    <!-- Menu item for logging out of the application -->
     <item
         android:id="@+id/nav_logout"
         android:title="Log out"/>
+
 </menu>

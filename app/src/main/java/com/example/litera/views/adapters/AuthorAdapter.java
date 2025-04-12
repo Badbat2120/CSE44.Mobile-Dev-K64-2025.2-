@@ -15,14 +15,28 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.litera.R;
 import com.example.litera.models.Author;
 import com.example.litera.utils.GoogleDriveUtils;
+import com.example.litera.views.activities.AuthorListActivity;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AuthorAdapter extends RecyclerView.Adapter<AuthorAdapter.AuthorViewHolder> {
 
-    private final List<Author> authors = new ArrayList<>();
+    private static final List<Author> authors = new ArrayList<>();
     private static final String TAG = "AuthorAdapter";
+    private static OnAuthorClickListener onAuthorClickListener = null;
+
+    // Constructor nhận một listener để xử lý sự kiện click vào tác giả
+    public AuthorAdapter(OnAuthorClickListener onAuthorClickListener) {
+        this.onAuthorClickListener = onAuthorClickListener;
+    }
+
+    public AuthorAdapter(AuthorListActivity authorListActivity, ArrayList<Author> authorList) {
+    }
+
+    public AuthorAdapter() {
+
+    }
 
     @NonNull
     @Override
@@ -72,11 +86,20 @@ public class AuthorAdapter extends RecyclerView.Adapter<AuthorAdapter.AuthorView
     }
 
     public void submitList(List<Author> newAuthors) {
+        if (newAuthors == null || newAuthors.equals(authors)) {
+            return;  // Tránh gọi notifyDataSetChanged khi dữ liệu không thay đổi
+        }
+
         authors.clear();
         if (newAuthors != null) {
             authors.addAll(newAuthors);
         }
         notifyDataSetChanged();
+    }
+
+    // Interface cho sự kiện click vào tác giả
+    public interface OnAuthorClickListener {
+        void onAuthorClick(Author author);
     }
 
     static class AuthorViewHolder extends RecyclerView.ViewHolder {
@@ -87,6 +110,18 @@ public class AuthorAdapter extends RecyclerView.Adapter<AuthorAdapter.AuthorView
             super(itemView);
             authorName = itemView.findViewById(R.id.txt_author_name);
             authorImage = itemView.findViewById(R.id.img_author);
+
+            // Thêm sự kiện click vào item
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (position != RecyclerView.NO_POSITION) {
+                    Author clickedAuthor = authors.get(position);
+                    // Gọi listener khi tác giả được click
+                    if (onAuthorClickListener != null) {
+                        onAuthorClickListener.onAuthorClick(clickedAuthor);
+                    }
+                }
+            });
         }
     }
 }

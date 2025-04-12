@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.litera.R;
+import com.example.litera.models.Author;
 import com.example.litera.models.User;
 import com.example.litera.views.adapters.AuthorAdapter;
 import com.example.litera.views.adapters.BookAdapter;
@@ -27,7 +28,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnAuthorClickListener {
     private static final String TAG = "MainActivity";
 
     private ImageView imgProfile;
@@ -36,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView rvContinueReading, rvTrendingBooks, rvPopularAuthors, rvAllBooks;
     private TabLayout tabGenres;
     private MainViewModel mainViewModel;
-    private ProgressBar progressBar; // Add this to your layout
+    private ProgressBar progressBar;
 
     // Firebase
     private FirebaseAuth mAuth;
@@ -53,11 +54,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Initialize Firebase
+        // Khởi tạo Firebase
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        // Initialize UI elements
+        // Khởi tạo UI
         tvHello = findViewById(R.id.tvHello);
         etSearch = findViewById(R.id.etSearch);
         rvContinueReading = findViewById(R.id.rvContinueReading);
@@ -70,23 +71,17 @@ public class MainActivity extends AppCompatActivity {
         TextView tvViewAllTrendingBooks = findViewById(R.id.tvViewAllTrendingBooks);
         TextView tvViewAllBooks = findViewById(R.id.tvViewAllBooks);
 
-        // Add a progress bar in your layout and reference it here
-        // progressBar = findViewById(R.id.progressBar);
-
         // Hiển thị tên người dùng
         loadUserNameAndDisplay();
 
         // Handle profile click
-        ImageView imgProfile = findViewById(R.id.imgProfile);
-        imgProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ProfileUserActivity.class);
-                startActivity(intent);
-            }
+        imgProfile = findViewById(R.id.imgProfile);
+        imgProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ProfileUserActivity.class);
+            startActivity(intent);
         });
 
-        // Initialize ViewModel
+        // Khởi tạo ViewModel
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         // Setup adapters
@@ -134,11 +129,11 @@ public class MainActivity extends AppCompatActivity {
                             // Lấy document đầu tiên
                             String name = task.getResult().getDocuments().get(0).getString("name");
                             if (name != null && !name.isEmpty()) {
-                                tvHello.setText("Xin chào " + name);
+                                tvHello.setText("Hello " + name);
                             } else {
                                 // Sử dụng phần đầu của email làm tên mặc định
                                 String defaultName = email.split("@")[0];
-                                tvHello.setText("Xin chào " + defaultName);
+                                tvHello.setText("Hello " + defaultName);
                             }
                         } else {
                             Log.w(TAG, "Error getting user document", task.getException());
@@ -169,17 +164,17 @@ public class MainActivity extends AppCompatActivity {
         rvContinueReading.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-        // Setup RecyclerView for All Books - SETUP MỚI CHO PHẦN ALL BOOKS
+        // Setup RecyclerView for All Books
         allBooksAdapter = new BookAdapter(BookAdapter.VIEW_TYPE_GRID, mainViewModel, this);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
         rvAllBooks.setLayoutManager(gridLayoutManager);
         rvAllBooks.setAdapter(allBooksAdapter);
 
         // Setup RecyclerView for Popular Authors
-        popularAuthorAdapter = new AuthorAdapter();
+        popularAuthorAdapter = new AuthorAdapter(this);  // Truyền this (MainActivity) vào constructor để thực hiện OnAuthorClickListener
+        rvPopularAuthors.setAdapter(popularAuthorAdapter);
         rvPopularAuthors.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        rvPopularAuthors.setAdapter(popularAuthorAdapter);
     }
 
     private void setupNavigationListeners(TextView viewAllAuthors, TextView viewAllContinueReading,
@@ -227,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Observe ALL books - PHẦN MỚI CHO ALL BOOKS
+        // Observe ALL books
         mainViewModel.getAllBooks().observe(this, books -> {
             if (books != null && !books.isEmpty()) {
                 // Giới hạn chỉ hiển thị 6 cuốn sách đầu tiên trong trang chính
@@ -256,5 +251,12 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, error, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    // Implement the OnAuthorClickListener
+    @Override
+    public void onAuthorClick(Author author) {
+        // Xử lý khi người dùng click vào tác giả
+        Toast.makeText(this, "Clicked: " + author.getName(), Toast.LENGTH_SHORT).show();
     }
 }
