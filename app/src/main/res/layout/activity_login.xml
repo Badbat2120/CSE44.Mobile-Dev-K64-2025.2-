@@ -4,13 +4,14 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- Container for the login form -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:padding="16dp">
 
-        <!-- Title -->
+        <!-- Title of the login screen -->
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
@@ -19,7 +20,7 @@
             android:textSize="30sp"
             android:textStyle="bold"/>
 
-        <!-- Description -->
+        <!-- Description text providing a welcome message -->
         <TextView
             android:id="@+id/tvDescription"
             android:layout_width="wrap_content"
@@ -29,7 +30,7 @@
             android:textSize="18sp"
             android:layout_marginTop="8dp" />
 
-        <!-- Email field -->
+        <!-- Input field for the email address -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayoutEmail"
             android:layout_width="match_parent"
@@ -45,7 +46,7 @@
                 android:inputType="textEmailAddress" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Password field -->
+        <!-- Input field for the password -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/passwordInputLayout"
             android:layout_width="match_parent"
@@ -63,7 +64,7 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Forgot Password (Thêm mới) -->
+        <!-- Link to reset the password -->
         <TextView
             android:id="@+id/tvForgotPassword"
             android:layout_width="wrap_content"
@@ -77,7 +78,7 @@
             android:clickable="true"
             android:focusable="true" />
 
-        <!-- Login button -->
+        <!-- Button to submit the login form -->
         <Button
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
@@ -86,7 +87,7 @@
             android:text="Login"
             android:layout_marginTop="16dp" />
 
-        <!-- Register link -->
+        <!-- Link to navigate to the registration screen -->
         <TextView
             android:id="@+id/tvRegister"
             android:layout_width="wrap_content"
@@ -99,7 +100,7 @@
             android:focusable="true"
             android:padding="4dp" />
 
-        <!-- Divider -->
+        <!-- Divider with "or" text for alternative login options -->
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
@@ -109,12 +110,14 @@
             android:orientation="horizontal"
             android:gravity="center">
 
+            <!-- Left divider line -->
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
                 android:background="@android:color/darker_gray"/>
 
+            <!-- "or" text -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -123,6 +126,7 @@
                 android:textColor="@android:color/black"
                 android:paddingHorizontal="8dp"/>
 
+            <!-- Right divider line -->
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
@@ -138,7 +142,7 @@
             android:layout_below="@id/linearLayout"
             android:layout_marginTop="16dp" />
 
-        <!-- Progress bar -->
+        <!-- Progress bar to indicate loading state -->
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"

@@ -124,11 +124,11 @@ public class MainActivity extends AppCompatActivity {
                             // Lấy document đầu tiên
                             String name = task.getResult().getDocuments().get(0).getString("name");
                             if (name != null && !name.isEmpty()) {
-                                tvHello.setText("Xin chào " + name);
+                                tvHello.setText("Hello " + name);
                             } else {
                                 // Sử dụng phần đầu của email làm tên mặc định
                                 String defaultName = email.split("@")[0];
-                                tvHello.setText("Xin chào " + defaultName);
+                                tvHello.setText("Hello " + defaultName);
                             }
                         } else {
                             Log.w(TAG, "Error getting user document", task.getException());

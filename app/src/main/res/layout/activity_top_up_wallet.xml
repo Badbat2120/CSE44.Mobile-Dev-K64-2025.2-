@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <!-- Back button to navigate to the previous screen -->
     <ImageButton
         android:id="@+id/btnBack"
         android:layout_width="wrap_content"
@@ -16,6 +17,7 @@
         android:tint="#000000"
         android:layout_marginBottom="16dp" />
 
+    <!-- Title of the screen -->
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
@@ -28,6 +30,7 @@
         android:textSize="24sp"
         android:textStyle="bold" />
 
+    <!-- Description text providing instructions -->
     <TextView
         android:id="@+id/tvDescription"
         android:layout_width="match_parent"
@@ -39,6 +42,7 @@
         android:textColor="#888888"
         android:textSize="16sp" />
 
+    <!-- Input field for entering the top-up amount -->
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilAmount"
         android:layout_width="match_parent"
@@ -48,6 +52,7 @@
         app:startIconDrawable="@android:drawable/ic_menu_edit"
         app:startIconTint="#1E90FF">
 
+        <!-- EditText for the user to input the amount -->
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/etAmount"
             android:layout_width="match_parent"
@@ -57,6 +62,7 @@
 
     </com.google.android.material.textfield.TextInputLayout>
 
+    <!-- Button to confirm and process the top-up -->
     <Button
         android:id="@+id/btnTopUp"
         android:layout_width="match_parent"

@@ -7,12 +7,13 @@
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
 
+    <!-- Root container for the book item layout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Book Cover Image - Đặt kích thước cố định -->
+        <!-- ImageView to display the book cover -->
         <ImageView
             android:id="@+id/bookImage"
             android:layout_width="match_parent"
@@ -21,14 +22,14 @@
             android:scaleType="centerCrop"
             android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347" />
 
-        <!-- Container cho Title và Author để đảm bảo chiều cao nhất quán -->
+        <!-- Container for the book title and author -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:orientation="vertical"
             android:padding="8dp">
 
-            <!-- Book Title - Fixed Height -->
+            <!-- TextView to display the book title -->
             <TextView
                 android:id="@+id/bookTitle"
                 android:layout_width="match_parent"
@@ -42,13 +43,13 @@
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
-            <!-- Spacer -->
+            <!-- Spacer to add vertical spacing between title and author -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="0.2" />
 
-            <!-- Author Name - Fixed Position -->
+            <!-- TextView to display the author's name -->
             <TextView
                 android:id="@+id/bookAuthor"
                 android:layout_width="match_parent"

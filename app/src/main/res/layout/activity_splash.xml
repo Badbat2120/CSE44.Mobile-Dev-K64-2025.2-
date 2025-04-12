@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:background="#FFFFFF">
 
+    <!-- ImageView to display the splash screen logo -->
     <ImageView
         android:id="@+id/splashLogo"
         android:layout_width="200dp"
@@ -11,6 +12,7 @@
         android:layout_centerInParent="true"
         android:src="@drawable/z6477401502352_356614eec45b2f7855ff3ca6e75ace14" />
 
+    <!-- TextView to display the app name below the logo -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -22,6 +24,7 @@
         android:textSize="36sp"
         android:textStyle="bold" />
 
+    <!-- ProgressBar to indicate loading at the bottom of the screen -->
     <ProgressBar
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

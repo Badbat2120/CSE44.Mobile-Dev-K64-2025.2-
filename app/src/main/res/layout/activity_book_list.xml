@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <!-- Toolbar Layout -->
+    <!-- Nút quay lại -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbarLayout"
         android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@android:color/black" />
-
+        <!-- Tiêu đề của thanh công cụ -->
         <TextView
             android:id="@+id/titleTextView"
             android:layout_width="0dp"
@@ -43,7 +43,7 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <!-- Progress Indicator -->
+    <!-- Thanh tiến trình (Progress Indicator) -->
     <com.google.android.material.progressindicator.LinearProgressIndicator
         android:id="@+id/progressIndicator"
         android:layout_width="match_parent"
@@ -52,7 +52,7 @@
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/toolbarLayout" />
 
-    <!-- RecyclerView -->
+    <!-- danh sach RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
@@ -63,7 +63,7 @@
         app:layout_constraintTop_toBottomOf="@id/progressIndicator"
         tools:listitem="@layout/item_grid_book" />
 
-    <!-- Empty State -->
+    <!-- Giao diện trạng thái trống (Empty State) -->
     <LinearLayout
         android:id="@+id/emptyStateLayout"
         android:layout_width="match_parent"
@@ -74,14 +74,14 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbarLayout">
-
+        <!-- Biểu tượng trạng thái trống -->
         <ImageView
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:contentDescription="No Books Found"
             android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347"
             app:tint="#9E9E9E" />
-
+        <!-- Tiêu đề trạng thái trống -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -90,7 +90,7 @@
             android:textColor="@android:color/black"
             android:textSize="16sp"
             android:textStyle="bold" />
-
+        <!-- Mô tả trạng thái trống -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
