@@ -2,6 +2,8 @@ package com.example.litera.views.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -18,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.litera.R;
 import com.example.litera.models.Author;
-import com.example.litera.models.User;
+import com.example.litera.models.Book;
 import com.example.litera.views.adapters.AuthorAdapter;
 import com.example.litera.views.adapters.BookAdapter;
 import com.example.litera.viewmodels.MainViewModel;
@@ -27,6 +29,9 @@ import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnAuthorClickListener {
     private static final String TAG = "MainActivity";
@@ -48,6 +53,12 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
     private BookAdapter continueReadingAdapter;
     private BookAdapter allBooksAdapter;
     private AuthorAdapter popularAuthorAdapter;
+
+    // Các danh sách để lưu trữ dữ liệu sách sau khi tìm kiếm
+    private List<Book> allBooks = new ArrayList<>();
+    private List<Book> trendingBooks = new ArrayList<>();
+    private List<Book> continueReadingBooks = new ArrayList<>();
+    private List<Author> popularAuthors = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +103,20 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
 
         // Observe ViewModel data
         observeViewModel();
+
+        // Lắng nghe sự kiện thay đổi trong EditText tìm kiếm
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+                filterData(charSequence.toString());
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {}
+        });
     }
 
     @Override
@@ -111,9 +136,6 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
         }
     }
 
-    /**
-     * Tải tên người dùng từ Firestore và hiển thị lên tvHello
-     */
     private void loadUserNameAndDisplay() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -213,21 +235,26 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
         mainViewModel.getContinueReadingBooks().observe(this, books -> {
             if (books != null && !books.isEmpty()) {
                 continueReadingAdapter.submitList(books);
+                continueReadingBooks.clear();
+                continueReadingBooks.addAll(books);
             }
         });
 
         mainViewModel.getTrendingBooks().observe(this, books -> {
             if (books != null && !books.isEmpty()) {
                 trendingBooksAdapter.submitList(books);
+                trendingBooks.clear();
+                trendingBooks.addAll(books);
             }
         });
 
         // Observe ALL books
         mainViewModel.getAllBooks().observe(this, books -> {
             if (books != null && !books.isEmpty()) {
-                // Giới hạn chỉ hiển thị 6 cuốn sách đầu tiên trong trang chính
-                int maxBooks = Math.min(6, books.size());
-                allBooksAdapter.submitList(books.subList(0, maxBooks));
+                // Lưu tất cả sách vào danh sách
+                allBooks.clear();
+                allBooks.addAll(books);
+                filterData(etSearch.getText().toString());  // Lọc ngay nếu có tìm kiếm
             }
         });
 
@@ -235,6 +262,8 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
         mainViewModel.getPopularAuthors().observe(this, authors -> {
             if (authors != null) {
                 popularAuthorAdapter.submitList(authors);
+                popularAuthors.clear();
+                popularAuthors.addAll(authors);
             }
         });
 
@@ -253,10 +282,63 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
         });
     }
 
-    // Implement the OnAuthorClickListener
+    // Lọc dữ liệu theo từ khóa tìm kiếm
+    private void filterData(String query) {
+        // Lọc dữ liệu cho từng danh sách sách
+        List<Book> filteredTrendingBooks = new ArrayList<>();
+        List<Book> filteredContinueReadingBooks = new ArrayList<>();
+        List<Book> filteredAllBooks = new ArrayList<>();
+        List<Author> filteredPopularAuthors = new ArrayList<>(); // Lọc tác giả
+
+        // Lọc sách Trending
+        for (Book book : trendingBooks) {
+            if (book.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                    book.getAuthor().getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredTrendingBooks.add(book);
+            }
+        }
+
+        // Lọc sách Continue Reading
+        for (Book book : continueReadingBooks) {
+            if (book.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                    book.getAuthor().getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredContinueReadingBooks.add(book);
+            }
+        }
+
+        // Lọc sách All Books
+        for (Book book : allBooks) {
+            if (book.getTitle().toLowerCase().contains(query.toLowerCase()) ||
+                    book.getAuthor().getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredAllBooks.add(book);
+            }
+        }
+
+        // Lọc tác giả
+        for (Author author : popularAuthors) {
+            if (author.getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredPopularAuthors.add(author);
+            }
+        }
+
+        // Cập nhật adapter cho từng RecyclerView với dữ liệu đã lọc
+        trendingBooksAdapter.submitList(filteredTrendingBooks);
+        continueReadingAdapter.submitList(filteredContinueReadingBooks);
+        allBooksAdapter.submitList(filteredAllBooks);
+        popularAuthorAdapter.submitList(filteredPopularAuthors);  // Cập nhật danh sách tác giả đã lọc
+    }
+
     @Override
     public void onAuthorClick(Author author) {
         // Xử lý khi người dùng click vào tác giả
-        Toast.makeText(this, "Clicked: " + author.getName(), Toast.LENGTH_SHORT).show();
+        if (author != null) {
+            // Điều hướng đến AuthorDetailActivity
+            Intent intent = new Intent(this, AuthorDetailActivity.class);
+            intent.putExtra("authorId", author.getId()); // Giả sử Author có phương thức getId()
+            intent.putExtra("authorName", author.getName());
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Tác giả không hợp lệ", Toast.LENGTH_SHORT).show();
+        }
     }
 }

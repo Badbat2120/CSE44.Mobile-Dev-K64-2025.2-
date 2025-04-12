@@ -348,12 +348,14 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     }
 
     // ViewHolder for Grid Books
+
     public static class GridBookViewHolder extends BookViewHolder {
         TextView bookTitle;
         TextView bookAuthor;
         ImageView bookImage;
         RatingBar ratingBar;
         TextView ratingText;
+
 
         GridBookViewHolder(@NonNull View itemView) {
             super(itemView);
