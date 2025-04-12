@@ -8,7 +8,7 @@
     android:background="#FFFFFF"
     android:padding="16dp">
 
-    <!-- Nút quay lại -->
+    <!-- Back button -->
     <ImageButton
         android:id="@+id/btnBack"
         android:layout_width="wrap_content"
@@ -18,7 +18,7 @@
         android:tint="#000000"
         android:layout_marginBottom="16dp" />
 
-    <!-- Biểu tượng góc trên bên phải -->
+    <!-- Top right icons -->
     <LinearLayout
         android:id="@+id/topIcons"
         android:layout_width="wrap_content"
@@ -27,7 +27,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Nút biểu tượng sao -->
         <ImageButton
             android:layout_width="30dp"
             android:layout_height="match_parent"
@@ -35,7 +34,6 @@
             android:scaleType="centerInside"
             android:src="@drawable/sao" />
 
-        <!-- Nút biểu tượng yêu thích -->
         <ImageButton
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -43,7 +41,6 @@
             android:scaleType="centerInside"
             android:src="@drawable/yeu" />
 
-        <!-- Nút biểu tượng chia sẻ -->
         <ImageButton
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -52,7 +49,7 @@
             android:src="@drawable/share"/>
     </LinearLayout>
 
-    <!-- Ảnh bìa sách -->
+    <!-- Book cover -->
     <ImageView
         android:id="@+id/bookCover"
         android:layout_width="180dp"
@@ -63,22 +60,39 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Thanh đánh giá sao -->
-    <RatingBar
-        android:id="@+id/ratingBar"
-        style="?android:attr/ratingBarStyleSmall"
+    <!-- Rating Stars -->
+    <LinearLayout
+        android:id="@+id/ratingContainer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:rating="4.0"
-        android:stepSize="0.5"
-        android:isIndicator="true"
-        android:numStars="5"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginTop="12dp"
         app:layout_constraintTop_toBottomOf="@id/bookCover"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="12dp" />
+        app:layout_constraintEnd_toEndOf="parent">
 
-    <!-- Tiêu đề sách -->
+        <RatingBar
+            android:id="@+id/ratingBar"
+            style="?android:attr/ratingBarStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:rating="0"
+            android:stepSize="0.5"
+            android:isIndicator="true"
+            android:numStars="5" />
+
+        <TextView
+            android:id="@+id/ratingText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="No ratings yet"
+            android:textSize="12sp"
+            android:textColor="#757575" />
+    </LinearLayout>
+
+    <!-- Book title -->
     <TextView
         android:id="@+id/bookTitle"
         android:layout_width="wrap_content"
@@ -90,9 +104,9 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/ratingBar" />
+        app:layout_constraintTop_toBottomOf="@id/ratingContainer" />
 
-    <!-- Tên tác giả -->
+    <!-- Author -->
     <TextView
         android:id="@+id/bookAuthor"
         android:layout_width="wrap_content"
@@ -104,7 +118,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bookTitle" />
 
-    <!-- Thông tin sách -->
+    <!-- Book Info -->
     <LinearLayout
         android:id="@+id/bookInfo"
         android:layout_width="wrap_content"
@@ -116,12 +130,10 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
-        <!-- Khoảng cách -->
         <Space
             android:layout_width="20dp"
             android:layout_height="0dp" />
 
-        <!-- Số trang -->
         <TextView
             android:text="@string/_156_npages"
             android:textAlignment="center"
@@ -129,12 +141,10 @@
             android:layout_height="match_parent"
             android:layout_width="match_parent" />
 
-        <!-- Khoảng cách -->
         <Space
             android:layout_width="20dp"
             android:layout_height="0dp" />
 
-        <!-- Số lượt đánh giá -->
         <TextView
             android:text="@string/_187_nreviews"
             android:textAlignment="center"
@@ -143,7 +153,7 @@
             android:layout_width="match_parent"/>
     </LinearLayout>
 
-    <!-- Mô tả sách -->
+    <!-- Description -->
     <TextView
         android:id="@+id/description"
         android:layout_width="0dp"
@@ -156,7 +166,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/bookInfo" />
 
-    <!-- Phần dưới: Giá và nút thêm vào giỏ hàng -->
+    <!-- Bottom section: Price + Add to cart -->
     <LinearLayout
         android:id="@+id/bottomLayout"
         android:layout_width="376dp"
@@ -167,7 +177,7 @@
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Phần hiển thị giá -->
+    <!-- Price section -->
     <LinearLayout
         android:id="@+id/priceContainer"
         android:layout_width="133dp"
@@ -177,7 +187,6 @@
         app:layout_constraintEnd_toStartOf="@+id/btnAddToCart"
         app:layout_constraintStart_toStartOf="@+id/bottomLayout">
 
-        <!-- Nhãn giá -->
         <TextView
             android:id="@+id/priceLabel"
             android:layout_width="wrap_content"
@@ -188,7 +197,6 @@
             android:layout_gravity="center_horizontal"
             android:textStyle="bold" />
 
-        <!-- Giá trị giá -->
         <TextView
             android:id="@+id/priceValue"
             android:layout_width="wrap_content"
@@ -200,7 +208,7 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Nút thêm vào giỏ hàng -->
+    <!-- Add to cart button with icon -->
     <Button
         android:id="@+id/btnAddToCart"
         android:layout_width="220dp"

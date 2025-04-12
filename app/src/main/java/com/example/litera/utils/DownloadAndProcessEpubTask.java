@@ -18,43 +18,30 @@ import java.net.URL;
 
 public class DownloadAndProcessEpubTask extends AsyncTask<String, Integer, String> {
 
-    private static final String TAG = "DownloadEpubTask"; // Thẻ log để debug
-    private final Context context; // Ngữ cảnh ứng dụng
-    private final WebView webView; // WebView để hiển thị nội dung HTML
-    private final ProgressBar progressBar; // ProgressBar để hiển thị tiến trình tải
+    private static final String TAG = "DownloadEpubTask";
+    private final Context context;
+    private final WebView webView;
+    private final ProgressBar progressBar;
 
-    /**
-     * Hàm khởi tạo để khởi tạo task với các thành phần cần thiết.
-     *
-     * @param context     Ngữ cảnh ứng dụng.
-     * @param webView     WebView để hiển thị nội dung HTML.
-     * @param progressBar ProgressBar để hiển thị tiến trình tải.
-     */
     public DownloadAndProcessEpubTask(Context context, WebView webView, ProgressBar progressBar) {
         this.context = context;
         this.webView = webView;
         this.progressBar = progressBar;
     }
 
-    /**
-     * Thực hiện tác vụ nền để tải file EPUB và chuyển đổi nó sang HTML.
-     *
-     * @param params Tham số đầu tiên là URL của file EPUB.
-     * @return Nội dung HTML của file EPUB, hoặc null nếu có lỗi xảy ra.
-     */
     @Override
     protected String doInBackground(String... params) {
         String fileUrl = params[0];
         String htmlContent = null;
 
         try {
-            // Bước 1: Tải file EPUB
+            // Step 1: Download EPUB file
             File epubFile = downloadEpub(fileUrl);
             if (epubFile != null) {
-                // Bước 2: Chuyển đổi EPUB sang HTML
+                // Step 2: Convert EPUB to HTML
                 htmlContent = EpubConverter.convertEpubToHtml(epubFile);
 
-                // Xóa file EPUB tạm sau khi chuyển đổi
+                // Delete temporary EPUB file after conversion
                 epubFile.delete();
             }
         } catch (Exception e) {
@@ -65,53 +52,41 @@ public class DownloadAndProcessEpubTask extends AsyncTask<String, Integer, Strin
         return htmlContent;
     }
 
-    /**
-     * Được gọi sau khi tác vụ nền hoàn thành.
-     *
-     * @param htmlContent Nội dung HTML của file EPUB, hoặc null nếu có lỗi xảy ra.
-     */
     @Override
     protected void onPostExecute(String htmlContent) {
         if (htmlContent != null && !htmlContent.isEmpty()) {
-            // Tải nội dung HTML vào WebView
+            // Load the HTML content into WebView
             webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null);
         } else {
-            // Ẩn ProgressBar và hiển thị thông báo lỗi
             progressBar.setVisibility(View.GONE);
             Toast.makeText(context, "Failed to load book content", Toast.LENGTH_SHORT).show();
         }
     }
 
-    /**
-     * Tải file EPUB từ URL được cung cấp.
-     *
-     * @param fileUrl URL của file EPUB.
-     * @return Đối tượng File trỏ đến file EPUB đã tải, hoặc null nếu có lỗi xảy ra.
-     */
     private File downloadEpub(String fileUrl) {
         try {
-            // Tạo đối tượng URL
+            // Create URL object
             URL url = new URL(fileUrl);
 
-            // Mở kết nối
+            // Open connection
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("GET");
             connection.connect();
 
-            // Kiểm tra mã phản hồi HTTP
+            // Check HTTP response code
             int responseCode = connection.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
                 Log.e(TAG, "Server returned HTTP " + responseCode);
                 return null;
             }
 
-            // Lấy kích thước file
+            // Get file size
             int fileSize = connection.getContentLength();
 
-            // Tạo file tạm
+            // Create temporary file
             File tempFile = File.createTempFile("book_", ".epub", context.getCacheDir());
 
-            // Tải file
+            // Download file
             InputStream input = connection.getInputStream();
             OutputStream output = new FileOutputStream(tempFile);
 
@@ -121,14 +96,14 @@ public class DownloadAndProcessEpubTask extends AsyncTask<String, Integer, Strin
 
             while ((count = input.read(data)) != -1) {
                 total += count;
-                // Cập nhật tiến trình
+                // Publish progress
                 if (fileSize > 0) {
                     publishProgress((int) (total * 100 / fileSize));
                 }
                 output.write(data, 0, count);
             }
 
-            // Đóng luồng
+            // Close streams
             output.flush();
             output.close();
             input.close();
@@ -141,13 +116,8 @@ public class DownloadAndProcessEpubTask extends AsyncTask<String, Integer, Strin
         }
     }
 
-    /**
-     * Cập nhật tiến trình của tác vụ tải.
-     *
-     * @param values Giá trị tiến trình, giá trị đầu tiên là phần trăm hoàn thành.
-     */
     @Override
     protected void onProgressUpdate(Integer... values) {
-        // Cập nhật ProgressBar nếu cần
+        // Update progress bar if needed
     }
 }

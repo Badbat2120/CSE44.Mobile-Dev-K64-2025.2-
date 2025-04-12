@@ -22,7 +22,7 @@ public class BookRepository {
     private final AuthorRepository authorRepository;
     private final FirebaseFirestore db;
 
-    // Lưu trữ sách để tránh phải gọi Firestore thường xuyên
+    // Cache for books to avoid frequent Firestore calls
     private List<Book> booksCache = null;
 
     private BookRepository() {
@@ -94,8 +94,8 @@ public class BookRepository {
     public CompletableFuture<List<Book>> getContinueReadingBooks() {
         CompletableFuture<List<Book>> future = new CompletableFuture<>();
 
-        // Hiện tại, chỉ cần trả về một tập hợp con sách
-        // Sau này, bạn có thể triển khai theo dõi tiến trình đọc của người dùng cụ thể
+        // For now, just return a subset of books
+        // Later you can implement user-specific reading progress tracking
         getBooks().thenAccept(allBooks -> {
             // Take first 5 books as "continue reading"
             List<Book> continueReading = new ArrayList<>();
@@ -112,7 +112,7 @@ public class BookRepository {
         return future;
     }
 
-    // Phương pháp lấy sách theo ID
+    // Method to get a book by ID
     public CompletableFuture<Book> getBookById(String bookId) {
         CompletableFuture<Book> future = new CompletableFuture<>();
 
@@ -158,7 +158,7 @@ public class BookRepository {
         return future;
     }
 
-    // Phương pháp lấy tác giả theo ID
+    // Method to get author by ID
     public CompletableFuture<Author> getAuthorById(String authorId) {
         return authorRepository.getAuthorById(authorId);
     }

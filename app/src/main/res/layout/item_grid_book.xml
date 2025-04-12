@@ -1,67 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="4dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
 
-    <!-- Root container for the book item layout -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- ImageView to display the book cover -->
+        <!-- Ảnh bìa sách -->
         <ImageView
-            android:id="@+id/bookImage"
+            android:id="@+id/gridBookImage"
             android:layout_width="match_parent"
-            android:layout_height="160dp"
-            android:contentDescription="Book Cover"
+            android:layout_height="150dp"
             android:scaleType="centerCrop"
             android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347" />
 
-        <!-- Container for the book title and author -->
+        <!-- Thông tin sách -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="8dp">
+            android:padding="6dp"
+            android:background="#FFFFFF">
 
-            <!-- TextView to display the book title -->
+            <!-- Tiêu đề sách -->
             <TextView
-                android:id="@+id/bookTitle"
+                android:id="@+id/gridBookTitle"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="2"
-                android:ellipsize="end"
-                android:gravity="top"
-                android:maxLines="2"
+                android:layout_height="wrap_content"
                 android:text="Book Title"
-                android:textColor="@android:color/black"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <!-- Spacer to add vertical spacing between title and author -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="0.2" />
-
-            <!-- TextView to display the author's name -->
-            <TextView
-                android:id="@+id/bookAuthor"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:ellipsize="end"
-                android:gravity="bottom"
+                android:textSize="12sp"
+                android:textStyle="bold"
                 android:maxLines="1"
-                android:text="Author"
-                android:textColor="#757575"
-                android:textSize="12sp" />
+                android:ellipsize="end" />
 
+            <!-- Tác giả -->
+            <TextView
+                android:id="@+id/gridBookAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Author"
+                android:textSize="10sp"
+                android:textColor="#757575"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <!-- Đánh giá -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+
+                <RatingBar
+                    android:id="@+id/ratingBar"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:stepSize="0.1"
+                    android:layout_gravity="center_vertical" />
+
+                <TextView
+                    android:id="@+id/ratingText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="8sp"
+                    android:text=""
+                    android:layout_marginStart="2dp"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>
