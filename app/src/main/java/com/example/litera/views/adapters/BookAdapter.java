@@ -16,11 +16,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.litera.R;
-import com.example.litera.models.Author;
 import com.example.litera.models.Book;
 import com.example.litera.utils.GoogleDriveUtils;
 import com.example.litera.viewmodels.MainViewModel;
-import com.example.litera.views.fragments.BookDetailActivity;
+import com.example.litera.views.activities.BookDetailActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,10 +28,17 @@ import java.util.Map;
 
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder> {
     private static final String TAG = "BookAdapter";
+
+    // Constants for view types
+    public static final int VIEW_TYPE_CONTINUE_READING = 0;
+    public static final int VIEW_TYPE_TRENDING = 1;
+    public static final int VIEW_TYPE_GRID = 2;
+
     private final List<Book> books = new ArrayList<>();
     private boolean isTrendingView;
     private MainViewModel viewModel;
     private LifecycleOwner lifecycleOwner;
+    private int viewType = VIEW_TYPE_CONTINUE_READING;
 
     // Cache tên tác giả để tránh truy vấn nhiều lần
     private final Map<String, String> authorNameCache = new HashMap<>();
@@ -40,16 +46,27 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     // Constructor mặc định (không tham số)
     public BookAdapter() {
         this.isTrendingView = false; // Mặc định không phải là trending view
+        this.viewType = VIEW_TYPE_CONTINUE_READING;
     }
 
     // Constructor mới nhận tham số boolean
     public BookAdapter(boolean isTrendingView) {
         this.isTrendingView = isTrendingView;
+        this.viewType = isTrendingView ? VIEW_TYPE_TRENDING : VIEW_TYPE_CONTINUE_READING;
     }
 
     // Constructor nhận ViewModel và LifecycleOwner
     public BookAdapter(boolean isTrendingView, MainViewModel viewModel, LifecycleOwner lifecycleOwner) {
         this.isTrendingView = isTrendingView;
+        this.viewType = isTrendingView ? VIEW_TYPE_TRENDING : VIEW_TYPE_CONTINUE_READING;
+        this.viewModel = viewModel;
+        this.lifecycleOwner = lifecycleOwner;
+    }
+
+    // Constructor for grid view
+    public BookAdapter(int viewType, MainViewModel viewModel, LifecycleOwner lifecycleOwner) {
+        this.viewType = viewType;
+        this.isTrendingView = (viewType == VIEW_TYPE_TRENDING);
         this.viewModel = viewModel;
         this.lifecycleOwner = lifecycleOwner;
     }
@@ -60,87 +77,86 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         this.lifecycleOwner = lifecycleOwner;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return viewType;
+    }
+
     @NonNull
     @Override
     public BookViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
-        if (isTrendingView) {
-            // Layout cho trending books
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_trending_book, parent, false);
-        } else {
-            // Layout cho continue reading
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_book, parent, false);
+        switch (viewType) {
+            case VIEW_TYPE_TRENDING:
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_trending_book, parent, false);
+                return new TrendingBookViewHolder(view);
+            case VIEW_TYPE_GRID:
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_grid_book, parent, false);
+                return new GridBookViewHolder(view);
+            case VIEW_TYPE_CONTINUE_READING:
+            default:
+                view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_book, parent, false);
+                return new ContinueReadingViewHolder(view);
         }
-        return new BookViewHolder(view, isTrendingView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull BookViewHolder holder, int position) {
         Book book = books.get(position);
-        String authorId = book.getAuthorId(); // Sửa: sử dụng getAuthorId() thay vì getAuthor()
+        String authorId = book.getAuthorId(); // Sử dụng getAuthorId() thay vì getAuthor()
 
-        // Thiết lập dữ liệu chung cho cả hai loại layout
-        if (isTrendingView) {
-            // Thiết lập cho trending book
-            holder.trendingBookTitle.setText(book.getTitle());
+        if (holder instanceof TrendingBookViewHolder) {
+            // Binding cho trending book view holder
+            TrendingBookViewHolder trendingHolder = (TrendingBookViewHolder) holder;
+            trendingHolder.trendingBookTitle.setText(book.getTitle());
+            loadAuthorName(authorId, trendingHolder.trendingBookAuthor);
+            loadBookImage(book.getImageUrl(), trendingHolder.trendingBookImage);
 
-            // Tải tên tác giả nếu có ViewModel và LifecycleOwner
-            loadAuthorName(authorId, holder.trendingBookAuthor);
+        } else if (holder instanceof GridBookViewHolder) {
+            // Binding cho grid book view holder
+            GridBookViewHolder gridHolder = (GridBookViewHolder) holder;
+            gridHolder.bookTitle.setText(book.getTitle());
+            loadAuthorName(authorId, gridHolder.bookAuthor);
+            loadBookImage(book.getImageUrl(), gridHolder.bookImage);
 
-            // Lấy URL Google Drive và chuyển đổi nó
-            String driveUrl = book.getImageUrl();
-            String directUrl = GoogleDriveUtils.convertToDirect(driveUrl);
+        } else if (holder instanceof ContinueReadingViewHolder) {
+            // Binding cho continue reading view holder
+            ContinueReadingViewHolder continueHolder = (ContinueReadingViewHolder) holder;
+            continueHolder.bookTitle.setText(book.getTitle());
+            loadAuthorName(authorId, continueHolder.bookAuthor);
+            loadBookImage(book.getImageUrl(), continueHolder.bookImage);
 
-            // Tải ảnh với Glide
-            if (directUrl != null) {
-                Glide.with(holder.itemView.getContext())
-                        .load(directUrl)
-                        .placeholder(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
-                        .error(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
-                        .into(holder.trendingBookImage);
-            } else {
-                holder.trendingBookImage.setImageResource(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347);
+            // Thiết lập tiến trình đọc (demo value)
+            int progress = 75;
+            if (continueHolder.readProgress != null) {
+                continueHolder.readProgress.setProgress(progress);
             }
-        } else {
-            // Thiết lập cho continue reading
-            holder.bookTitle.setText(book.getTitle());
-
-            // Tải tên tác giả nếu có ViewModel và LifecycleOwner
-            loadAuthorName(authorId, holder.bookAuthor);
-
-            // Giả sử: thiết lập tiến trình đọc (có thể thay đổi dựa trên dữ liệu thực tế)
-            int progress = 75; // Phần trăm hoàn thành
-            if (holder.readProgress != null) {
-                holder.readProgress.setProgress(progress);
-            }
-
-            if (holder.readPercentage != null) {
-                holder.readPercentage.setText(progress + "% completed");
-            }
-
-            // Lấy URL Google Drive và chuyển đổi nó
-            String driveUrl = book.getImageUrl();
-            String directUrl = GoogleDriveUtils.convertToDirect(driveUrl);
-
-            // Tải ảnh với Glide
-            if (directUrl != null) {
-                Glide.with(holder.itemView.getContext())
-                        .load(directUrl)
-                        .placeholder(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
-                        .error(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
-                        .into(holder.bookImage);
-            } else {
-                holder.bookImage.setImageResource(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347);
+            if (continueHolder.readPercentage != null) {
+                continueHolder.readPercentage.setText(progress + "% completed");
             }
         }
 
-        // Set click listener cho cả hai loại layout
+        // Set click listener cho tất cả loại layout
         holder.itemView.setOnClickListener(v -> {
             Context context = holder.itemView.getContext();
             Intent intent = new Intent(context, BookDetailActivity.class);
             intent.putExtra("bookId", book.getId());
             context.startActivity(intent);
         });
+    }
+
+    // Helper method to load book images
+    private void loadBookImage(String imageUrl, ImageView imageView) {
+        String directUrl = GoogleDriveUtils.convertToDirect(imageUrl);
+        if (directUrl != null) {
+            Glide.with(imageView.getContext())
+                    .load(directUrl)
+                    .placeholder(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
+                    .error(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
+                    .into(imageView);
+        } else {
+            imageView.setImageResource(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347);
+        }
     }
 
     // Phương thức để tải và hiển thị tên tác giả
@@ -183,6 +199,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     }
 
     public void submitList(List<Book> newBooks) {
+        Log.d(TAG, "Submitting " + (newBooks != null ? newBooks.size() : 0) + " books to adapter");
         books.clear();
         if (newBooks != null) {
             books.addAll(newBooks);
@@ -190,35 +207,56 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         notifyDataSetChanged();
     }
 
-    static class BookViewHolder extends RecyclerView.ViewHolder {
-        // Views cho Continue Reading
+    // Abstract base ViewHolder
+    public abstract static class BookViewHolder extends RecyclerView.ViewHolder {
+        public BookViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+    }
+
+    // ViewHolder for Continue Reading
+    public static class ContinueReadingViewHolder extends BookViewHolder {
         TextView bookTitle;
         TextView bookAuthor;
         ImageView bookImage;
         ProgressBar readProgress;
         TextView readPercentage;
 
-        // Views cho Trending
+        ContinueReadingViewHolder(@NonNull View itemView) {
+            super(itemView);
+            bookTitle = itemView.findViewById(R.id.bookTitle);
+            bookAuthor = itemView.findViewById(R.id.bookAuthor);
+            bookImage = itemView.findViewById(R.id.bookImage);
+            readProgress = itemView.findViewById(R.id.readProgress);
+            readPercentage = itemView.findViewById(R.id.readPercentage);
+        }
+    }
+
+    // ViewHolder for Trending Books
+    public static class TrendingBookViewHolder extends BookViewHolder {
         TextView trendingBookTitle;
         TextView trendingBookAuthor;
         ImageView trendingBookImage;
 
-        BookViewHolder(@NonNull View itemView, boolean isTrending) {
+        TrendingBookViewHolder(@NonNull View itemView) {
             super(itemView);
+            trendingBookTitle = itemView.findViewById(R.id.trendingBookTitle);
+            trendingBookAuthor = itemView.findViewById(R.id.trendingBookAuthor);
+            trendingBookImage = itemView.findViewById(R.id.trendingBookImage);
+        }
+    }
 
-            if (isTrending) {
-                // Ánh xạ views cho trending books
-                trendingBookTitle = itemView.findViewById(R.id.trendingBookTitle);
-                trendingBookAuthor = itemView.findViewById(R.id.trendingBookAuthor);
-                trendingBookImage = itemView.findViewById(R.id.trendingBookImage);
-            } else {
-                // Ánh xạ views cho continue reading
-                bookTitle = itemView.findViewById(R.id.bookTitle);
-                bookAuthor = itemView.findViewById(R.id.bookAuthor);
-                bookImage = itemView.findViewById(R.id.bookImage);
-                readProgress = itemView.findViewById(R.id.readProgress);
-                readPercentage = itemView.findViewById(R.id.readPercentage);
-            }
+    // ViewHolder for Grid Books
+    public static class GridBookViewHolder extends BookViewHolder {
+        TextView bookTitle;
+        TextView bookAuthor;
+        ImageView bookImage;
+
+        GridBookViewHolder(@NonNull View itemView) {
+            super(itemView);
+            bookTitle = itemView.findViewById(R.id.bookTitle);
+            bookAuthor = itemView.findViewById(R.id.bookAuthor);
+            bookImage = itemView.findViewById(R.id.bookImage);
         }
     }
 }

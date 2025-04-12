@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,10 +30,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
-    private ImageView imgMenu, imgProfile;
+    private ImageView imgProfile;
     private TextView tvHello;
     private EditText etSearch;
-    private RecyclerView rvContinueReading, rvTrendingBooks, rvPopularAuthors;
+    private RecyclerView rvContinueReading, rvTrendingBooks, rvPopularAuthors, rvAllBooks;
     private TabLayout tabGenres;
     private MainViewModel mainViewModel;
     private ProgressBar progressBar; // Add this to your layout
@@ -44,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     // Khai báo adapter ở mức class để có thể sử dụng trong các phương thức khác
     private BookAdapter trendingBooksAdapter;
     private BookAdapter continueReadingAdapter;
+    private BookAdapter allBooksAdapter;
     private AuthorAdapter popularAuthorAdapter;
 
     @Override
@@ -56,28 +58,23 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         // Initialize UI elements
-        imgMenu = findViewById(R.id.imgMenu);
         tvHello = findViewById(R.id.tvHello);
         etSearch = findViewById(R.id.etSearch);
         rvContinueReading = findViewById(R.id.rvContinueReading);
         rvTrendingBooks = findViewById(R.id.rvTrendingBooks);
         rvPopularAuthors = findViewById(R.id.rvPopularAuthors);
+        rvAllBooks = findViewById(R.id.rvAllBooks);
         tabGenres = findViewById(R.id.tabGenres);
         TextView tvViewAllAuthors = findViewById(R.id.tvViewAllAuthors);
         TextView tvViewAllContinueReading = findViewById(R.id.tvViewAllContinueReading);
         TextView tvViewAllTrendingBooks = findViewById(R.id.tvViewAllTrendingBooks);
+        TextView tvViewAllBooks = findViewById(R.id.tvViewAllBooks);
 
         // Add a progress bar in your layout and reference it here
         // progressBar = findViewById(R.id.progressBar);
 
         // Hiển thị tên người dùng
         loadUserNameAndDisplay();
-
-        imgMenu.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-            finish(); // Optional: Close MainActivity
-        });
 
         // Handle profile click
         ImageView imgProfile = findViewById(R.id.imgProfile);
@@ -96,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         setupAdapters();
 
         // Handle navigation for view all buttons
-        setupNavigationListeners(tvViewAllAuthors, tvViewAllContinueReading, tvViewAllTrendingBooks);
+        setupNavigationListeners(tvViewAllAuthors, tvViewAllContinueReading, tvViewAllTrendingBooks, tvViewAllBooks);
 
         // Observe ViewModel data
         observeViewModel();
@@ -151,14 +148,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupAdapters() {
         // Setup RecyclerView for Trending Books
-        trendingBooksAdapter = new BookAdapter(true, mainViewModel, this); // Thêm mainViewModel và this (LifecycleOwner)
+        trendingBooksAdapter = new BookAdapter(BookAdapter.VIEW_TYPE_TRENDING, mainViewModel, this);
         rvTrendingBooks.setAdapter(trendingBooksAdapter);
+        rvTrendingBooks.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
         // Setup RecyclerView for Continue Reading
-        continueReadingAdapter = new BookAdapter(false, mainViewModel, this); // Thêm mainViewModel và this (LifecycleOwner)
+        continueReadingAdapter = new BookAdapter(BookAdapter.VIEW_TYPE_CONTINUE_READING, mainViewModel, this);
         rvContinueReading.setAdapter(continueReadingAdapter);
         rvContinueReading.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+
+        // Setup RecyclerView for All Books - SETUP MỚI CHO PHẦN ALL BOOKS
+        allBooksAdapter = new BookAdapter(BookAdapter.VIEW_TYPE_GRID, mainViewModel, this);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 3);
+        rvAllBooks.setLayoutManager(gridLayoutManager);
+        rvAllBooks.setAdapter(allBooksAdapter);
 
         // Setup RecyclerView for Popular Authors
         popularAuthorAdapter = new AuthorAdapter();
@@ -168,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupNavigationListeners(TextView viewAllAuthors, TextView viewAllContinueReading,
-                                          TextView viewAllTrendingBooks) {
+                                          TextView viewAllTrendingBooks, TextView viewAllBooks) {
         // Handle navigation
         viewAllAuthors.setOnClickListener(v -> {
             // Navigate to AuthorListActivity
@@ -177,14 +182,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
         viewAllContinueReading.setOnClickListener(v -> {
-            // Navigate to BookListActivity
+            // Navigate to BookListActivity with continue reading mode
             Intent intent = new Intent(MainActivity.this, BookListActivity.class);
+            intent.putExtra(BookListActivity.EXTRA_DISPLAY_MODE, BookListActivity.DISPLAY_CONTINUE_READING);
             startActivity(intent);
         });
 
         viewAllTrendingBooks.setOnClickListener(v -> {
-            // Navigate to BookListActivity
+            // Navigate to BookListActivity with trending books mode
             Intent intent = new Intent(MainActivity.this, BookListActivity.class);
+            intent.putExtra(BookListActivity.EXTRA_DISPLAY_MODE, BookListActivity.DISPLAY_TRENDING_BOOKS);
+            startActivity(intent);
+        });
+
+        viewAllBooks.setOnClickListener(v -> {
+            // Navigate to BookListActivity with all books mode
+            Intent intent = new Intent(MainActivity.this, BookListActivity.class);
+            intent.putExtra(BookListActivity.EXTRA_DISPLAY_MODE, BookListActivity.DISPLAY_ALL_BOOKS);
             startActivity(intent);
         });
     }
@@ -200,6 +214,15 @@ public class MainActivity extends AppCompatActivity {
         mainViewModel.getTrendingBooks().observe(this, books -> {
             if (books != null && !books.isEmpty()) {
                 trendingBooksAdapter.submitList(books);
+            }
+        });
+
+        // Observe ALL books - PHẦN MỚI CHO ALL BOOKS
+        mainViewModel.getAllBooks().observe(this, books -> {
+            if (books != null && !books.isEmpty()) {
+                // Giới hạn chỉ hiển thị 6 cuốn sách đầu tiên trong trang chính
+                int maxBooks = Math.min(6, books.size());
+                allBooksAdapter.submitList(books.subList(0, maxBooks));
             }
         });
 

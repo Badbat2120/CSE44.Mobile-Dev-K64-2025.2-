@@ -276,6 +276,47 @@ public class MainViewModel extends ViewModel {
         return errorMessage;
     }
 
+    private final MutableLiveData<List<Book>> allBooks = new MutableLiveData<>(new ArrayList<>());
+
+    public LiveData<List<Book>> getAllBooks() {
+        if (allBooks.getValue() == null || allBooks.getValue().isEmpty()) {
+            loadAllBooks();
+        }
+        return allBooks;
+    }
+
+    private void loadAllBooks() {
+        isLoading.setValue(true);
+
+        bookRepository.getBooks()
+                .thenAccept(books -> {
+                    // Tải thông tin tác giả cho mỗi cuốn sách
+                    for (Book book : books) {
+                        // Đảm bảo các trường mới được xử lý đúng
+                        validateBookFields(book);
+
+                        if (book.getAuthorId() != null && !book.getAuthorId().isEmpty()) {
+                            // Sử dụng authorRepository để lấy thông tin tác giả
+                            authorRepository.getAuthorById(book.getAuthorId())
+                                    .thenAccept(book::setAuthor)
+                                    .exceptionally(e -> {
+                                        Log.e(TAG, "Error loading author for book: " + book.getId(), e);
+                                        return null;
+                                    });
+                        }
+                    }
+
+                    allBooks.postValue(books);
+                    isLoading.postValue(false);
+                })
+                .exceptionally(e -> {
+                    Log.e(TAG, "Error loading all books", e);
+                    errorMessage.postValue("Lỗi khi tải danh sách sách: " + e.getMessage());
+                    isLoading.postValue(false);
+                    return null;
+                });
+    }
+
     // Method to refresh data
     public void refreshData() {
         isLoading.setValue(true);

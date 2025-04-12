@@ -118,6 +118,17 @@
                 android:text="Top Up Wallet"
                 android:backgroundTint="#1E90FF"
                 android:textColor="#FFFFFF"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Thêm nút đăng xuất -->
+            <Button
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Logout"
+                android:backgroundTint="#FF5252"
+                android:textColor="#FFFFFF"
                 android:padding="12dp"/>
 
         </LinearLayout>

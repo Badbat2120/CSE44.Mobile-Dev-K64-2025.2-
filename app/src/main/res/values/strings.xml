@@ -7,6 +7,11 @@
     <string name="minimum_password">Password must be at least 6 characters</string>
     <string name="auth_failed">Authentication failed</string>
 
+    <string name="all_books">All Books</string>
+    <string name="trending_books">Trending Books</string>
+    <string name="continue_reading">Continue Reading</string>
+    <string name="back">Back</string>
+
     <string name="_156_npages">156\nPages</string>
     <string name="_187_nreviews">187\nReviews</string>
     <string name="chapter">Chapter</string>

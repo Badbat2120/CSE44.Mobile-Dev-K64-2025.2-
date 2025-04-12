@@ -135,6 +135,7 @@ public class ProfileUserActivity extends AppCompatActivity {
         Button btnFavourites = findViewById(R.id.btnFavourites);
         Button btnChangePass = findViewById(R.id.btnChangePass);
         Button btnTopUpWallet = findViewById(R.id.btnTopUpWallet);
+        Button btnLogout = findViewById(R.id.btnLogout);
 
         // Navigate back to MainActivity
         btnBack.setOnClickListener(new View.OnClickListener() {
@@ -173,5 +174,23 @@ public class ProfileUserActivity extends AppCompatActivity {
             }
         });
 
+        // Handle Logout button click - CHỨC NĂNG MỚI
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Đăng xuất khỏi Firebase Auth
+                FirebaseAuth.getInstance().signOut();
+
+                // Hiển thị thông báo
+                Toast.makeText(ProfileUserActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+
+                // Chuyển đến màn hình đăng nhập
+                Intent intent = new Intent(ProfileUserActivity.this, LoginActivity.class);
+                // Xóa tất cả activity khỏi stack
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 }

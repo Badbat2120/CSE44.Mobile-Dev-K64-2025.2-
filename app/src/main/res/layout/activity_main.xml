@@ -20,69 +20,55 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- Header -->
+            <!-- Header - Đã xóa imgMenu và thay bằng tvAppTitle -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="12dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
-                <!-- Avatar bên trái -->
-                <ImageView
-                    android:id="@+id/imgMenu"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/menu_icon_5"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/menu_icon_5" />
 
-                <!-- Spacer -->
-                <View
+                <!-- App Title - Đã chuyển lên -->
+                <TextView
+                    android:id="@+id/tvAppTitle"
                     android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="15" />
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Litera"
+                    android:textColor="#3F51B5"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
 
                 <!-- Hello Tommy bên phải -->
-
                 <TextView
                     android:id="@+id/tvHello"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
                     android:hint="Tên người dùng"
                     android:textSize="16sp"
                     android:textStyle="bold" />
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/imgProfile"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347" />
+                <androidx.cardview.widget.CardView
+                    android:layout_width="42dp"
+                    android:layout_height="42dp"
+                    app:cardCornerRadius="21dp">
+                    <ImageView
+                        android:id="@+id/imgProfile"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347" />
+                </androidx.cardview.widget.CardView>
             </LinearLayout>
-
-            <!-- App Title -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="Litera"
-                android:textColor="#3F51B5"
-                android:textSize="24sp"
-                android:textStyle="bold" />
 
             <!-- Search Bar -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
-                android:layout_marginBottom="12dp"
+                android:layout_marginBottom="16dp"
                 app:cardCornerRadius="24dp"
-                app:cardElevation="4dp">
+                app:cardElevation="2dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -91,9 +77,10 @@
                     android:paddingStart="12dp"
                     android:paddingEnd="12dp">
 
-                    <SearchView
+                    <ImageView
                         android:layout_width="24dp"
-                        android:layout_height="24dp" />
+                        android:layout_height="24dp"
+                        android:src="@android:drawable/ic_menu_search" />
 
                     <EditText
                         android:id="@+id/etSearch"
@@ -111,14 +98,13 @@
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="160dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="20dp"
                 app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
+                app:cardElevation="2dp">
 
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/z6477401502352_356614eec45b2f7855ff3ca6e75ace14"
                     android:scaleType="centerCrop"
                     android:src="@drawable/z6477401502352_356614eec45b2f7855ff3ca6e75ace14" />
             </androidx.cardview.widget.CardView>
@@ -127,7 +113,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="10dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -146,8 +132,7 @@
 
                 <FrameLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    tools:ignore="TouchTargetSizeCheck">
+                    android:layout_height="wrap_content">
 
                     <TextView
                         android:id="@+id/tvViewAllAuthors"
@@ -158,8 +143,7 @@
                         android:padding="8dp"
                         android:text="view all"
                         android:textColor="#A9A9A9"
-                        android:textSize="14sp"
-                        tools:ignore="TouchTargetSizeCheck" />
+                        android:textSize="14sp" />
                 </FrameLayout>
             </LinearLayout>
 
@@ -167,7 +151,7 @@
                 android:id="@+id/rvPopularAuthors"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="20dp"
                 android:background="#FAFAFA"
                 android:clipToPadding="false"
                 android:orientation="horizontal"
@@ -181,7 +165,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="10dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -211,12 +195,11 @@
                         android:padding="8dp"
                         android:text="view all"
                         android:textColor="#A9A9A9"
-                        android:textSize="14sp"
-                        tools:ignore="TouchTargetSizeCheck" />
+                        android:textSize="14sp" />
                 </FrameLayout>
             </LinearLayout>
 
-            <!-- Continue Reading RecyclerView - ĐƯỢC CHỈNH SỬA ĐỂ TRÔNG ĐẸP HƠN -->
+            <!-- Continue Reading RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvContinueReading"
                 android:layout_width="match_parent"
@@ -235,7 +218,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
+                android:layout_marginBottom="10dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
@@ -269,31 +252,84 @@
                 </FrameLayout>
             </LinearLayout>
 
-            <!-- Trending Books RecyclerView - ĐƯỢC CHỈNH SỬA ĐỂ HIỂN THỊ DẠNG LƯỚI -->
+            <!-- Trending Books RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvTrendingBooks"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_height="220dp"
+                android:layout_marginBottom="20dp"
                 android:background="#FAFAFA"
                 android:clipToPadding="false"
-                android:minHeight="400dp"
-                android:nestedScrollingEnabled="false"
-                android:paddingStart="2dp"
-                android:paddingTop="4dp"
-                android:paddingEnd="2dp"
-                android:paddingBottom="4dp"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="2"
-                tools:itemCount="4"
+                android:orientation="horizontal"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="3"
                 tools:listitem="@layout/item_trending_book" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tabGenres"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="20dp"
                 app:tabMode="scrollable" />
+
+            <!-- All Books -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All Books"
+                    android:textColor="#2196F3"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvViewAllBooks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="8dp"
+                        android:text="view all"
+                        android:textColor="#A9A9A9"
+                        android:textSize="14sp" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- All Books RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvAllBooks"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:background="#FAFAFA"
+                android:clipToPadding="false"
+                android:minHeight="300dp"
+                android:nestedScrollingEnabled="false"
+                android:paddingStart="2dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="2dp"
+                android:paddingBottom="4dp"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="3"
+                tools:itemCount="6"
+                tools:listitem="@layout/item_grid_book" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -304,7 +340,6 @@
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:layout_gravity="bottom"
-        app:labelVisibilityMode="labeled"
         android:background="@color/white"
-        />
+        app:labelVisibilityMode="labeled" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

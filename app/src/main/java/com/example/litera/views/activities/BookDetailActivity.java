@@ -1,4 +1,4 @@
-package com.example.litera.views.fragments;
+package com.example.litera.views.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,12 +15,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.example.litera.R;
 import com.example.litera.utils.GoogleDriveUtils;
 import com.example.litera.viewmodels.BookDetailViewModel;
-import com.example.litera.models.Book;
-import com.example.litera.views.activities.AddToCartActivity;
 
 public class BookDetailActivity extends AppCompatActivity {
 

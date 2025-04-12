@@ -32,7 +32,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".views.fragments.BookDetailActivity"
+            android:name=".views.activities.BookDetailActivity"
             android:exported="true" />
 
         <activity
