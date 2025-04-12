@@ -16,7 +16,7 @@ public class FavBookActivity extends AppCompatActivity {
         setContentView(R.layout.activity_fav_book);
 
         // Initialize the back button
-        ImageButton backButton = findViewById(R.id.back_button);
+        ImageButton backButton = findViewById(R.id.backButton);
 
         // Set click listener for the back button
         backButton.setOnClickListener(new View.OnClickListener() {
