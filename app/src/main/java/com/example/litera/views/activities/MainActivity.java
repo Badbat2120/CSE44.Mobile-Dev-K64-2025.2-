@@ -102,8 +102,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
         // Tải lại tên người dùng mỗi khi quay lại MainActivity
         loadUserNameAndDisplay();
+
+        // Làm mới dữ liệu sách
+        if (mainViewModel != null) {
+            // Xóa cache để đảm bảo lấy dữ liệu mới nhất từ Firestore
+            mainViewModel.clearCache();
+
+            // Tải lại tất cả dữ liệu
+            mainViewModel.refreshData();
+        }
     }
 
     /**

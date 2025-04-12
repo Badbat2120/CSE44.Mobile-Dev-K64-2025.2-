@@ -2,6 +2,8 @@ package com.example.litera.views.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -15,9 +17,16 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.example.litera.R;
 import com.example.litera.models.Book;
+import com.example.litera.models.User;
+import com.example.litera.repositories.UserRepository;
+import com.example.litera.repositories.BookRepository;
 import com.example.litera.utils.GoogleDriveUtils;
 import com.example.litera.viewmodels.MainViewModel;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AddToCartActivity extends AppCompatActivity {
 
@@ -30,10 +39,17 @@ public class AddToCartActivity extends AppCompatActivity {
     private ImageButton btnFavorite, btnLike, btnShare;
     private MainViewModel mainViewModel;
 
+    // Repository
+    private UserRepository userRepository;
+    private BookRepository bookRepository;
+
     // Data
     private String bookId;
     private boolean isFavorite = false;
     private boolean isLiked = false;
+    private boolean hasReadBook = false;
+    private boolean hasRatedBook = false;
+    private int userRating = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,8 +59,10 @@ public class AddToCartActivity extends AppCompatActivity {
         // Get bookId from intent
         bookId = getIntent().getStringExtra("bookId");
 
-        // Initialize ViewModel
+        // Initialize ViewModel and repositories
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        userRepository = new UserRepository();
+        bookRepository = BookRepository.getInstance();
 
         // Initialize views
         initViews();
@@ -55,6 +73,7 @@ public class AddToCartActivity extends AppCompatActivity {
         // Load book data
         if (bookId != null && !bookId.isEmpty()) {
             loadBookData(bookId);
+            checkUserInteractions();
         } else {
             displayDemoBookData();
         }
@@ -69,9 +88,6 @@ public class AddToCartActivity extends AppCompatActivity {
         readButton = findViewById(R.id.readButton);
         buyButton = findViewById(R.id.buyButton);
         ratingBar = findViewById(R.id.ratingBar);
-        btnFavorite = findViewById(R.id.btnFavorite);
-        btnLike = findViewById(R.id.btnLike);
-        btnShare = findViewById(R.id.btnShare);
     }
 
     private void setupListeners() {
@@ -85,6 +101,9 @@ public class AddToCartActivity extends AppCompatActivity {
                 Intent intent = new Intent(AddToCartActivity.this, ReadBookActivity.class);
                 intent.putExtra("bookId", bookId);
                 startActivity(intent);
+
+                // Đánh dấu sách đã được đọc
+                markBookAsRead(bookId);
             } else {
                 Toast.makeText(this, "Cannot load book content", Toast.LENGTH_SHORT).show();
             }
@@ -111,36 +130,44 @@ public class AddToCartActivity extends AppCompatActivity {
             }, 2000);
         });
 
-        // Favorite button
-        btnFavorite.setOnClickListener(v -> {
-            isFavorite = !isFavorite;
-            btnFavorite.setImageResource(R.drawable.sao);
+        // Rating bar - Chỉ cho phép rating nếu đã đọc sách
+        ratingBar.setOnRatingBarChangeListener((ratingBar, rating, fromUser) -> {
+            if (!fromUser) return;
 
-            Toast.makeText(this, isFavorite ?
-                            "Added to favorites" : "Removed from favorites",
-                    Toast.LENGTH_SHORT).show();
+            if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+                Toast.makeText(this, "Please login to rate this book", Toast.LENGTH_SHORT).show();
+                ratingBar.setRating(userRating); // Reset về giá trị cũ
+                return;
+            }
+
+            if (!hasReadBook) {
+                Toast.makeText(this, "You need to read this book before rating", Toast.LENGTH_SHORT).show();
+                ratingBar.setRating(userRating); // Reset về giá trị cũ
+                return;
+            }
+
+            // Lưu đánh giá vào cơ sở dữ liệu
+            submitRating(Math.round(rating));
         });
 
-        // Like button
-        btnLike.setOnClickListener(v -> {
-            isLiked = !isLiked;
-            btnLike.setImageResource(R.drawable.yeu);
+        // Setup listeners for optional buttons if they exist
+        if (btnFavorite != null) {
+            btnFavorite.setOnClickListener(v -> {
+                Toast.makeText(this, "Added to favorites", Toast.LENGTH_SHORT).show();
+            });
+        }
 
-            Toast.makeText(this, isLiked ?
-                            "You liked this book" : "You unliked this book",
-                    Toast.LENGTH_SHORT).show();
-        });
+        if (btnLike != null) {
+            btnLike.setOnClickListener(v -> {
+                Toast.makeText(this, "You liked this book", Toast.LENGTH_SHORT).show();
+            });
+        }
 
-        // Share button
-        btnShare.setOnClickListener(v -> {
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Share book from Litera");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "Check out this book on Litera: " +
-                    (bookTitle != null ? bookTitle.getText() : "Great book") +
-                    " - Download Litera app today!");
-            startActivity(Intent.createChooser(shareIntent, "Share via"));
-        });
+        if (btnShare != null) {
+            btnShare.setOnClickListener(v -> {
+                Toast.makeText(this, "Share feature coming soon", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private void loadBookData(String bookId) {
@@ -151,6 +178,151 @@ public class AddToCartActivity extends AppCompatActivity {
             } else {
                 displayDemoBookData();
                 Toast.makeText(this, "Unable to load book information", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void checkUserInteractions() {
+        // Kiểm tra xem người dùng đã đọc sách này chưa
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            userRepository.checkUserHasReadBook(bookId, hasRead -> {
+                hasReadBook = hasRead;
+
+                // Kiểm tra xem người dùng đã đánh giá sách này chưa
+                userRepository.checkUserHasRatedBook(bookId, (hasRated, rating) -> {
+                    hasRatedBook = hasRated;
+                    userRating = rating;
+
+                    // Nếu đã đánh giá, hiển thị đánh giá của người dùng
+                    if (hasRated) {
+                        ratingBar.setRating(rating);
+                    }
+
+                    // Đặt trạng thái cho RatingBar
+                    ratingBar.setIsIndicator(!hasReadBook);
+                });
+            });
+        } else {
+            // Nếu chưa đăng nhập, không cho phép đánh giá
+            ratingBar.setIsIndicator(true);
+        }
+    }
+
+    private void markBookAsRead(String bookId) {
+        // Kiểm tra người dùng đã đăng nhập chưa
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            return;
+        }
+
+        // Lấy thông tin người dùng hiện tại
+        userRepository.getCurrentUser(new UserRepository.OnUserFetchListener() {
+            @Override
+            public void onSuccess(User user) {
+                // Kiểm tra xem sách đã có trong danh sách continue chưa
+                List<String> continueReading = user.getContinueReading();
+                if (continueReading == null) {
+                    continueReading = new ArrayList<>();
+                }
+
+                if (!continueReading.contains(bookId)) {
+                    // Thêm sách vào danh sách continue reading
+                    continueReading.add(bookId);
+                    user.setContinueReading(continueReading);
+
+                    // Cập nhật lên Firestore
+                    userRepository.updateUser(user, new UserRepository.OnUserUpdateListener() {
+                        @Override
+                        public void onSuccess() {
+                            hasReadBook = true;
+                            ratingBar.setIsIndicator(false); // Cho phép đánh giá
+                        }
+
+                        @Override
+                        public void onFailure(String error) {
+                            Log.e("AddToCartActivity", "Failed to update continue reading: " + error);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Log.e("AddToCartActivity", "Failed to get user: " + error);
+            }
+        });
+    }
+
+    private void submitRating(int rating) {
+        if (bookId == null || bookId.isEmpty() || rating < 1 || rating > 5) {
+            return;
+        }
+
+        // Hiển thị loading
+        Toast.makeText(this, "Submitting your rating...", Toast.LENGTH_SHORT).show();
+
+        // Lưu đánh giá vào user
+        userRepository.rateBook(bookId, rating, new UserRepository.OnUserUpdateListener() {
+            @Override
+            public void onSuccess() {
+                // Cập nhật trạng thái
+                hasRatedBook = true;
+                userRating = rating;
+
+                // Cập nhật rating của sách
+                if (hasRatedBook && userRating != rating) {
+                    // Nếu đã đánh giá trước đó, cập nhật rating
+                    bookRepository.updateBookRating(bookId, userRating, rating, FirebaseAuth.getInstance().getCurrentUser().getUid())
+                            .thenAccept(success -> {
+                                if (success) {
+                                    Toast.makeText(AddToCartActivity.this,
+                                            "Your rating has been updated", Toast.LENGTH_SHORT).show();
+
+                                    // Xóa cache để đảm bảo làm mới dữ liệu
+                                    BookRepository.getInstance().clearCache();
+
+                                    // Làm mới dữ liệu trong MainViewModel
+                                    if (mainViewModel != null) {
+                                        mainViewModel.refreshBookData(bookId);
+                                    }
+                                }
+                            })
+                            .exceptionally(e -> {
+                                Toast.makeText(AddToCartActivity.this,
+                                        "Failed to update rating: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                return null;
+                            });
+                } else {
+                    // Nếu chưa đánh giá, thêm mới
+                    bookRepository.rateBook(bookId, rating, FirebaseAuth.getInstance().getCurrentUser().getUid())
+                            .thenAccept(success -> {
+                                if (success) {
+                                    Toast.makeText(AddToCartActivity.this,
+                                            "Thank you for your rating!", Toast.LENGTH_SHORT).show();
+
+                                    // Xóa cache để đảm bảo làm mới dữ liệu
+                                    BookRepository.getInstance().clearCache();
+
+                                    // Làm mới dữ liệu trong MainViewModel
+                                    if (mainViewModel != null) {
+                                        mainViewModel.refreshBookData(bookId);
+                                    }
+                                }
+                            })
+                            .exceptionally(e -> {
+                                Toast.makeText(AddToCartActivity.this,
+                                        "Failed to submit rating: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                return null;
+                            });
+                }
+            }
+
+            @Override
+            public void onFailure(String error) {
+                Toast.makeText(AddToCartActivity.this,
+                        "Failed to save your rating: " + error, Toast.LENGTH_SHORT).show();
+
+                // Reset rating bar to previous value
+                ratingBar.setRating(userRating);
             }
         });
     }
@@ -213,12 +385,19 @@ public class AddToCartActivity extends AppCompatActivity {
         if (ratingStr != null && !ratingStr.isEmpty()) {
             try {
                 float ratingValue = Float.parseFloat(ratingStr);
-                ratingBar.setRating(ratingValue);
+                // Chỉ cập nhật rating bar nếu người dùng chưa đánh giá
+                if (!hasRatedBook) {
+                    ratingBar.setRating(ratingValue);
+                }
             } catch (NumberFormatException e) {
-                ratingBar.setRating(4.5f); // Default value
+                if (!hasRatedBook) {
+                    ratingBar.setRating(0f); // Chưa có đánh giá
+                }
             }
         } else {
-            ratingBar.setRating(4.5f); // Default value
+            if (!hasRatedBook) {
+                ratingBar.setRating(0f); // Chưa có đánh giá
+            }
         }
 
         // Load book cover image
@@ -246,12 +425,11 @@ public class AddToCartActivity extends AppCompatActivity {
         bookAuthor.setText("Author");
         bookPrice.setText("$19.99");
         updateBuyButtonText("$19.99");
-        ratingBar.setRating(4.5f);
+        ratingBar.setRating(0f);
         bookCover.setImageResource(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347);
         readButton.setText("Read");
-    }
 
-    private void showLoading(boolean isLoading) {
-        // Phương thức giữ lại nhưng không sử dụng
+        // Đặt RatingBar thành isIndicator vì đây là demo
+        ratingBar.setIsIndicator(true);
     }
 }

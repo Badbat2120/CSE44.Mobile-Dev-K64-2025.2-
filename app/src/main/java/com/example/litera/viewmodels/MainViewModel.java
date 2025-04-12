@@ -319,10 +319,19 @@ public class MainViewModel extends ViewModel {
 
     // Method to refresh data
     public void refreshData() {
+        // Đánh dấu là đang tải
         isLoading.setValue(true);
+
+        // Xóa cache trước khi làm mới dữ liệu
+        clearCache();
+
+        // Tải lại dữ liệu
         loadTrendingBooks();
         loadContinueReadingBooks();
         loadPopularAuthors();
+        loadAllBooks();
+
+        // Đánh dấu là đã tải xong
         isLoading.setValue(false);
     }
 
@@ -332,5 +341,36 @@ public class MainViewModel extends ViewModel {
         authorCache.clear();
         bookRepository.clearCache();
         authorRepository.clearCache();
+    }
+
+    // Phương thức để refresh data một cách có chọn lọc
+    public void refreshBookData(String bookId) {
+        // Chỉ làm mới dữ liệu của sách cụ thể nếu nó đang ở trong cache
+        if (bookCache.containsKey(bookId)) {
+            // Xóa cache trước khi tải lại
+            bookRepository.clearCache();
+
+            // Tải lại dữ liệu sách
+            loadBookById(bookId, bookCache.get(bookId));
+        }
+
+        // Refresh tất cả các danh sách sách
+        refreshBookLists();
+    }
+
+    // Phương thức để làm mới các danh sách sách
+    public void refreshBookLists() {
+        // Đánh dấu là đang tải
+        isLoading.setValue(true);
+
+        // Xóa cache ở repository
+        bookRepository.clearCache();
+
+        // Tải lại tất cả dữ liệu sách
+        loadTrendingBooks();
+        loadContinueReadingBooks();
+        loadAllBooks();
+
+        isLoading.postValue(false);
     }
 }

@@ -2,6 +2,7 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="150dp"
     android:layout_height="match_parent"
     android:layout_margin="6dp"
@@ -72,11 +73,13 @@
                 android:maxLines="1"
                 android:ellipsize="end" />
 
-            <!-- Đánh giá -->
+            <!-- Đánh giá - Đã sửa để không có 2 ratingText -->
             <LinearLayout
+                android:id="@+id/ratingContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
+                android:orientation="vertical"
+                android:gravity="center"
                 android:layout_marginTop="4dp">
 
                 <RatingBar
@@ -84,17 +87,18 @@
                     style="?android:attr/ratingBarStyleSmall"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:rating="4.5"
+                    android:rating="0"
+                    android:stepSize="0.5"
                     android:isIndicator="true"
-                    android:progressTint="#FFC107"/>
+                    android:numStars="5" />
 
                 <TextView
                     android:id="@+id/ratingText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="4.5"
-                    android:textSize="10sp"
-                    android:layout_marginStart="4dp"/>
+                    android:text="No ratings yet"
+                    android:textSize="12sp"
+                    android:textColor="#757575" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

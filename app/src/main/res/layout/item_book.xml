@@ -2,6 +2,7 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="150dp"
     android:layout_height="match_parent"
     android:layout_margin="6dp"
@@ -26,51 +27,56 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#FFFFFF"
             android:orientation="vertical"
-            android:padding="8dp"
-            android:background="#FFFFFF">
+            android:padding="8dp">
 
             <!-- Tiêu đề sách -->
             <TextView
                 android:id="@+id/bookTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:text="Book Title"
                 android:textSize="14sp"
-                android:textStyle="bold"
-                android:maxLines="1"
-                android:ellipsize="end" />
+                android:textStyle="bold" />
 
             <!-- Tác giả -->
             <TextView
                 android:id="@+id/bookAuthor"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Author Name"
-                android:textSize="12sp"
-                android:textColor="#757575"
+                android:ellipsize="end"
                 android:maxLines="1"
-                android:ellipsize="end" />
+                android:text="Author Name"
+                android:textColor="#757575"
+                android:textSize="12sp" />
 
-            <!-- Thanh tiến trình -->
-            <ProgressBar
-                android:id="@+id/readProgress"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            <!-- Thêm đánh giá -->
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="4dp"
-                android:layout_marginTop="6dp"
-                android:progress="75"
-                android:progressTint="#2196F3" />
-
-            <!-- Phần trăm đã đọc -->
-            <TextView
-                android:id="@+id/readPercentage"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="75% completed"
-                android:textSize="10sp"
-                android:textColor="#2196F3"
-                android:layout_marginTop="2dp" />
+                android:orientation="vertical"
+                android:layout_marginTop="4dp">
+
+                <RatingBar
+                    android:id="@+id/ratingBar"
+                    style="?android:attr/ratingBarStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:stepSize="0.1" />
+
+                <TextView
+                    android:id="@+id/ratingText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="10sp"
+                    android:text="No ratings yet"
+                    android:textColor="#757575" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -24,6 +25,7 @@ import com.example.litera.views.activities.BookDetailActivity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder> {
@@ -103,36 +105,110 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     @Override
     public void onBindViewHolder(@NonNull BookViewHolder holder, int position) {
         Book book = books.get(position);
+        if (book == null) return;
+
         String authorId = book.getAuthorId(); // Sử dụng getAuthorId() thay vì getAuthor()
 
         if (holder instanceof TrendingBookViewHolder) {
             // Binding cho trending book view holder
             TrendingBookViewHolder trendingHolder = (TrendingBookViewHolder) holder;
-            trendingHolder.trendingBookTitle.setText(book.getTitle());
-            loadAuthorName(authorId, trendingHolder.trendingBookAuthor);
-            loadBookImage(book.getImageUrl(), trendingHolder.trendingBookImage);
+            if (trendingHolder.trendingBookTitle != null) {
+                trendingHolder.trendingBookTitle.setText(book.getTitle());
+            }
+            if (trendingHolder.trendingBookAuthor != null) {
+                loadAuthorName(authorId, trendingHolder.trendingBookAuthor);
+            }
+            if (trendingHolder.trendingBookImage != null) {
+                loadBookImage(book.getImageUrl(), trendingHolder.trendingBookImage);
+            }
+
+            // Hiển thị rating nếu có
+            if (trendingHolder.ratingBar != null) {
+                try {
+                    float ratingValue = book.getRatingAsFloat();
+                    trendingHolder.ratingBar.setRating(ratingValue);
+
+                    if (trendingHolder.ratingText != null) {
+                        int ratingCount = book.getRatingCountAsInt();
+                        trendingHolder.ratingText.setText(String.format(Locale.US, "%.1f (%d)",
+                                ratingValue, ratingCount));
+                    }
+                } catch (Exception e) {
+                    if (trendingHolder.ratingBar != null) {
+                        trendingHolder.ratingBar.setRating(0f);
+                    }
+                    if (trendingHolder.ratingText != null) {
+                        trendingHolder.ratingText.setText("No ratings");
+                    }
+                }
+            }
 
         } else if (holder instanceof GridBookViewHolder) {
             // Binding cho grid book view holder
             GridBookViewHolder gridHolder = (GridBookViewHolder) holder;
-            gridHolder.bookTitle.setText(book.getTitle());
-            loadAuthorName(authorId, gridHolder.bookAuthor);
-            loadBookImage(book.getImageUrl(), gridHolder.bookImage);
+            if (gridHolder.bookTitle != null) {
+                gridHolder.bookTitle.setText(book.getTitle());
+            }
+            if (gridHolder.bookAuthor != null) {
+                loadAuthorName(authorId, gridHolder.bookAuthor);
+            }
+            if (gridHolder.bookImage != null) {
+                loadBookImage(book.getImageUrl(), gridHolder.bookImage);
+            }
+
+            // Hiển thị rating nếu có
+            if (gridHolder.ratingBar != null) {
+                try {
+                    float ratingValue = book.getRatingAsFloat();
+                    gridHolder.ratingBar.setRating(ratingValue);
+
+                    if (gridHolder.ratingText != null) {
+                        int ratingCount = book.getRatingCountAsInt();
+                        gridHolder.ratingText.setText(String.format(Locale.US, "%.1f (%d)",
+                                ratingValue, ratingCount));
+                    }
+                } catch (Exception e) {
+                    if (gridHolder.ratingBar != null) {
+                        gridHolder.ratingBar.setRating(0f);
+                    }
+                    if (gridHolder.ratingText != null) {
+                        gridHolder.ratingText.setText("No ratings");
+                    }
+                }
+            }
 
         } else if (holder instanceof ContinueReadingViewHolder) {
             // Binding cho continue reading view holder
             ContinueReadingViewHolder continueHolder = (ContinueReadingViewHolder) holder;
-            continueHolder.bookTitle.setText(book.getTitle());
-            loadAuthorName(authorId, continueHolder.bookAuthor);
-            loadBookImage(book.getImageUrl(), continueHolder.bookImage);
-
-            // Thiết lập tiến trình đọc (demo value)
-            int progress = 75;
-            if (continueHolder.readProgress != null) {
-                continueHolder.readProgress.setProgress(progress);
+            if (continueHolder.bookTitle != null) {
+                continueHolder.bookTitle.setText(book.getTitle());
             }
-            if (continueHolder.readPercentage != null) {
-                continueHolder.readPercentage.setText(progress + "% completed");
+            if (continueHolder.bookAuthor != null) {
+                loadAuthorName(authorId, continueHolder.bookAuthor);
+            }
+            if (continueHolder.bookImage != null) {
+                loadBookImage(book.getImageUrl(), continueHolder.bookImage);
+            }
+
+            // Hiển thị rating nếu có
+            if (continueHolder.ratingBar != null) {
+                try {
+                    float ratingValue = book.getRatingAsFloat();
+                    continueHolder.ratingBar.setRating(ratingValue);
+
+                    if (continueHolder.ratingText != null) {
+                        int ratingCount = book.getRatingCountAsInt();
+                        continueHolder.ratingText.setText(String.format(Locale.US, "%.1f (%d)",
+                                ratingValue, ratingCount));
+                    }
+                } catch (Exception e) {
+                    if (continueHolder.ratingBar != null) {
+                        continueHolder.ratingBar.setRating(0f);
+                    }
+                    if (continueHolder.ratingText != null) {
+                        continueHolder.ratingText.setText("No ratings");
+                    }
+                }
             }
         }
 
@@ -198,6 +274,13 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         return books.size();
     }
 
+    public Book getItem(int position) {
+        if (position >= 0 && position < books.size()) {
+            return books.get(position);
+        }
+        return null;
+    }
+
     public void submitList(List<Book> newBooks) {
         Log.d(TAG, "Submitting " + (newBooks != null ? newBooks.size() : 0) + " books to adapter");
         books.clear();
@@ -221,14 +304,22 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         ImageView bookImage;
         ProgressBar readProgress;
         TextView readPercentage;
+        RatingBar ratingBar;
+        TextView ratingText;
 
         ContinueReadingViewHolder(@NonNull View itemView) {
             super(itemView);
             bookTitle = itemView.findViewById(R.id.bookTitle);
             bookAuthor = itemView.findViewById(R.id.bookAuthor);
             bookImage = itemView.findViewById(R.id.bookImage);
-            readProgress = itemView.findViewById(R.id.readProgress);
-            readPercentage = itemView.findViewById(R.id.readPercentage);
+
+            // Thử tìm các view rating - có thể là null nếu layout không có
+            try {
+                ratingBar = itemView.findViewById(R.id.ratingBar);
+                ratingText = itemView.findViewById(R.id.ratingText);
+            } catch (Exception e) {
+                Log.w(TAG, "Rating views not found in continue reading layout");
+            }
         }
     }
 
@@ -237,12 +328,22 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         TextView trendingBookTitle;
         TextView trendingBookAuthor;
         ImageView trendingBookImage;
+        RatingBar ratingBar;
+        TextView ratingText;
 
         TrendingBookViewHolder(@NonNull View itemView) {
             super(itemView);
             trendingBookTitle = itemView.findViewById(R.id.trendingBookTitle);
             trendingBookAuthor = itemView.findViewById(R.id.trendingBookAuthor);
             trendingBookImage = itemView.findViewById(R.id.trendingBookImage);
+
+            // Thử tìm các view rating - có thể là null nếu layout không có
+            try {
+                ratingBar = itemView.findViewById(R.id.ratingBar);
+                ratingText = itemView.findViewById(R.id.ratingText);
+            } catch (Exception e) {
+                Log.w(TAG, "Rating views not found in trending book layout");
+            }
         }
     }
 
@@ -251,12 +352,35 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         TextView bookTitle;
         TextView bookAuthor;
         ImageView bookImage;
+        RatingBar ratingBar;
+        TextView ratingText;
 
         GridBookViewHolder(@NonNull View itemView) {
             super(itemView);
+
+            // Trong grid view layout, IDs có thể khác với các layout khác
             bookTitle = itemView.findViewById(R.id.bookTitle);
+            if (bookTitle == null) {
+                bookTitle = itemView.findViewById(R.id.gridBookTitle);
+            }
+
             bookAuthor = itemView.findViewById(R.id.bookAuthor);
+            if (bookAuthor == null) {
+                bookAuthor = itemView.findViewById(R.id.gridBookAuthor);
+            }
+
             bookImage = itemView.findViewById(R.id.bookImage);
+            if (bookImage == null) {
+                bookImage = itemView.findViewById(R.id.gridBookImage);
+            }
+
+            // Thử tìm các view rating - có thể là null nếu layout không có
+            try {
+                ratingBar = itemView.findViewById(R.id.ratingBar);
+                ratingText = itemView.findViewById(R.id.ratingText);
+            } catch (Exception e) {
+                Log.w(TAG, "Rating views not found in grid book layout");
+            }
         }
     }
 }

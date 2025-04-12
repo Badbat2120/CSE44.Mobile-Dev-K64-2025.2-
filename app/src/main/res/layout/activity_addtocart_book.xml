@@ -32,35 +32,6 @@
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
-
-            <ImageButton
-                android:id="@+id/btnFavorite"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginEnd="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Favorite"
-                android:scaleType="centerInside"
-                android:src="@drawable/sao" />
-
-            <ImageButton
-                android:id="@+id/btnLike"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_marginEnd="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Like"
-                android:scaleType="centerInside"
-                android:src="@drawable/yeu" />
-
-            <ImageButton
-                android:id="@+id/btnShare"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Share"
-                android:scaleType="centerInside"
-                android:src="@drawable/share" />
         </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

@@ -17,6 +17,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UserRepository {
@@ -193,5 +194,121 @@ public class UserRepository {
     public interface OnPasswordChangeListener {
         void onSuccess();
         void onFailure(String error);
+    }
+
+    public void rateBook(String bookId, int rating, OnUserUpdateListener listener) {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onFailure("User not authenticated");
+            return;
+        }
+
+        // Lấy document user hiện tại
+        db.collection("users").document(currentUser.getUid())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        DocumentSnapshot document = task.getResult();
+
+                        // Kiểm tra xem có trường ratings chưa
+                        Map<String, Object> ratings = (Map<String, Object>) document.get("ratings");
+                        if (ratings == null) {
+                            ratings = new HashMap<>();
+                        }
+
+                        // Cập nhật rating cho sách này
+                        ratings.put(bookId, rating);
+
+                        // Cập nhật vào Firestore
+                        db.collection("users").document(currentUser.getUid())
+                                .update("ratings", ratings)
+                                .addOnSuccessListener(aVoid -> {
+                                    listener.onSuccess();
+                                })
+                                .addOnFailureListener(e -> {
+                                    listener.onFailure("Failed to update rating: " + e.getMessage());
+                                });
+                    } else {
+                        listener.onFailure("Failed to get user document");
+                    }
+                });
+    }
+
+    // Phương thức để kiểm tra xem người dùng đã đọc sách chưa
+    public void checkUserHasReadBook(String bookId, OnBookReadCheckListener listener) {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onResult(false);
+            return;
+        }
+
+        db.collection("users").document(currentUser.getUid())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        DocumentSnapshot document = task.getResult();
+
+                        // Lấy danh sách sách đang đọc
+                        List<String> continueReading = (List<String>) document.get("continue");
+
+                        // Kiểm tra xem bookId có trong danh sách không
+                        boolean hasRead = continueReading != null && continueReading.contains(bookId);
+                        listener.onResult(hasRead);
+                    } else {
+                        listener.onResult(false);
+                    }
+                });
+    }
+
+    // Phương thức để kiểm tra xem người dùng đã đánh giá sách chưa
+    // Thêm annotation để loại bỏ cảnh báo unchecked
+    @SuppressWarnings("unchecked")
+    public void checkUserHasRatedBook(String bookId, OnBookRatingCheckListener listener) {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onResult(false, 0);
+            return;
+        }
+
+        db.collection("users").document(currentUser.getUid())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        DocumentSnapshot document = task.getResult();
+
+                        // Lấy map ratings
+                        Map<String, Object> ratings = (Map<String, Object>) document.get("ratings");
+
+                        // Kiểm tra xem bookId có trong ratings không
+                        if (ratings != null && ratings.containsKey(bookId)) {
+                            // Lấy giá trị rating
+                            int rating = 0;
+                            Object ratingObj = ratings.get(bookId);
+                            if (ratingObj instanceof Long) {
+                                rating = ((Long) ratingObj).intValue();
+                            } else if (ratingObj instanceof Integer) {
+                                rating = (Integer) ratingObj;
+                            } else if (ratingObj instanceof Double) {
+                                rating = ((Double) ratingObj).intValue();
+                            }
+
+                            listener.onResult(true, rating);
+                        } else {
+                            listener.onResult(false, 0);
+                        }
+                    } else {
+                        listener.onResult(false, 0);
+                    }
+                });
+    }
+
+    // Interface cho việc kiểm tra sách đã đọc
+    public interface OnBookReadCheckListener {
+        void onResult(boolean hasRead);
+    }
+
+    // Interface cho việc kiểm tra đánh giá sách
+    public interface OnBookRatingCheckListener {
+        void onResult(boolean hasRated, int rating);
     }
 }

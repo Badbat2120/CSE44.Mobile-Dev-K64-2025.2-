@@ -40,11 +40,14 @@ public class BookDetailViewModel extends ViewModel {
         isLoading.setValue(true);
         errorMessage.setValue(null);
 
+        // Ensure we're getting fresh data from Firestore
+        bookRepository.clearCache();
+
         bookRepository.getBookById(bookId)
                 .thenAccept(book -> {
                     if (book != null) {
                         // Lấy thông tin author
-                        String authorId = book.getAuthorId(); // Chú ý: dùng getAuthorId() thay vì getAuthor()
+                        String authorId = book.getAuthorId();
                         if (authorId != null && !authorId.isEmpty()) {
                             authorRepository.getAuthorById(authorId)
                                     .thenAccept(author -> {
