@@ -54,6 +54,11 @@
         <activity
             android:name=".views.activities.AuthorListActivity"
             android:exported="true" />
+
+        <activity
+            android:name=".views.activities.AuthorDetailActivity"
+            android:exported="true"/>
+
         <activity
             android:name=".views.activities.BookListActivity"
             android:exported="true" />
