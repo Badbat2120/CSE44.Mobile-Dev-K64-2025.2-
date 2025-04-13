@@ -398,12 +398,12 @@ public class AddToCartActivity extends AppCompatActivity {
 
             Glide.with(this)
                     .load(directUrl)
-                    .placeholder(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
-                    .error(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
+                    .placeholder(R.drawable.placeholder)
+                    .error(R.drawable.error)
                     .into(bookCover);
         } else {
             // Set default image
-            bookCover.setImageResource(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347);
+            bookCover.setImageResource(R.drawable.placeholder);
         }
     }
 
@@ -420,7 +420,7 @@ public class AddToCartActivity extends AppCompatActivity {
         bookPrice.setText("$19.99");
         updateBuyButtonText("$19.99");
         ratingBar.setRating(0f);
-        bookCover.setImageResource(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347);
+        bookCover.setImageResource(R.drawable.placeholder);
         readButton.setText("Read");
 
         // Đặt RatingBar thành isIndicator vì đây là demo

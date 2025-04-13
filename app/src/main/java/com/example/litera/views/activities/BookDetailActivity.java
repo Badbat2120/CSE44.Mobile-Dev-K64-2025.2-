@@ -123,12 +123,12 @@ public class BookDetailActivity extends AppCompatActivity {
                 if (directUrl != null) {
                     Glide.with(this)
                             .load(directUrl)
-                            .placeholder(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
-                            .error(R.drawable.sao)
+                            .placeholder(R.drawable.placeholder)
+                            .error(R.drawable.error)
                             .into(bookCover);
                 } else {
                     // Sử dụng ảnh mặc định nếu không thể chuyển đổi URL
-                    bookCover.setImageResource(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347);
+                    bookCover.setImageResource(R.drawable.placeholder);
                 }
             }
         });

@@ -109,8 +109,8 @@ public class ProfileUserActivity extends AppCompatActivity {
                                     if (avatarUrl != null && !avatarUrl.isEmpty()) {
                                         Glide.with(ProfileUserActivity.this)
                                                 .load(avatarUrl)
-                                                .placeholder(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
-                                                .error(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
+                                                .placeholder(R.drawable.placeholder)
+                                                .error(R.drawable.error)
                                                 .into(userAvatar);
                                     }
                                 }

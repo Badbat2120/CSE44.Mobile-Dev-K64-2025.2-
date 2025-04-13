@@ -397,7 +397,7 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
             intent.putExtra("authorName", author.getName());
             startActivity(intent);
         } else {
-            Toast.makeText(this, "Tác giả không hợp lệ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Author data is null", Toast.LENGTH_SHORT).show();
         }
     }
 }
