@@ -28,13 +28,6 @@
         app:layout_constraintEnd_toEndOf="parent">
 
         <ImageButton
-            android:layout_width="30dp"
-            android:layout_height="match_parent"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:scaleType="centerInside"
-            android:src="@drawable/sao" />
-
-        <ImageButton
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:background="?attr/selectableItemBackgroundBorderless"
