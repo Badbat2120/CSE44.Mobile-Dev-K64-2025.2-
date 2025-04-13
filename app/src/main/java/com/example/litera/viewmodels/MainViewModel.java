@@ -306,8 +306,13 @@ public class MainViewModel extends ViewModel {
                         }
                     }
 
-                    allBooks.postValue(books);
+                    // Lọc hoặc sắp xếp sách đã đọc ở đây nếu cần
+                    // Ví dụ: chỉ lấy vài cuốn sách đầu tiên
+                    List<Book> allBooksList = books.size() > 6 ?
+                            books.subList(0, 6) : new ArrayList<>(books);
+                    allBooks.postValue(allBooksList);
                     isLoading.postValue(false);
+
                 })
                 .exceptionally(e -> {
                     Log.e(TAG, "Error loading all books", e);

@@ -1,5 +1,6 @@
 package com.example.litera.views.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -193,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
     }
 
 
+    @SuppressLint("SetTextI18n")
     private void loadUserNameAndDisplay() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -217,16 +219,16 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
                         } else {
                             Log.w(TAG, "Error getting user document", task.getException());
                             // Hiển thị thông báo chào mặc định
-                            tvHello.setText("Xin chào người đọc");
+                            tvHello.setText("Hello User");
                         }
                     })
                     .addOnFailureListener(e -> {
                         Log.e(TAG, "Error querying users collection", e);
-                        tvHello.setText("Xin chào người đọc");
+                        tvHello.setText("Hello User");
                     });
         } else {
             // Không có người dùng đăng nhập
-            tvHello.setText("Xin chào người đọc");
+            tvHello.setText("Hello User");
         }
     }
 
@@ -250,7 +252,7 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
         rvAllBooks.setAdapter(allBooksAdapter);
 
         // Setup RecyclerView for Popular Authors
-        popularAuthorAdapter = new AuthorAdapter(this);  // Truyền this (MainActivity) vào constructor để thực hiện OnAuthorClickListener
+        popularAuthorAdapter = new AuthorAdapter(this);
         rvPopularAuthors.setAdapter(popularAuthorAdapter);
         rvPopularAuthors.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));

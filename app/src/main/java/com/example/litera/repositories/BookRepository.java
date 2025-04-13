@@ -13,7 +13,6 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -204,7 +203,7 @@ public class BookRepository {
                 } else if (oldRatingObj instanceof String) {
                     try {
                         tempOldRating = Integer.parseInt((String) oldRatingObj);
-                    } catch (NumberFormatException e) {}
+                    } catch (NumberFormatException ignored) {}
                 }
                 oldRating = tempOldRating; // Gán giá trị cho oldRating final
             } else {
@@ -363,7 +362,7 @@ public class BookRepository {
                                         } else if (ratingObj instanceof String) {
                                             try {
                                                 userRating = Integer.parseInt(ratingObj.toString());
-                                            } catch (NumberFormatException e) {}
+                                            } catch (NumberFormatException ignored) {}
                                         }
 
                                         totalRating += userRating;

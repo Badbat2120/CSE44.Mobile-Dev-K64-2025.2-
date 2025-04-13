@@ -1,5 +1,7 @@
 package com.example.litera.models;
 
+import androidx.annotation.NonNull;
+
 import com.google.firebase.firestore.PropertyName;
 
 public class Author {
@@ -48,6 +50,7 @@ public class Author {
     }
 
     // Phương thức để lấy thông tin Author dưới dạng chuỗi (tùy chọn)
+    @NonNull
     @Override
     public String toString() {
         return "Author{" +
