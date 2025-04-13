@@ -45,6 +45,28 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     // Cache tên tác giả để tránh truy vấn nhiều lần
     private final Map<String, String> authorNameCache = new HashMap<>();
 
+    // Thêm các interface để xử lý sự kiện click
+    public interface OnItemClickListener {
+        void onItemClick(Book book);
+    }
+
+    public interface OnItemLongClickListener {
+        boolean onItemLongClick(Book book);
+    }
+
+    private OnItemClickListener onItemClickListener;
+    private OnItemLongClickListener onItemLongClickListener;
+
+    // Thêm các setter cho interface
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.onItemClickListener = listener;
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener listener) {
+        this.onItemLongClickListener = listener;
+    }
+
+
     // Constructor mặc định (không tham số)
     public BookAdapter() {
         this.isTrendingView = false; // Mặc định không phải là trending view
@@ -219,6 +241,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
             intent.putExtra("bookId", book.getId());
             context.startActivity(intent);
         });
+
     }
 
     // Helper method to load book images

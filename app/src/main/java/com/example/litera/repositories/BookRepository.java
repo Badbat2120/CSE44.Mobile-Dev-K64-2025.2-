@@ -710,4 +710,195 @@ public class BookRepository {
             });
         });
     }
+
+    /**
+     * Kiểm tra xem một cuốn sách có nằm trong danh sách yêu thích của người dùng không
+     */
+    public CompletableFuture<Boolean> isBookFavorite(String bookId, String userId) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        if (userId == null || userId.isEmpty() || bookId == null || bookId.isEmpty()) {
+            future.complete(false);
+            return future;
+        }
+
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        List<String> favoriteIds = (List<String>) documentSnapshot.get("favourite");
+                        boolean isFavorite = favoriteIds != null && favoriteIds.contains(bookId);
+                        future.complete(isFavorite);
+                    } else {
+                        future.complete(false);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error checking if book is favorite", e);
+                    future.completeExceptionally(e);
+                });
+
+        return future;
+    }
+
+    /**
+     * Thêm một cuốn sách vào danh sách yêu thích của người dùng
+     */
+    public CompletableFuture<Boolean> addToFavorites(String bookId, String userId) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        if (userId == null || userId.isEmpty() || bookId == null || bookId.isEmpty()) {
+            future.complete(false);
+            return future;
+        }
+
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                // Lấy danh sách hiện tại
+                List<String> favoriteIds = (List<String>) documentSnapshot.get("favourite");
+
+                // Nếu danh sách null thì tạo mới
+                if (favoriteIds == null) {
+                    favoriteIds = new ArrayList<>();
+                }
+
+                // Nếu chưa có trong danh sách thì thêm vào
+                if (!favoriteIds.contains(bookId)) {
+                    favoriteIds.add(bookId);
+                    userRef.update("favourite", favoriteIds)
+                            .addOnSuccessListener(v -> future.complete(true))
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "Error updating favorites", e);
+                                future.completeExceptionally(e);
+                            });
+                } else {
+                    // Đã có trong danh sách
+                    future.complete(true);
+                }
+            } else {
+                future.completeExceptionally(new Exception("User document not found"));
+            }
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error checking user document", e);
+            future.completeExceptionally(e);
+        });
+
+        return future;
+    }
+
+    /**
+     * Xóa một cuốn sách khỏi danh sách yêu thích của người dùng
+     */
+    public CompletableFuture<Boolean> removeFromFavorites(String bookId, String userId) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        if (userId == null || userId.isEmpty() || bookId == null || bookId.isEmpty()) {
+            future.complete(false);
+            return future;
+        }
+
+        DocumentReference userRef = db.collection("users").document(userId);
+
+        userRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                // Lấy danh sách hiện tại
+                List<String> favoriteIds = (List<String>) documentSnapshot.get("favourite");
+
+                // Nếu danh sách rỗng thì không cần xóa
+                if (favoriteIds == null || favoriteIds.isEmpty()) {
+                    future.complete(false);
+                    return;
+                }
+
+                // Nếu có trong danh sách thì xóa
+                if (favoriteIds.contains(bookId)) {
+                    favoriteIds.remove(bookId);
+                    userRef.update("favourite", favoriteIds)
+                            .addOnSuccessListener(v -> future.complete(true))
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "Error updating favorites", e);
+                                future.completeExceptionally(e);
+                            });
+                } else {
+                    // Không có trong danh sách
+                    future.complete(false);
+                }
+            } else {
+                future.completeExceptionally(new Exception("User document not found"));
+            }
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Error checking user document", e);
+            future.completeExceptionally(e);
+        });
+
+        return future;
+    }
+
+    /**
+     * Lấy danh sách sách yêu thích dựa trên userId
+     */
+    public CompletableFuture<List<Book>> getFavoriteBooks(String userId) {
+        CompletableFuture<List<Book>> future = new CompletableFuture<>();
+
+        if (userId == null || userId.isEmpty()) {
+            future.complete(new ArrayList<>());
+            return future;
+        }
+
+        // Lấy document người dùng để xem danh sách ID sách yêu thích
+        db.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Lấy danh sách ID sách yêu thích
+                        List<String> favoriteIds = (List<String>) documentSnapshot.get("favourite");
+
+                        if (favoriteIds == null || favoriteIds.isEmpty()) {
+                            // Không có sách yêu thích
+                            future.complete(new ArrayList<>());
+                            return;
+                        }
+
+                        // Tải thông tin chi tiết của từng cuốn sách
+                        List<Book> favoriteBooks = new ArrayList<>();
+                        final int[] completedCount = {0};
+
+                        for (String bookId : favoriteIds) {
+                            getBookById(bookId)
+                                    .thenAccept(book -> {
+                                        if (book != null) {
+                                            favoriteBooks.add(book);
+                                        }
+
+                                        // Kiểm tra đã hoàn thành hết chưa
+                                        completedCount[0]++;
+                                        if (completedCount[0] >= favoriteIds.size()) {
+                                            future.complete(favoriteBooks);
+                                        }
+                                    })
+                                    .exceptionally(e -> {
+                                        Log.e(TAG, "Error loading favorite book: " + bookId, e);
+                                        completedCount[0]++;
+
+                                        // Hoàn thành future dù có lỗi
+                                        if (completedCount[0] >= favoriteIds.size()) {
+                                            future.complete(favoriteBooks);
+                                        }
+                                        return null;
+                                    });
+                        }
+                    } else {
+                        // Document người dùng không tồn tại
+                        future.complete(new ArrayList<>());
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error getting user favorites", e);
+                    future.completeExceptionally(e);
+                });
+
+        return future;
+    }
 }

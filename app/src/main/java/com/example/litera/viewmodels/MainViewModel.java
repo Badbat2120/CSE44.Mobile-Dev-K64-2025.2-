@@ -358,11 +358,7 @@ public class MainViewModel extends ViewModel {
                         }
                     }
 
-                    // Lọc hoặc sắp xếp sách đã đọc ở đây nếu cần
-                    // Ví dụ: chỉ lấy vài cuốn sách đầu tiên
-                    List<Book> allBooksList = books.size() > 6 ?
-                            books.subList(0, 6) : new ArrayList<>(books);
-                    allBooks.postValue(allBooksList);
+                    allBooks.postValue(books);
                     isLoading.postValue(false);
 
                 })

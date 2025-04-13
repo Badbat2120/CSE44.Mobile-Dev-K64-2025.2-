@@ -21,6 +21,8 @@ import com.example.litera.R;
 import com.example.litera.repositories.BookRepository;
 import com.example.litera.utils.GoogleDriveUtils;
 import com.example.litera.viewmodels.BookDetailViewModel;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class BookDetailActivity extends AppCompatActivity {
 
@@ -30,7 +32,7 @@ public class BookDetailActivity extends AppCompatActivity {
     private RatingBar ratingBar;
     private TextView ratingText;
 
-    @SuppressLint("DefaultLocale")
+    @SuppressLint({"DefaultLocale", "SetTextI18n"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +48,7 @@ public class BookDetailActivity extends AppCompatActivity {
         TextView bookAuthor = findViewById(R.id.bookAuthor);
         TextView bookDescription = findViewById(R.id.tvDescription);
         TextView priceValue = findViewById(R.id.priceValue);
+        ImageButton btnFavorite = findViewById(R.id.btnFavorite);
         Button addToCart = findViewById(R.id.btnAddToCart);
         ImageButton btnBack = findViewById(R.id.btnBack);
         ratingBar = findViewById(R.id.ratingBar);
@@ -163,6 +166,28 @@ public class BookDetailActivity extends AppCompatActivity {
 
         // Back button
         btnBack.setOnClickListener(v -> finish());
+
+        // Thiết lập xử lý cho nút yêu thích
+        bookDetailViewModel.getIsFavorite().observe(this, isFavorite -> {
+            // Thay đổi drawable của nút yêu thích dựa trên trạng thái
+            btnFavorite.setImageResource(isFavorite ? R.drawable.ic_favorite : R.drawable.ic_favorite_border);
+        });
+
+        // Đặt sự kiện click cho nút yêu thích
+        btnFavorite.setOnClickListener(v -> {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                Toast.makeText(this, "Log in to add to favorites", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Chuyển đổi trạng thái yêu thích
+            bookDetailViewModel.toggleFavorite(bookId);
+        });
+
+        // Kiểm tra trạng thái yêu thích khi chọn sách
+        bookDetailViewModel.checkFavoriteStatus(bookId);
+
     }
 
     @Override
