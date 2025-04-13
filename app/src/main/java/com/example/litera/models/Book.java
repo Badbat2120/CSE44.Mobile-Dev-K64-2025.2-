@@ -15,7 +15,7 @@ public class Book {
     private String rating;
 
     // Thay đổi kiểu dữ liệu để khớp với Firestore
-    private Long ratingCount;      // Long trong Firestore
+    private String ratingCount;    // String trong Firestore (thay đổi từ Long)
     private String ratingAverage;  // String trong Firestore
 
     @Exclude
@@ -25,6 +25,9 @@ public class Book {
     // Constructor rỗng cần thiết cho Firestore
     public Book() {
         // Default constructor required for Firestore
+        this.ratingCount = "0";    // Giá trị mặc định là "0" cho kiểu String
+        this.rating = "0.0";
+        this.ratingAverage = "0.0";
     }
 
     // Constructor với các tham số cơ bản
@@ -38,8 +41,8 @@ public class Book {
         this.price = price;
         this.pricePhysic = pricePhysic;
         this.rating = rating;
-        this.ratingCount = 0L;
-        this.ratingAverage = "0.0";  // Sửa lại kiểu dữ liệu thành String
+        this.ratingCount = "0";    // Thay đổi từ 0L sang "0"
+        this.ratingAverage = "0.0";
     }
 
     // Getters và setters
@@ -121,16 +124,16 @@ public class Book {
         this.rating = rating;
     }
 
-    /// Getters và setters cho ratingCount với kiểu Long
-    public Long getRatingCount() {
-        return ratingCount != null ? ratingCount : 0L;
+    // Sửa đổi getter và setter cho ratingCount với kiểu String
+    public String getRatingCount() {
+        return ratingCount != null ? ratingCount : "0";
     }
 
-    public void setRatingCount(Long ratingCount) {
-        this.ratingCount = ratingCount;
+    public void setRatingCount(String ratingCount) {
+        this.ratingCount = ratingCount != null ? ratingCount : "0";
     }
 
-    // Sửa lại getter và setter cho ratingAverage với kiểu String
+    // Getter và setter cho ratingAverage với kiểu String
     public String getRatingAverage() {
         return ratingAverage != null ? ratingAverage : "0.0";
     }
@@ -173,13 +176,17 @@ public class Book {
         }
     }
 
+    // Phương thức tiện ích để lấy ratingCount dưới dạng int
+    @Exclude
     public int getRatingCountAsInt() {
-        if (ratingCount == null) {
+        if (ratingCount == null || ratingCount.isEmpty()) {
             return 0;
         }
-
-        // Nếu ratingCount là Long (theo code của bạn)
-        return ratingCount.intValue();
+        try {
+            return Integer.parseInt(ratingCount);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     // Phương thức tiện ích để lấy rating trung bình dưới dạng double

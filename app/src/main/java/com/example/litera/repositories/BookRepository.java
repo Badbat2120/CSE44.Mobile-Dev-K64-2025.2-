@@ -4,15 +4,22 @@ import android.util.Log;
 
 import com.example.litera.models.Author;
 import com.example.litera.models.Book;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 public class BookRepository {
@@ -171,166 +178,198 @@ public class BookRepository {
     public CompletableFuture<Boolean> rateBook(String bookId, int rating, String userId) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
 
-        // First check if user has already rated this book
-        db.collection("users").document(userId)
-                .get()
-                .addOnSuccessListener(userDoc -> {
-                    if (userDoc.exists()) {
-                        // Get user's current ratings map
-                        Map<String, Object> userRatings = (Map<String, Object>) userDoc.get("ratings");
-                        boolean hasRatedBefore = userRatings != null && userRatings.containsKey(bookId);
+        // Tham chiếu đến các tài liệu
+        DocumentReference bookRef = db.collection("books").document(bookId);
+        DocumentReference userRef = db.collection("users").document(userId);
 
-                        // Now get the book and update its rating
-                        getBookById(bookId).thenAccept(book -> {
-                            if (book == null) {
-                                future.completeExceptionally(new Exception("Book not found"));
-                                return;
-                            }
+        // Sử dụng transaction
+        db.runTransaction(transaction -> {
+            // Lấy dữ liệu
+            DocumentSnapshot bookDoc = transaction.get(bookRef);
+            DocumentSnapshot userDoc = transaction.get(userRef);
 
-                            // Get the most up-to-date rating information directly from Firestore
-                            db.collection("books").document(bookId)
-                                    .get()
-                                    .addOnSuccessListener(documentSnapshot -> {
-                                        if (documentSnapshot.exists()) {
-                                            // Get current rating count
-                                            Object ratingCountObj = documentSnapshot.get("ratingCount");
-                                            final int[] currentRatingCount = {0};
+            if (!bookDoc.exists()) {
+                throw new FirebaseFirestoreException("Book not found",
+                        FirebaseFirestoreException.Code.NOT_FOUND);
+            }
 
-                                            if (ratingCountObj instanceof Long) {
-                                                currentRatingCount[0] = ((Long) ratingCountObj).intValue();
-                                            } else if (ratingCountObj instanceof Integer) {
-                                                currentRatingCount[0] = (Integer) ratingCountObj;
-                                            } else if (ratingCountObj instanceof Double) {
-                                                currentRatingCount[0] = ((Double) ratingCountObj).intValue();
-                                            } else if (ratingCountObj instanceof String) {
-                                                try {
-                                                    currentRatingCount[0] = Integer.parseInt((String) ratingCountObj);
-                                                } catch (Exception e) {
-                                                    Log.e(TAG, "Error parsing ratingCount", e);
-                                                    currentRatingCount[0] = 0;
-                                                }
-                                            }
+            // === THÊM LOG ĐỂ KIỂM TRA TOÀN BỘ DỮ LIỆU SÁCH ===
+            Log.d(TAG, "Book data: " + bookDoc.getData());
 
-                                            Log.d(TAG, "Current ratingCount: " + currentRatingCount[0]);
+            // Xử lý đặc biệt cho ratingCount (giờ là String)
+            String ratingCountStr = bookDoc.getString("ratingCount");
+            int currentCount = 0;
 
-                                            // Get current average rating
-                                            String ratingStr = documentSnapshot.getString("rating");
-                                            double currentAverage = 0.0;
-                                            try {
-                                                currentAverage = (ratingStr != null && !ratingStr.isEmpty()) ?
-                                                        Double.parseDouble(ratingStr) : 0.0;
-                                            } catch (NumberFormatException e) {
-                                                Log.e(TAG, "Error parsing rating", e);
-                                                currentAverage = 0.0;
-                                            }
+            if (ratingCountStr != null && !ratingCountStr.isEmpty()) {
+                try {
+                    currentCount = Integer.parseInt(ratingCountStr);
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Error parsing ratingCount", e);
+                }
+            }
 
-                                            // Calculate new rating values
-                                            long newCount;
-                                            double newAverage;
+            Log.d(TAG, "Current rating count (after parsing): " + currentCount);
 
-                                            if (hasRatedBefore) {
-                                                // User has rated before - get old rating
-                                                int oldRating = 0;
-                                                if (userRatings != null) {
-                                                    Object oldRatingObj = userRatings.get(bookId);
-                                                    if (oldRatingObj instanceof Long) {
-                                                        oldRating = ((Long) oldRatingObj).intValue();
-                                                    } else if (oldRatingObj instanceof Integer) {
-                                                        oldRating = (Integer) oldRatingObj;
-                                                    } else if (oldRatingObj instanceof Double) {
-                                                        oldRating = ((Double) oldRatingObj).intValue();
-                                                    }
-                                                }
+            // === PHẦN LẤY RATING HIỆN TẠI, SỬA LỖI Ở ĐÂY ===
+            String ratingStr = bookDoc.getString("rating");
+            double currentAverage = 0.0;
 
-                                                // Calculate new average by replacing old rating
-                                                newCount = currentRatingCount[0]; // Count stays the same
-                                                newAverage = currentRatingCount[0] > 0 ?
-                                                        ((currentAverage * currentRatingCount[0]) - oldRating + rating) / currentRatingCount[0] :
-                                                        rating;
-                                            } else {
-                                                // First time rating - increment count
-                                                newCount = currentRatingCount[0] + 1;
-                                                newAverage = ((currentAverage * currentRatingCount[0]) + rating) / newCount;
-                                            }
+            // Thêm log để kiểm tra giá trị ratingStr
+            Log.d(TAG, "Raw rating string from Firestore: " + ratingStr);
 
-                                            String newRating = String.format(Locale.US, "%.1f", newAverage);
-                                            String newAverageStr = String.format(Locale.US, "%.1f", newAverage);
+            if (ratingStr != null && !ratingStr.isEmpty()) {
+                try {
+                    currentAverage = Double.parseDouble(ratingStr);
+                    // Thêm log để theo dõi việc chuyển đổi
+                    Log.d(TAG, "Successfully parsed current rating: " + currentAverage);
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Error parsing rating", e);
+                    currentAverage = 0.0;
+                }
+            } else {
+                Log.d(TAG, "Rating string is null or empty, defaulting to 0.0");
+            }
 
-                                            Log.d(TAG, "New ratingCount: " + newCount + ", new rating: " + newRating);
+            // Kiểm tra người dùng đã đánh giá chưa
+            Map<String, Object> userRatings = userDoc.exists() ?
+                    (Map<String, Object>) userDoc.get("ratings") : null;
+            boolean hasRatedBefore = userRatings != null && userRatings.containsKey(bookId);
 
-                                            // Update book rating in Firestore
-                                            Map<String, Object> updates = new HashMap<>();
-                                            updates.put("rating", newRating);
-                                            updates.put("ratingCount", newCount);
-                                            updates.put("ratingAverage", newAverageStr);
+            Log.d(TAG, "User has rated this book before: " + hasRatedBefore);
 
-                                            db.collection("books").document(bookId)
-                                                    .update(updates)
-                                                    .addOnSuccessListener(aVoid -> {
-                                                        Log.d(TAG, "Rating updated successfully");
-                                                        clearCache(); // Clear cache after update
-                                                        future.complete(true);
-                                                    })
-                                                    .addOnFailureListener(e -> {
-                                                        Log.e(TAG, "Error updating rating", e);
-                                                        future.completeExceptionally(e);
-                                                    });
-                                        } else {
-                                            future.completeExceptionally(new Exception("Book document does not exist"));
-                                        }
-                                    })
-                                    .addOnFailureListener(e -> future.completeExceptionally(e));
-                        }).exceptionally(e -> {
-                            future.completeExceptionally(e);
-                            return null;
-                        });
-                    } else {
-                        future.completeExceptionally(new Exception("User document not found"));
+            // Tính toán giá trị mới
+            int newCount;
+            double newAverage;
+
+            if (hasRatedBefore) {
+                // Lấy đánh giá cũ
+                Object oldRatingObj = userRatings.get(bookId);
+                int oldRating = 0;
+                if (oldRatingObj instanceof Long) {
+                    oldRating = ((Long) oldRatingObj).intValue();
+                } else if (oldRatingObj instanceof Integer) {
+                    oldRating = (Integer) oldRatingObj;
+                } else if (oldRatingObj instanceof Double) {
+                    oldRating = ((Double) oldRatingObj).intValue();
+                } else if (oldRatingObj instanceof String) {
+                    try {
+                        oldRating = Integer.parseInt((String) oldRatingObj);
+                    } catch (NumberFormatException e) {
+                        Log.e(TAG, "Error parsing old rating", e);
                     }
-                })
-                .addOnFailureListener(e -> future.completeExceptionally(e));
+                }
 
-        return future;
-    }
+                // QUAN TRỌNG: Xử lý trường hợp không nhất quán
+                if (currentCount == 0) {
+                    newCount = 1; // Phải có ít nhất 1 đánh giá
+                    Log.d(TAG, "FIXING INCONSISTENCY: User has rated but count is 0, setting to 1");
+                } else {
+                    newCount = currentCount; // Giữ nguyên count
+                }
 
-    public CompletableFuture<Boolean> updateBookRating(String bookId, int oldRating, int newRating) {
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
+                // === SỬA LỖI TÍNH TOÁN TRUNG BÌNH ===
+                Log.d(TAG, "Rating calculation inputs: currentAverage=" + currentAverage +
+                        ", currentCount=" + currentCount + ", oldRating=" + oldRating +
+                        ", newRating=" + rating);
 
-        // Lấy thông tin sách hiện tại
-        getBookById(bookId).thenAccept(book -> {
-            if (book == null) {
-                future.completeExceptionally(new Exception("Book not found"));
-                return;
+                if (newCount > 0) {
+                    // Công thức tính trung bình mới khi thay đổi đánh giá
+                    // ((tổng điểm hiện tại) - điểm cũ + điểm mới) / số lượng
+                    double totalPoints = currentAverage * currentCount;
+                    double newTotalPoints = totalPoints - oldRating + rating;
+                    newAverage = newTotalPoints / newCount;
+
+                    Log.d(TAG, "Total points: " + totalPoints);
+                    Log.d(TAG, "New total points: " + newTotalPoints);
+                    Log.d(TAG, "New average calculation: " + newTotalPoints + " / " + newCount + " = " + newAverage);
+                } else {
+                    newAverage = rating;
+                    Log.d(TAG, "Setting new average directly to rating: " + rating);
+                }
+
+                Log.d(TAG, "Updating rating from " + oldRating + " to " + rating);
+            } else {
+                // Lần đánh giá đầu tiên
+                newCount = currentCount + 1;
+
+                // === SỬA LỖI TÍNH TOÁN TRUNG BÌNH KHI ĐÁNH GIÁ LẦN ĐẦU ===
+                Log.d(TAG, "First rating calculation inputs: currentAverage=" + currentAverage +
+                        ", currentCount=" + currentCount + ", rating=" + rating);
+
+                if (currentCount > 0) {
+                    // (tổng điểm hiện tại + điểm mới) / số lượng mới
+                    double totalPoints = currentAverage * currentCount;
+                    double newTotalPoints = totalPoints + rating;
+                    newAverage = newTotalPoints / newCount;
+
+                    Log.d(TAG, "Total points: " + totalPoints);
+                    Log.d(TAG, "New total points: " + newTotalPoints);
+                    Log.d(TAG, "New average calculation: " + newTotalPoints + " / " + newCount + " = " + newAverage);
+                } else {
+                    // Nếu đây là lần đánh giá đầu tiên, trung bình = điểm đánh giá
+                    newAverage = rating;
+                    Log.d(TAG, "First ever rating, setting average to: " + rating);
+                }
+
+                Log.d(TAG, "First time rating, count: " + currentCount + " -> " + newCount);
             }
 
-            // Lấy thông tin rating hiện tại
-            int currentCount = book.getRatingCountAsInt();
-            double currentAverage = 0;
-            try {
-                currentAverage = Double.parseDouble(book.getRating());
-            } catch (NumberFormatException | NullPointerException e) {
-                currentAverage = 0;
+            // === BẢO VỆ KHỎI LỖI GIÁ TRỊ TRUNG BÌNH KHÔNG HỢP LỆ ===
+            if (Double.isNaN(newAverage) || Double.isInfinite(newAverage)) {
+                Log.e(TAG, "Invalid average calculated: " + newAverage + ", falling back to rating: " + rating);
+                newAverage = rating;
             }
 
-            // Tính toán trung bình mới khi thay thế rating cũ bằng rating mới
-            double newAverage = currentCount > 0 ?
-                    ((currentAverage * currentCount) - oldRating + newRating) / currentCount :
-                    newRating;
+            String newRatingStr = String.format(Locale.US, "%.1f", newAverage);
+            String newRatingCountStr = String.valueOf(newCount);
 
-            String updatedRating = String.format(Locale.US, "%.1f", newAverage);
-            String newAverageStr = String.format(Locale.US, "%.1f", newAverage); // Định dạng thành chuỗi
+            if (newAverage <= 0 && rating > 0) {
+                Log.e(TAG, "WARNING: New average is " + newAverage + " but rating is " + rating);
+                // Sửa lỗi trường hợp tính toán sai cho ra 0.0
+                newRatingStr = String.format(Locale.US, "%.1f", (double)rating);
+                Log.d(TAG, "Correcting invalid average, setting to rating value: " + newRatingStr);
+            }
 
-            // Cập nhật trong Firestore
-            db.collection("books").document(bookId)
-                    .update(
-                            "rating", updatedRating,
-                            "ratingAverage", newAverageStr  // Lưu dưới dạng String
-                    )
-                    .addOnSuccessListener(aVoid -> future.complete(true))
-                    .addOnFailureListener(e -> future.completeExceptionally(e));
-        }).exceptionally(e -> {
-            future.completeExceptionally(e);
+            Log.d(TAG, "New rating count will be: " + newRatingCountStr);
+            Log.d(TAG, "New rating average will be: " + newRatingStr);
+
+            // QUAN TRỌNG: Cập nhật tài liệu sách
+            Map<String, Object> bookUpdates = new HashMap<>();
+            bookUpdates.put("rating", newRatingStr);
+            bookUpdates.put("ratingCount", newRatingCountStr);
+            bookUpdates.put("ratingAverage", newRatingStr);
+
+            // Sử dụng set với merge để đảm bảo mọi trường được cập nhật đúng
+            transaction.set(bookRef, bookUpdates, SetOptions.merge());
+
+            // Cập nhật đánh giá của người dùng
+            if (userRatings == null) {
+                userRatings = new HashMap<>();
+            }
+            userRatings.put(bookId, rating);
+            transaction.update(userRef, "ratings", userRatings);
+
             return null;
+        }).addOnSuccessListener(result -> {
+            Log.d(TAG, "Transaction success!");
+
+            // Xác nhận thay đổi
+            bookRef.get().addOnSuccessListener(updatedDoc -> {
+                // Log toàn bộ dữ liệu sách sau khi cập nhật để kiểm tra
+                Log.d(TAG, "Book data after update: " + updatedDoc.getData());
+                Object updatedRating = updatedDoc.get("rating");
+                Object updatedCount = updatedDoc.get("ratingCount");
+                Object updatedAverage = updatedDoc.get("ratingAverage");
+                Log.d(TAG, "Confirmed values after update - rating: " + updatedRating +
+                        ", ratingCount: " + updatedCount +
+                        ", ratingAverage: " + updatedAverage);
+            });
+
+            clearCache();
+            future.complete(true);
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Transaction failed", e);
+            future.completeExceptionally(e);
         });
 
         return future;
@@ -340,43 +379,206 @@ public class BookRepository {
     public CompletableFuture<Boolean> updateBookRating(String bookId, int oldRating, int newRating, String userId) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
 
-        // Lấy thông tin sách hiện tại
-        getBookById(bookId).thenAccept(book -> {
-            if (book == null) {
-                future.completeExceptionally(new Exception("Book not found"));
-                return;
+        // Sử dụng transaction
+        db.runTransaction(transaction -> {
+            DocumentReference bookRef = db.collection("books").document(bookId);
+            DocumentSnapshot bookDoc = transaction.get(bookRef);
+
+            if (!bookDoc.exists()) {
+                throw new FirebaseFirestoreException("Book not found",
+                        FirebaseFirestoreException.Code.NOT_FOUND);
             }
 
-            // Lấy thông tin rating hiện tại
-            int currentCount = book.getRatingCountAsInt();  // Sửa dòng này, dùng getRatingCountAsInt()
-            double currentAverage = 0;
-            try {
-                currentAverage = Double.parseDouble(book.getRating());
-            } catch (NumberFormatException | NullPointerException e) {
-                currentAverage = 0;
+            // Log toàn bộ dữ liệu sách để kiểm tra
+            Log.d(TAG, "Book data: " + bookDoc.getData());
+
+            // Xử lý đặc biệt cho ratingCount (giờ là String)
+            String ratingCountStr = bookDoc.getString("ratingCount");
+            int currentCount = 0;
+
+            if (ratingCountStr != null && !ratingCountStr.isEmpty()) {
+                try {
+                    currentCount = Integer.parseInt(ratingCountStr);
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Error parsing ratingCount", e);
+                }
             }
 
-            // Tính toán trung bình mới khi thay thế rating cũ bằng rating mới
-            double newAverage = currentCount > 0 ?
-                    ((currentAverage * currentCount) - oldRating + newRating) / currentCount :
-                    newRating;
+            Log.d(TAG, "Current rating count (from Firestore): " + currentCount);
+
+            // Lấy rating hiện tại với log đầy đủ
+            String ratingStr = bookDoc.getString("rating");
+            Log.d(TAG, "Raw rating string from Firestore: " + ratingStr);
+
+            double currentAverage = 0.0;
+            if (ratingStr != null && !ratingStr.isEmpty()) {
+                try {
+                    currentAverage = Double.parseDouble(ratingStr);
+                    Log.d(TAG, "Successfully parsed current rating: " + currentAverage);
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Error parsing rating", e);
+                    currentAverage = 0.0;
+                }
+            } else {
+                Log.d(TAG, "Rating string is null or empty, defaulting to 0.0");
+            }
+
+            // Tính toán trung bình mới với log chi tiết
+            Log.d(TAG, "Calculation inputs: currentAverage=" + currentAverage +
+                    ", currentCount=" + currentCount + ", oldRating=" + oldRating +
+                    ", newRating=" + newRating);
+
+            double newAverage;
+            if (currentCount > 0) {
+                double totalPoints = currentAverage * currentCount;
+                double newTotalPoints = totalPoints - oldRating + newRating;
+                newAverage = newTotalPoints / currentCount;
+
+                Log.d(TAG, "Total points: " + totalPoints);
+                Log.d(TAG, "New total points: " + newTotalPoints);
+                Log.d(TAG, "New average calculation: " + newTotalPoints + " / " + currentCount + " = " + newAverage);
+            } else {
+                newAverage = newRating;
+                // Nếu không có đánh giá nhưng có người đã đánh giá, điều chỉnh
+                currentCount = 1;
+                Log.d(TAG, "Fixing inconsistent data: Setting count to 1 and average to rating: " + newRating);
+            }
+
+            // Kiểm tra giá trị không hợp lệ
+            if (Double.isNaN(newAverage) || Double.isInfinite(newAverage) || newAverage <= 0) {
+                if (newRating > 0) {
+                    Log.e(TAG, "Invalid average calculated: " + newAverage + ", falling back to rating: " + newRating);
+                    newAverage = newRating;
+                }
+            }
 
             String updatedRating = String.format(Locale.US, "%.1f", newAverage);
             String newAverageStr = String.format(Locale.US, "%.1f", newAverage);
+            String newCountStr = String.valueOf(currentCount); // Convert to String
+
+            Log.d(TAG, "Updating rating from " + oldRating + " to " + newRating);
+            Log.d(TAG, "New rating average will be: " + updatedRating);
+            Log.d(TAG, "Rating count will be: " + newCountStr);
 
             // Cập nhật trong Firestore
-            db.collection("books").document(bookId)
-                    .update(
-                            "rating", updatedRating,
-                            "ratingAverage", newAverageStr
-                    )
-                    .addOnSuccessListener(aVoid -> future.complete(true))
-                    .addOnFailureListener(e -> future.completeExceptionally(e));
-        }).exceptionally(e -> {
-            future.completeExceptionally(e);
+            Map<String, Object> updates = new HashMap<>();
+            updates.put("rating", updatedRating);
+            updates.put("ratingAverage", newAverageStr);
+            updates.put("ratingCount", newCountStr); // Đảm bảo ratingCount là String
+
+            // Sử dụng set với merge để đảm bảo tất cả trường được cập nhật
+            transaction.set(bookRef, updates, SetOptions.merge());
+
+            // Cập nhật đánh giá của người dùng
+            DocumentReference userRef = db.collection("users").document(userId);
+            DocumentSnapshot userDoc = transaction.get(userRef);
+
+            Map<String, Object> userRatings = userDoc.exists() ?
+                    (Map<String, Object>) userDoc.get("ratings") : new HashMap<>();
+
+            if (userRatings == null) {
+                userRatings = new HashMap<>();
+            }
+            userRatings.put(bookId, newRating);
+
+            transaction.update(userRef, "ratings", userRatings);
+
             return null;
+        }).addOnSuccessListener(result -> {
+            Log.d(TAG, "Rating update transaction successful");
+
+            // Kiểm tra lại giá trị sau khi cập nhật
+            db.collection("books").document(bookId).get()
+                    .addOnSuccessListener(updatedDoc -> {
+                        Log.d(TAG, "Book data after update: " + updatedDoc.getData());
+                        Object updatedRating = updatedDoc.get("rating");
+                        Object updatedCount = updatedDoc.get("ratingCount");
+                        Object updatedAverage = updatedDoc.get("ratingAverage");
+                        Log.d(TAG, "Confirmed values after update - rating: " + updatedRating +
+                                ", ratingCount: " + updatedCount +
+                                ", ratingAverage: " + updatedAverage);
+                    });
+
+            clearCache();
+            future.complete(true);
+        }).addOnFailureListener(e -> {
+            Log.e(TAG, "Rating update transaction failed", e);
+            future.completeExceptionally(e);
         });
 
         return future;
+    }
+
+    public void fixRatingCountInconsistencies() {
+        // 1. Đầu tiên lấy tất cả đánh giá của người dùng
+        Map<String, Set<String>> bookRaters = new HashMap<>();
+
+        db.collection("users").get().addOnSuccessListener(userSnapshots -> {
+            // Thu thập tất cả đánh giá từ người dùng
+            for (DocumentSnapshot userDoc : userSnapshots.getDocuments()) {
+                Map<String, Object> ratings = (Map<String, Object>) userDoc.get("ratings");
+                if (ratings != null) {
+                    for (String bookId : ratings.keySet()) {
+                        bookRaters.computeIfAbsent(bookId, k -> new HashSet<>())
+                                .add(userDoc.getId());
+                    }
+                }
+            }
+
+            // 2. Sau đó lấy tất cả sách và cập nhật ratingCount
+            db.collection("books").get().addOnSuccessListener(bookSnapshots -> {
+                final int[] updateCount = {0};
+                final int totalBooks = bookSnapshots.size();
+
+                WriteBatch batch = db.batch();
+
+                for (DocumentSnapshot bookDoc : bookSnapshots.getDocuments()) {
+                    String bookId = bookDoc.getId();
+                    Set<String> ratersForBook = bookRaters.getOrDefault(bookId, new HashSet<>());
+                    int actualRaterCount = ratersForBook.size();
+                    String actualCountStr = String.valueOf(actualRaterCount); // Convert to String
+
+                    // Lấy ratingCount hiện tại
+                    String storedCountStr = bookDoc.getString("ratingCount");
+                    int storedCount = 0;
+
+                    if (storedCountStr != null && !storedCountStr.isEmpty()) {
+                        try {
+                            storedCount = Integer.parseInt(storedCountStr);
+                        } catch (NumberFormatException e) {
+                            Log.e(TAG, "Error parsing stored ratingCount", e);
+                        }
+                    }
+
+                    // Nếu không khớp với số người đánh giá thực tế
+                    if (storedCount != actualRaterCount) {
+                        Log.d(TAG, "Fixing book " + bookId +
+                                ": stored count = " + storedCount +
+                                ", actual count = " + actualRaterCount);
+
+                        // Cập nhật trong batch
+                        batch.update(db.collection("books").document(bookId),
+                                "ratingCount", actualCountStr); // String format
+
+                        updateCount[0]++;
+
+                        // Nếu batch quá lớn, commit và tạo batch mới
+                        if (updateCount[0] % 500 == 0) {
+                            batch.commit();
+                            batch = db.batch();
+                        }
+                    }
+                }
+
+                // Commit batch cuối cùng nếu có cập nhật
+                if (updateCount[0] % 500 != 0) {
+                    batch.commit().addOnSuccessListener(aVoid -> {
+                        Log.d(TAG, "Fixed " + updateCount[0] + " out of " + totalBooks + " books");
+                    });
+                } else {
+                    Log.d(TAG, "No books needed fixing");
+                }
+            });
+        });
     }
 }
