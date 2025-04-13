@@ -4,6 +4,8 @@ import android.util.Log;
 
 import com.example.litera.models.Author;
 import com.example.litera.models.Book;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -20,6 +22,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class BookRepository {
 
@@ -100,10 +103,83 @@ public class BookRepository {
     public CompletableFuture<List<Book>> getContinueReadingBooks() {
         CompletableFuture<List<Book>> future = new CompletableFuture<>();
 
-        // For now, just return a subset of books
-        // Later you can implement user-specific reading progress tracking
+        // Kiểm tra người dùng đã đăng nhập chưa
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            // Nếu chưa đăng nhập, trả về danh sách sách đang đọc mặc định (5 cuốn đầu)
+            getBooks().thenAccept(allBooks -> {
+                List<Book> continueReading = new ArrayList<>();
+                int count = Math.min(5, allBooks.size());
+                for (int i = 0; i < count; i++) {
+                    continueReading.add(allBooks.get(i));
+                }
+                future.complete(continueReading);
+            }).exceptionally(e -> {
+                future.completeExceptionally(e);
+                return null;
+            });
+
+            return future;
+        }
+
+        // Nếu đã đăng nhập, tải danh sách đang đọc từ Firestore
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(currentUser.getUid())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        // Lấy danh sách ID sách đang đọc từ document
+                        List<String> bookIds = (List<String>) documentSnapshot.get("continue");
+
+                        if (bookIds != null && !bookIds.isEmpty()) {
+                            // Tải thông tin chi tiết của từng cuốn sách
+                            List<Book> books = new ArrayList<>();
+                            AtomicInteger counter = new AtomicInteger(0);
+
+                            for (String bookId : bookIds) {
+                                getBookById(bookId)
+                                        .thenAccept(book -> {
+                                            if (book != null) {
+                                                books.add(book);
+                                            }
+
+                                            // Nếu đã tải tất cả sách, trả về danh sách
+                                            if (counter.incrementAndGet() == bookIds.size()) {
+                                                future.complete(books);
+                                            }
+                                        })
+                                        .exceptionally(e -> {
+                                            Log.e(TAG, "Error loading book: " + bookId, e);
+
+                                            // Vẫn đếm để biết khi nào đã hoàn tất
+                                            if (counter.incrementAndGet() == bookIds.size()) {
+                                                future.complete(books);
+                                            }
+                                            return null;
+                                        });
+                            }
+                        } else {
+                            // Nếu không có danh sách sách đang đọc, sử dụng danh sách mặc định
+                            getDefaultContinueReadingBooks(future);
+                        }
+                    } else {
+                        // Nếu không tìm thấy document người dùng, sử dụng danh sách mặc định
+                        getDefaultContinueReadingBooks(future);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error loading user document", e);
+                    // Trong trường hợp lỗi, sử dụng danh sách mặc định
+                    getDefaultContinueReadingBooks(future);
+                });
+
+        return future;
+    }
+
+    // Phương thức helper để lấy danh sách sách đang đọc mặc định
+    private void getDefaultContinueReadingBooks(CompletableFuture<List<Book>> future) {
         getBooks().thenAccept(allBooks -> {
-            // Take first 5 books as "continue reading"
             List<Book> continueReading = new ArrayList<>();
             int count = Math.min(5, allBooks.size());
             for (int i = 0; i < count; i++) {
@@ -114,8 +190,6 @@ public class BookRepository {
             future.completeExceptionally(e);
             return null;
         });
-
-        return future;
     }
 
     // Method to get a book by ID

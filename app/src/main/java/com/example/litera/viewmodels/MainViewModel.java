@@ -8,13 +8,18 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.litera.models.Author;
 import com.example.litera.models.Book;
+import com.example.litera.models.User;
 import com.example.litera.repositories.BookRepository;
 import com.example.litera.repositories.AuthorRepository;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainViewModel extends ViewModel {
     private static final String TAG = "MainViewModel";
@@ -203,36 +208,83 @@ public class MainViewModel extends ViewModel {
     }
 
     private void loadContinueReadingBooks() {
-        //Chúng ta có thể sử dụng getBooks() và lọc/sắp xếp
-        bookRepository.getBooks()
-                .thenAccept(allBooks -> {
+        // Đánh dấu là đang tải
+        isLoading.setValue(true);
+
+        // Sử dụng phương thức getContinueReadingBooks từ repository
+        bookRepository.getContinueReadingBooks()
+                .thenAccept(books -> {
                     // Tải thông tin tác giả cho mỗi cuốn sách
-                    for (Book book : allBooks) {
+                    List<Book> validBooks = new ArrayList<>();
+
+                    for (Book book : books) {
                         // Đảm bảo các trường mới được xử lý đúng
                         validateBookFields(book);
 
+                        // Nếu có authorId, tải thông tin tác giả
                         if (book.getAuthorId() != null && !book.getAuthorId().isEmpty()) {
                             // Sử dụng authorRepository để lấy thông tin tác giả
                             authorRepository.getAuthorById(book.getAuthorId())
-                                    .thenAccept(book::setAuthor)
+                                    .thenAccept(author -> {
+                                        book.setAuthor(author);
+                                    })
                                     .exceptionally(e -> {
                                         Log.e(TAG, "Error loading author for book: " + book.getId(), e);
                                         return null;
                                     });
                         }
+
+                        // Thêm sách vào danh sách hợp lệ
+                        validBooks.add(book);
                     }
 
-                    // Lọc hoặc sắp xếp sách đã đọc ở đây nếu cần
-                    // Ví dụ: chỉ lấy vài cuốn sách đầu tiên
-                    List<Book> reading = allBooks.size() > 5 ?
-                            allBooks.subList(0, 5) : new ArrayList<>(allBooks);
-                    continueReadingBooks.postValue(reading);
+                    // Cập nhật LiveData với danh sách sách hợp lệ
+                    continueReadingBooks.postValue(validBooks);
+                    isLoading.postValue(false);
+
+                    // Log để debug
+                    Log.d(TAG, "Loaded " + validBooks.size() + " continue reading books");
                 })
                 .exceptionally(e -> {
                     Log.e(TAG, "Error loading continue reading books", e);
                     errorMessage.postValue("Lỗi khi tải sách đang đọc: " + e.getMessage());
+                    isLoading.postValue(false);
                     return null;
                 });
+    }
+
+    // Hàm mới để tải thông tin chi tiết của sách đang đọc
+    private void fetchContinueReadingBooks(List<String> bookIds) {
+        List<Book> books = new ArrayList<>();
+        AtomicInteger counter = new AtomicInteger(0);
+
+        if (bookIds.isEmpty()) {
+            continueReadingBooks.postValue(books);
+            return;
+        }
+
+        for (String bookId : bookIds) {
+            bookRepository.getBookById(bookId)
+                    .thenAccept(book -> {
+                        if (book != null) {
+                            books.add(book);
+                        }
+
+                        // Kiểm tra đã tải xong tất cả sách chưa
+                        if (counter.incrementAndGet() == bookIds.size()) {
+                            continueReadingBooks.postValue(books);
+                        }
+                    })
+                    .exceptionally(e -> {
+                        Log.e(TAG, "Error loading book: " + bookId, e);
+
+                        // Vẫn đếm số lượng sách đã xử lý xong
+                        if (counter.incrementAndGet() == bookIds.size()) {
+                            continueReadingBooks.postValue(books);
+                        }
+                        return null;
+                    });
+        }
     }
 
     private void loadPopularAuthors() {
