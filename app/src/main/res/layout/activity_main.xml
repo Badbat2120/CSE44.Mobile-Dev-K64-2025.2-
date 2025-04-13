@@ -103,10 +103,10 @@
                 app:cardElevation="2dp">
 
                 <ImageView
+                    android:id="@+id/imgSlideShow"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/z6477401502352_356614eec45b2f7855ff3ca6e75ace14" />
+                    android:scaleType="centerCrop" />
             </androidx.cardview.widget.CardView>
 
             <!-- Popular Authors -->

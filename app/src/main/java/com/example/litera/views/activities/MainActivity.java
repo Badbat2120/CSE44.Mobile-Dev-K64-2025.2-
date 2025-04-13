@@ -2,6 +2,7 @@ package com.example.litera.views.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -37,6 +38,17 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
     private static final String TAG = "MainActivity";
 
     private ImageView imgProfile;
+    private ImageView imgSlideShow;
+
+    private int[] avatarImages = {
+            R.drawable.slide_show_1,
+            R.drawable.slide_show_4,
+            R.drawable.slide_show_2,
+            R.drawable.slide_show_3,
+            R.drawable.slide_show_5,
+    };
+    private Handler avatarHandler = new Handler();
+    private Runnable avatarRunnable;
     private TextView tvHello;
     private EditText etSearch;
     private RecyclerView rvContinueReading, rvTrendingBooks, rvPopularAuthors, rvAllBooks;
@@ -70,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
         db = FirebaseFirestore.getInstance();
 
         // Khởi tạo UI
+        imgSlideShow = findViewById(R.id.imgSlideShow);
         tvHello = findViewById(R.id.tvHello);
         etSearch = findViewById(R.id.etSearch);
         rvContinueReading = findViewById(R.id.rvContinueReading);
@@ -91,6 +104,21 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
             Intent intent = new Intent(MainActivity.this, ProfileUserActivity.class);
             startActivity(intent);
         });
+
+        // Khởi tạo Runnable trước khi gọi post
+        avatarRunnable = new Runnable() {
+            @Override
+            public void run() {
+                // Chọn ảnh ngẫu nhiên từ mảng
+                int randomIndex = (int) (Math.random() * avatarImages.length);
+                imgSlideShow.setImageResource(avatarImages[randomIndex]);
+
+                // Gọi lại sau 1.5 giây (1500ms)
+                avatarHandler.postDelayed(this, 1500);
+            }
+        };
+        // Bắt đầu slideshow
+        avatarHandler.post(avatarRunnable);
 
         // Khởi tạo ViewModel
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
@@ -135,6 +163,13 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
             mainViewModel.refreshData();
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        avatarHandler.removeCallbacks(avatarRunnable); // Ngưng gọi khi activity bị huỷ
+    }
+
 
     private void loadUserNameAndDisplay() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
