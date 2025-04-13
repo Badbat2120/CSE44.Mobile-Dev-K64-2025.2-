@@ -1,9 +1,9 @@
 package com.example.litera.views.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -36,7 +36,6 @@ public class AddToCartActivity extends AppCompatActivity {
     private TextView bookTitle, bookAuthor, bookPrice;
     private Button readButton, buyButton;
     private RatingBar ratingBar;
-    private ImageButton btnFavorite, btnLike, btnShare;
     private MainViewModel mainViewModel;
 
     // Repository
@@ -45,8 +44,6 @@ public class AddToCartActivity extends AppCompatActivity {
 
     // Data
     private String bookId;
-    private boolean isFavorite = false;
-    private boolean isLiked = false;
     private boolean hasReadBook = false;
     private boolean hasRatedBook = false;
     private int userRating = 0;
@@ -55,6 +52,18 @@ public class AddToCartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addtocart_book);
+
+        // Khắc phục vấn đề không nhất quán
+        BookRepository.getInstance().fixRatingCountInconsistencies();
+        BookRepository.getInstance().clearCache();
+
+        // Get bookId from intent
+        bookId = getIntent().getStringExtra("bookId");
+
+        // Debug rating system
+        if (bookId != null && !bookId.isEmpty()) {
+            BookRepository.getInstance().debugRatingSystem(bookId);
+        }
 
         // Get bookId from intent
         bookId = getIntent().getStringExtra("bookId");
@@ -90,6 +99,7 @@ public class AddToCartActivity extends AppCompatActivity {
         ratingBar = findViewById(R.id.ratingBar);
     }
 
+    @SuppressLint("SetTextI18n")
     private void setupListeners() {
         // Back button
         btnBack.setOnClickListener(v -> finish());
@@ -149,25 +159,6 @@ public class AddToCartActivity extends AppCompatActivity {
             // Lưu đánh giá vào cơ sở dữ liệu
             submitRating(Math.round(rating));
         });
-
-        // Setup listeners for optional buttons if they exist
-        if (btnFavorite != null) {
-            btnFavorite.setOnClickListener(v -> {
-                Toast.makeText(this, "Added to favorites", Toast.LENGTH_SHORT).show();
-            });
-        }
-
-        if (btnLike != null) {
-            btnLike.setOnClickListener(v -> {
-                Toast.makeText(this, "You liked this book", Toast.LENGTH_SHORT).show();
-            });
-        }
-
-        if (btnShare != null) {
-            btnShare.setOnClickListener(v -> {
-                Toast.makeText(this, "Share feature coming soon", Toast.LENGTH_SHORT).show();
-            });
-        }
     }
 
     private void loadBookData(String bookId) {
@@ -327,6 +318,7 @@ public class AddToCartActivity extends AppCompatActivity {
         });
     }
 
+    @SuppressLint("SetTextI18n")
     private void displayBookData(Book book) {
         if (book == null) {
             displayDemoBookData();
@@ -416,10 +408,12 @@ public class AddToCartActivity extends AppCompatActivity {
     }
 
     // Helper method to update buy button text with price
+    @SuppressLint("SetTextI18n")
     private void updateBuyButtonText(String price) {
         buyButton.setText("Buy physical book - " + price);
     }
 
+    @SuppressLint("SetTextI18n")
     private void displayDemoBookData() {
         bookTitle.setText("Book Title");
         bookAuthor.setText("Author");

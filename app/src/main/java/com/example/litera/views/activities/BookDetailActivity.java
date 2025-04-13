@@ -1,5 +1,6 @@
 package com.example.litera.views.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,10 +30,14 @@ public class BookDetailActivity extends AppCompatActivity {
     private RatingBar ratingBar;
     private TextView ratingText;
 
+    @SuppressLint("DefaultLocale")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_detail);
+
+        BookRepository.getInstance().fixRatingCountInconsistencies();
+        BookRepository.getInstance().clearCache();
 
 
         // Initialize UI elements
@@ -170,6 +175,18 @@ public class BookDetailActivity extends AppCompatActivity {
             // Xóa cache trước khi tải lại
             BookRepository.getInstance().clearCache();
             bookDetailViewModel.selectBook(bookId);
+
+            // Khắc phục vấn đề không nhất quán
+            BookRepository.getInstance().fixRatingCountInconsistencies();
+            BookRepository.getInstance().clearCache();
+
+            // Get bookId from intent
+            bookId = getIntent().getStringExtra("bookId");
+
+            // Debug rating system
+            if (bookId != null && !bookId.isEmpty()) {
+                BookRepository.getInstance().debugRatingSystem(bookId);
+            }
         }
     }
 }

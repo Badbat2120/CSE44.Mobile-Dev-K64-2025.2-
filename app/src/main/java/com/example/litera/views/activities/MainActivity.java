@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.litera.R;
 import com.example.litera.models.Author;
 import com.example.litera.models.Book;
+import com.example.litera.repositories.BookRepository;
 import com.example.litera.views.adapters.AuthorAdapter;
 import com.example.litera.views.adapters.BookAdapter;
 import com.example.litera.viewmodels.MainViewModel;
@@ -145,6 +146,25 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
             @Override
             public void afterTextChanged(Editable editable) {}
         });
+
+        // Khi quay lại màn hình, tải lại dữ liệu sách để có thông tin rating mới nhất
+        String bookId = getIntent().getStringExtra("bookId");
+        if (bookId != null) {
+            // Xóa cache trước khi tải lại
+            BookRepository.getInstance().clearCache();
+
+            // Khắc phục vấn đề không nhất quán
+            BookRepository.getInstance().fixRatingCountInconsistencies();
+            BookRepository.getInstance().clearCache();
+
+            // Get bookId from intent
+            bookId = getIntent().getStringExtra("bookId");
+
+            // Debug rating system
+            if (bookId != null && !bookId.isEmpty()) {
+                BookRepository.getInstance().debugRatingSystem(bookId);
+            }
+        }
     }
 
     @Override
@@ -156,6 +176,8 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
 
         // Làm mới dữ liệu sách
         if (mainViewModel != null) {
+            BookRepository.getInstance().fixRatingCountInconsistencies();
+            BookRepository.getInstance().clearCache();
             // Xóa cache để đảm bảo lấy dữ liệu mới nhất từ Firestore
             mainViewModel.clearCache();
 
