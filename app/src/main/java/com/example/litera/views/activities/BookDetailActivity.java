@@ -39,7 +39,7 @@ public class BookDetailActivity extends AppCompatActivity {
         ImageView bookCover = findViewById(R.id.bookCover);
         TextView bookTitle = findViewById(R.id.bookTitle);
         TextView bookAuthor = findViewById(R.id.bookAuthor);
-        TextView bookDescription = findViewById(R.id.description);
+        TextView bookDescription = findViewById(R.id.tvDescription);
         TextView priceValue = findViewById(R.id.priceValue);
         Button addToCart = findViewById(R.id.btnAddToCart);
         ImageButton btnBack = findViewById(R.id.btnBack);
