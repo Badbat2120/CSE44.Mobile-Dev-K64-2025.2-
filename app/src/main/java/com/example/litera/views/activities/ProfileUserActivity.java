@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,6 +65,7 @@ public class ProfileUserActivity extends AppCompatActivity {
         btnTopup = (Button) findViewById(R.id.btnTopUpWallet);
         btnLogout = (Button) findViewById(R.id.btnLogout);
         btnLoginSignup = (Button) findViewById(R.id.btn_login_signup);
+        LinearLayout balanceContainer = (LinearLayout) findViewById(R.id.container_balance);
 
 
         userViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(UserViewModel.class);
@@ -78,6 +80,8 @@ public class ProfileUserActivity extends AppCompatActivity {
                 btnChangpwd.setVisibility(View.VISIBLE);
                 btnTopup.setVisibility(View.VISIBLE);
                 btnLogout.setVisibility(View.VISIBLE);
+                balanceContainer.setVisibility(View.VISIBLE);
+                btnLoginSignup.setVisibility(View.GONE);
                 Glide.with(this)
                         .load(user.getAvatar())
                         .placeholder(R.drawable.placeholder)
@@ -91,6 +95,7 @@ public class ProfileUserActivity extends AppCompatActivity {
                 btnTopup.setVisibility(View.GONE);
                 btnLogout.setVisibility(View.GONE);
                 btnLoginSignup.setVisibility(View.VISIBLE);
+                balanceContainer.setVisibility(View.GONE);
             }
         });
 
