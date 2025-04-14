@@ -146,4 +146,19 @@ public class User {
         }
         ratings.put(bookId, rating);
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", favourite=" + favourite +
+                ", continueReading=" + continueReading +
+                ", role='" + role + '\'' +
+                ", value='" + value + '\'' +
+                ", avatar='" + avatar + '\'' +
+                ", ratings=" + ratings +
+                '}';
+    }
 }

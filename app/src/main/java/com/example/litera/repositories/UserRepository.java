@@ -2,18 +2,12 @@ package com.example.litera.repositories;
 
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-
 import com.example.litera.models.User;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,6 +24,70 @@ public class UserRepository {
         auth = FirebaseAuth.getInstance();
     }
 
+    public void loginWithEmail(String email, String password, AuthCallback callback) {
+        auth.signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = auth.getCurrentUser();
+                        if (user != null) {
+                            // Lấy thông tin người dùng từ Firestore
+                            db.collection("users")
+                                    .document(user.getUid())
+                                    .get()
+                                    .addOnCompleteListener(userTask -> {
+                                        if (userTask.isSuccessful()) {
+                                            DocumentSnapshot document = userTask.getResult();
+                                            if (document != null && document.exists()) {
+                                                User currentUser = document.toObject(User.class);
+                                                if (currentUser != null) {
+                                                    currentUser.setId(document.getId());
+                                                    callback.onSuccess(currentUser);
+                                                } else {
+                                                    callback.onFailure("Failed to parse user data");
+                                                }
+                                            } else {
+                                                callback.onFailure("User document does not exist");
+                                            }
+                                        } else {
+                                            callback.onFailure("Error getting user: " + userTask.getException().getMessage());
+                                        }
+                                    });
+                        } else {
+                            callback.onFailure("User not found");
+                        }
+                    } else {
+                        callback.onFailure("Login failed: " + task.getException().getMessage());
+                    }
+                });
+    }
+
+    public void registerWithEmail(String email, String password, String name, AuthCallback callback) {
+        auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = auth.getCurrentUser();
+                        if (user != null) {
+                            // Tạo tài liệu người dùng mới trong Firestore
+                            createUser(name, email, new OnUserCreationListener() {
+                                @Override
+                                public void onSuccess() {
+                                    callback.onSuccess(new User(user.getUid(), email));
+                                }
+
+                                @Override
+                                public void onFailure(String error) {
+                                    callback.onFailure("Error creating user profile: " + error);
+                                }
+                            });
+                        } else {
+                            callback.onFailure("User not found");
+                        }
+                    } else {
+                        callback.onFailure("Registration failed: " + task.getException().getMessage());
+                    }
+                });
+    }
+
     // Tạo tài liệu người dùng mới trong Firestore
     public void createUser(String name, String email, OnUserCreationListener listener) {
         FirebaseUser currentUser = auth.getCurrentUser();
@@ -44,7 +102,7 @@ public class UserRepository {
         user.put("name", name);
         user.put("email", email);
         user.put("favourite", new ArrayList<String>());
-        user.put("continue", new ArrayList<String>()); // Trong Firestore là 'continue' chứ không phải 'continueReading'
+        user.put("continue", new ArrayList<String>());
         user.put("role", "user");
         user.put("value", "0");
 
@@ -60,6 +118,10 @@ public class UserRepository {
                     Log.w(TAG, "Error creating user document", e);
                     listener.onFailure(e.getMessage());
                 });
+    }
+
+    public FirebaseUser getCurrentUser() {
+        return auth.getCurrentUser();
     }
 
     // Lấy thông tin người dùng từ Firestore
@@ -173,6 +235,10 @@ public class UserRepository {
                         listener.onFailure("Current password is incorrect");
                     }
                 });
+    }
+
+    public void signOut() {
+        auth.signOut();
     }
 
     // Interface cho callbacks
@@ -310,5 +376,10 @@ public class UserRepository {
     // Interface cho việc kiểm tra đánh giá sách
     public interface OnBookRatingCheckListener {
         void onResult(boolean hasRated, int rating);
+    }
+
+    public interface AuthCallback {
+        void onSuccess(User user);
+        void onFailure(String error);
     }
 }

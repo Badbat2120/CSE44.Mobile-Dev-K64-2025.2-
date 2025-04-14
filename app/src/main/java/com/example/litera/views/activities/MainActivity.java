@@ -20,10 +20,14 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.litera.R;
 import com.example.litera.models.Author;
 import com.example.litera.models.Book;
 import com.example.litera.repositories.BookRepository;
+import com.example.litera.repositories.UserRepository;
+import com.example.litera.viewmodels.ProfileUserViewModel;
+import com.example.litera.viewmodels.ViewModelFactory;
 import com.example.litera.views.adapters.AuthorAdapter;
 import com.example.litera.views.adapters.BookAdapter;
 import com.example.litera.viewmodels.MainViewModel;
@@ -67,6 +71,8 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
     private BookAdapter continueReadingAdapter;
     private BookAdapter allBooksAdapter;
     private AuthorAdapter popularAuthorAdapter;
+    private ProfileUserViewModel profileUserViewModel;
+    private UserRepository userRepository;
 
     // Các danh sách để lưu trữ dữ liệu sách sau khi tìm kiếm
     private List<Book> allBooks = new ArrayList<>();
@@ -74,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
     private List<Book> continueReadingBooks = new ArrayList<>();
     private List<Author> popularAuthors = new ArrayList<>();
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,8 +104,25 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
         TextView tvViewAllTrendingBooks = findViewById(R.id.tvViewAllTrendingBooks);
         TextView tvViewAllBooks = findViewById(R.id.tvViewAllBooks);
 
+        userRepository = new UserRepository();
+        profileUserViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(ProfileUserViewModel.class);
+
+        profileUserViewModel.getUserLiveData().observe(this, user -> {
+            if (user != null) {
+                tvHello.setText("Hello " + user.getName());
+                Glide.with(MainActivity.this)
+                        .load(user.getAvatar())
+                        .placeholder(R.drawable.placeholder)
+                        .into(imgProfile);
+            } else {
+                tvHello.setText("Hello Guest");
+            }
+        });
+
+//        profileUserViewModel.fetchCurrentUser();
+
         // Hiển thị tên người dùng
-        loadUserNameAndDisplay();
+//        loadUserNameAndDisplay();
 
         // Handle profile click
         imgProfile = findViewById(R.id.imgProfile);
@@ -172,8 +196,10 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
     protected void onResume() {
         super.onResume();
 
+        profileUserViewModel.fetchCurrentUser();
+
         // Tải lại tên người dùng mỗi khi quay lại MainActivity
-        loadUserNameAndDisplay();
+//        loadUserNameAndDisplay();
 
         // Làm mới dữ liệu sách
         if (mainViewModel != null) {

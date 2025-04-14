@@ -1,5 +1,6 @@
 package com.example.litera.views.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -11,9 +12,13 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.example.litera.R;
+import com.example.litera.repositories.UserRepository;
+import com.example.litera.viewmodels.ProfileUserViewModel;
+import com.example.litera.viewmodels.ViewModelFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,6 +40,13 @@ public class ProfileUserActivity extends AppCompatActivity {
     private TextView userBalance;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
+    private UserRepository userRepository;
+    private ProfileUserViewModel profileUserViewModel;
+    private Button btnFavourites;
+    private Button btnChangpwd;
+    private Button btnTopup;
+    private Button btnLogout;
+    private Button btnLoginSignup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +57,47 @@ public class ProfileUserActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
+        userRepository = new UserRepository();
+
         // Initialize UI components
         initViews();
+        btnFavourites = (Button) findViewById(R.id.btnFavourites);
+        btnChangpwd = (Button) findViewById(R.id.btnChangePass);
+        btnTopup = (Button) findViewById(R.id.btnTopUpWallet);
+        btnLogout = (Button) findViewById(R.id.btnLogout);
+        btnLoginSignup = (Button) findViewById(R.id.btn_login_signup);
+
+
+        profileUserViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(ProfileUserViewModel.class);
+
+        profileUserViewModel.getUserLiveData().observe(this, user -> {
+            if (user != null) {
+                // User data loaded successfully
+                userName.setText(user.getName());
+                userEmail.setText(user.getEmail());
+                userBalance.setText(user.getValue());
+                btnFavourites.setVisibility(View.VISIBLE);
+                btnChangpwd.setVisibility(View.VISIBLE);
+                btnTopup.setVisibility(View.VISIBLE);
+                btnLogout.setVisibility(View.VISIBLE);
+                Glide.with(this)
+                        .load(user.getAvatar())
+                        .placeholder(R.drawable.placeholder)
+                        .error(R.drawable.error)
+                        .into(userAvatar);
+            } else {
+                userName.setText(R.string.default_username);
+                userEmail.setVisibility(View.GONE);
+                btnFavourites.setVisibility(View.GONE);
+                btnChangpwd.setVisibility(View.GONE);
+                btnTopup.setVisibility(View.GONE);
+                btnLogout.setVisibility(View.GONE);
+                btnLoginSignup.setVisibility(View.VISIBLE);
+            }
+        });
 
         // Load user data
-        loadUserData();
+//        loadUserData();
 
         // Setup click listeners
         setupListeners();
@@ -132,10 +180,6 @@ public class ProfileUserActivity extends AppCompatActivity {
 
     private void setupListeners() {
         ImageButton btnBack = findViewById(R.id.btnBack);
-        Button btnFavourites = findViewById(R.id.btnFavourites);
-        Button btnChangePass = findViewById(R.id.btnChangePass);
-        Button btnTopUpWallet = findViewById(R.id.btnTopUpWallet);
-        Button btnLogout = findViewById(R.id.btnLogout);
 
         // Navigate back to MainActivity
         btnBack.setOnClickListener(new View.OnClickListener() {
@@ -157,7 +201,7 @@ public class ProfileUserActivity extends AppCompatActivity {
         });
 
         // Navigate to ChangePassActivity
-        btnChangePass.setOnClickListener(new View.OnClickListener() {
+        btnChangpwd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfileUserActivity.this, ChangePassActivity.class);
@@ -166,7 +210,7 @@ public class ProfileUserActivity extends AppCompatActivity {
         });
 
         // Handle Top Up Wallet button click
-        btnTopUpWallet.setOnClickListener(new View.OnClickListener() {
+        btnTopup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfileUserActivity.this, TopUpWalletActivity.class);
@@ -179,15 +223,25 @@ public class ProfileUserActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 // Đăng xuất khỏi Firebase Auth
-                FirebaseAuth.getInstance().signOut();
-
-                // Hiển thị thông báo
-                Toast.makeText(ProfileUserActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+//                FirebaseAuth.getInstance().signOut();
+//
+//                // Hiển thị thông báo
+//                Toast.makeText(ProfileUserActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+                profileUserViewModel.logout();
 
                 // Chuyển đến màn hình đăng nhập
-                Intent intent = new Intent(ProfileUserActivity.this, LoginActivity.class);
+                Intent intent = new Intent(ProfileUserActivity.this, MainActivity.class);
                 // Xóa tất cả activity khỏi stack
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
+        });
+
+        btnLoginSignup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ProfileUserActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
             }

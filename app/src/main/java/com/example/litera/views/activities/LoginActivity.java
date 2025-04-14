@@ -15,9 +15,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.litera.R;
 import com.example.litera.repositories.UserRepository;
+import com.example.litera.viewmodels.ProfileUserViewModel;
+import com.example.litera.viewmodels.ViewModelFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
@@ -32,6 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private Button btnLogin;
     private TextView tvRegister, tvForgotPassword;
+    private ProfileUserViewModel profileUserViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,11 +54,32 @@ public class LoginActivity extends AppCompatActivity {
         tvRegister = findViewById(R.id.tvRegister);
         tvForgotPassword = findViewById(R.id.tvForgotPassword); // Thêm vào layout nếu chưa có
 
-        // Kiểm tra nếu người dùng đã đăng nhập
-        if (auth.getCurrentUser() != null) {
-            startActivity(new Intent(LoginActivity.this, MainActivity.class));
-            finish();
-        }
+        profileUserViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(ProfileUserViewModel.class);
+        profileUserViewModel.getIsLoading().observe(this, isLoading -> {
+            if (isLoading) {
+                progressBar.setVisibility(View.VISIBLE);
+            } else {
+                progressBar.setVisibility(View.GONE);
+            }
+        });
+        profileUserViewModel.getErrorMessage().observe(this, errorMessage -> {
+            if (errorMessage != null) {
+                Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
+            }
+        });
+        profileUserViewModel.getUserLiveData().observe(this, user -> {
+            if (user != null) {
+                // Đăng nhập thành công, chuyển đến MainActivity
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                finish();
+            }
+        });
+
+//        // Kiểm tra nếu người dùng đã đăng nhập
+//        if (auth.getCurrentUser() != null) {
+//            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+//            finish();
+//        }
 
         // Handle login button click
         btnLogin.setOnClickListener(new View.OnClickListener() {
@@ -73,54 +98,56 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
 
-                progressBar.setVisibility(View.VISIBLE);
+                profileUserViewModel.login(email, password);
 
-                // Authenticate user
-                auth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                progressBar.setVisibility(View.GONE);
-                                if (task.isSuccessful()) {
-                                    // Đăng nhập thành công, kiểm tra xem người dùng có trong Firestore không
-                                    FirebaseUser firebaseUser = auth.getCurrentUser();
-                                    if (firebaseUser != null) {
-                                        userRepository.getUserByEmail(email, new UserRepository.OnUserFetchListener() {
-                                            @Override
-                                            public void onSuccess(com.example.litera.models.User user) {
-                                                // Người dùng đã có trong Firestore, chuyển đến MainActivity
-                                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                                startActivity(intent);
-                                                finish();
-                                            }
-
-                                            @Override
-                                            public void onFailure(String error) {
-                                                // Người dùng chỉ có trong Auth nhưng không có trong Firestore
-                                                // Tạo profile trong Firestore
-                                                String name = email.split("@")[0]; // Tạm thời lấy tên từ email
-                                                userRepository.createUser(name, email, new UserRepository.OnUserCreationListener() {
-                                                    @Override
-                                                    public void onSuccess() {
-                                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                                        startActivity(intent);
-                                                        finish();
-                                                    }
-
-                                                    @Override
-                                                    public void onFailure(String error) {
-                                                        Toast.makeText(LoginActivity.this, "Error creating user profile: " + error, Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    }
-                                } else {
-                                    // Đăng nhập thất bại
-                                    Toast.makeText(LoginActivity.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        });
+//                progressBar.setVisibility(View.VISIBLE);
+//
+//                // Authenticate user
+//                auth.signInWithEmailAndPassword(email, password)
+//                        .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<AuthResult> task) {
+//                                progressBar.setVisibility(View.GONE);
+//                                if (task.isSuccessful()) {
+//                                    // Đăng nhập thành công, kiểm tra xem người dùng có trong Firestore không
+//                                    FirebaseUser firebaseUser = auth.getCurrentUser();
+//                                    if (firebaseUser != null) {
+//                                        userRepository.getUserByEmail(email, new UserRepository.OnUserFetchListener() {
+//                                            @Override
+//                                            public void onSuccess(com.example.litera.models.User user) {
+//                                                // Người dùng đã có trong Firestore, chuyển đến MainActivity
+//                                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                                                startActivity(intent);
+//                                                finish();
+//                                            }
+//
+//                                            @Override
+//                                            public void onFailure(String error) {
+//                                                // Người dùng chỉ có trong Auth nhưng không có trong Firestore
+//                                                // Tạo profile trong Firestore
+//                                                String name = email.split("@")[0]; // Tạm thời lấy tên từ email
+//                                                userRepository.createUser(name, email, new UserRepository.OnUserCreationListener() {
+//                                                    @Override
+//                                                    public void onSuccess() {
+//                                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                                                        startActivity(intent);
+//                                                        finish();
+//                                                    }
+//
+//                                                    @Override
+//                                                    public void onFailure(String error) {
+//                                                        Toast.makeText(LoginActivity.this, "Error creating user profile: " + error, Toast.LENGTH_SHORT).show();
+//                                                    }
+//                                                });
+//                                            }
+//                                        });
+//                                    }
+//                                } else {
+//                                    // Đăng nhập thất bại
+//                                    Toast.makeText(LoginActivity.this, "Authentication failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+//                                }
+//                            }
+//                        });
             }
         });
 

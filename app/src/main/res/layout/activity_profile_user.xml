@@ -49,8 +49,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:gravity="center"
+            android:orientation="vertical"
             android:padding="20dp">
 
             <ImageButton
@@ -58,10 +58,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="start"
+                android:layout_marginBottom="16dp"
                 android:background="@drawable/baseline_arrow_back_ios_new_24"
                 android:contentDescription="Back"
-                android:tint="#000000"
-                android:layout_marginBottom="16dp" />
+                app:tint="#000000"
+                tools:ignore="TouchTargetSizeCheck" />
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/userAvatar"
@@ -69,8 +70,8 @@
                 android:layout_height="120dp"
                 android:layout_marginTop="16dp"
                 android:src="@drawable/z6456262903514_8961d85cbd925e7e3f1929bd368cd347"
-                app:civ_border_width="2dp"
-                app:civ_border_color="#1E90FF" />
+                app:civ_border_color="#1E90FF"
+                app:civ_border_width="2dp" />
 
             <TextView
                 android:id="@+id/userName"
@@ -92,44 +93,51 @@
                 android:textSize="14sp" />
 
             <Button
+                android:id="@+id/btn_login_signup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Log in / Sign up"
+                android:visibility="gone" />
+
+            <Button
                 android:id="@+id/btnFavourites"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Favourite"
+                android:layout_marginBottom="12dp"
                 android:backgroundTint="#1E90FF"
-                android:textColor="#FFFFFF"
                 android:padding="12dp"
-                android:layout_marginBottom="12dp"/>
+                android:text="Favourite"
+                android:textColor="#FFFFFF" />
 
             <Button
                 android:id="@+id/btnChangePass"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Change Password"
+                android:layout_marginBottom="12dp"
                 android:backgroundTint="#1E90FF"
-                android:textColor="#FFFFFF"
                 android:padding="12dp"
-                android:layout_marginBottom="12dp"/>
+                android:text="Change Password"
+                android:textColor="#FFFFFF" />
 
             <Button
                 android:id="@+id/btnTopUpWallet"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Top Up Wallet"
+                android:layout_marginBottom="12dp"
                 android:backgroundTint="#1E90FF"
-                android:textColor="#FFFFFF"
                 android:padding="12dp"
-                android:layout_marginBottom="12dp"/>
+                android:text="Top Up Wallet"
+                android:textColor="#FFFFFF" />
 
             <!-- Thêm nút đăng xuất -->
             <Button
                 android:id="@+id/btnLogout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Logout"
                 android:backgroundTint="#FF5252"
-                android:textColor="#FFFFFF"
-                android:padding="12dp"/>
+                android:padding="12dp"
+                android:text="Logout"
+                android:textColor="#FFFFFF" />
 
         </LinearLayout>
     </RelativeLayout>
