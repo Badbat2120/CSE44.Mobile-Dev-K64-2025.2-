@@ -417,10 +417,8 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
     public void onAuthorClick(Author author) {
         // Xử lý khi người dùng click vào tác giả
         if (author != null) {
-            // Điều hướng đến AuthorDetailActivity
             Intent intent = new Intent(this, AuthorDetailActivity.class);
-            intent.putExtra("authorId", author.getId()); // Giả sử Author có phương thức getId()
-            intent.putExtra("authorName", author.getName());
+            intent.putExtra("author_id", author.getId());
             startActivity(intent);
         } else {
             Toast.makeText(this, "Author data is null", Toast.LENGTH_SHORT).show();
