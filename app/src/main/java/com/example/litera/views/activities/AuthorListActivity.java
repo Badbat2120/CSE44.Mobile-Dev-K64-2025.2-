@@ -58,7 +58,6 @@ public class AuthorListActivity extends AppCompatActivity {
     }
 
     private void loadAuthors() {
-        progressIndicator.setVisibility(View.VISIBLE);
 
         // Lấy dữ liệu từ Firebase
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Authors");
