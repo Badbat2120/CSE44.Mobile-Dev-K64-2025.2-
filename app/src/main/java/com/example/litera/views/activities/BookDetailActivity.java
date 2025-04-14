@@ -52,6 +52,7 @@ public class BookDetailActivity extends AppCompatActivity {
         ImageButton btnFavorite = findViewById(R.id.btnFavorite);
         Button addToCart = findViewById(R.id.btnAddToCart);
         ImageButton btnBack = findViewById(R.id.btnBack);
+        ImageButton btnShare = findViewById(R.id.shareButton);
         ratingBar = findViewById(R.id.ratingBar);
         ratingText = findViewById(R.id.ratingText); // Đảm bảo có TextView này trong layout
 
@@ -188,6 +189,53 @@ public class BookDetailActivity extends AppCompatActivity {
 
             // Chuyển đổi trạng thái yêu thích
             bookDetailViewModel.toggleFavorite(bookId);
+        });
+
+        btnShare.setOnClickListener(v -> {
+            // Get the current book from ViewModel
+            if (bookDetailViewModel.getSelectedBook().getValue() != null) {
+                String title = bookDetailViewModel.getSelectedBook().getValue().getTitle();
+                String authorName = bookDetailViewModel.getSelectedBook().getValue().getAuthor() != null ?
+                        bookDetailViewModel.getSelectedBook().getValue().getAuthor().getName() : "Unknown Author";
+                String price = bookDetailViewModel.getSelectedBook().getValue().getPrice();
+                String description = bookDetailViewModel.getSelectedBook().getValue().getDescription();
+
+                // Create share intent
+                Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                shareIntent.setType("text/plain");
+
+                // Prepare content to share
+                String shareText = "Check out this book: \"" + title + "\" by " + authorName;
+
+                // Add price if available
+                if (price != null && !price.isEmpty()) {
+                    if (!price.startsWith("$")) {
+                        price = "$" + price;
+                    }
+                    shareText += "\nPrice: " + price;
+                }
+
+                // Add a brief description
+                if (description != null && description.length() > 0) {
+                    // Limit description to first 100 characters
+                    String shortDesc = description;
+                    if (shortDesc.length() > 100) {
+                        shortDesc = shortDesc.substring(0, 97) + "...";
+                    }
+                    shareText += "\n\n" + shortDesc;
+                }
+
+                // Add app name
+                shareText += "\n\nShared from Litera App";
+
+                // Put text in the intent
+                shareIntent.putExtra(Intent.EXTRA_TEXT, shareText);
+
+                // Start the activity
+                startActivity(Intent.createChooser(shareIntent, "Share Book Via"));
+            } else {
+                Toast.makeText(BookDetailActivity.this, "Book information not available yet", Toast.LENGTH_SHORT).show();
+            }
         });
 
         // Kiểm tra trạng thái yêu thích khi chọn sách

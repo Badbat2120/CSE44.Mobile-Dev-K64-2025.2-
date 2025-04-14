@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
                 tvHello.setText("Hello " + user.getName());
                 Glide.with(MainActivity.this)
                         .load(user.getAvatar())
-                        .placeholder(R.drawable.placeholder)
+                        .placeholder(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
                         .into(imgProfile);
             } else {
                 tvHello.setText("Hello Guest");

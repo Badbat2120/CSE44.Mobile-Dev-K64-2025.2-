@@ -93,9 +93,9 @@
             android:id="@+id/tvLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/btnRegister"
-            android:layout_marginTop="8dp"
+            android:layout_below="@id/linearLayout"
             android:layout_centerHorizontal="true"
+            android:layout_marginTop="8dp"
             android:text="Already have an account? Login" />
 
         <!-- Divider "or" -->
@@ -103,10 +103,10 @@
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tvLogin"
+            android:layout_below="@id/btnRegister"
             android:layout_marginTop="16dp"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="horizontal">
 
             <View
                 android:layout_width="0dp"
@@ -117,10 +117,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
                 android:text="or"
-                android:textSize="16sp"
                 android:textColor="#888888"
-                android:paddingHorizontal="8dp" />
+                android:textSize="16sp" />
 
             <View
                 android:layout_width="0dp"
@@ -130,14 +130,6 @@
         </LinearLayout>
 
         <!-- Google Sign-up button -->
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/googleSignInButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/linearLayout"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:text="Sign up with Google" />
 
         <!-- Progress bar -->
         <ProgressBar

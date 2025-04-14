@@ -227,15 +227,14 @@
         android:layout_width="220dp"
         android:layout_height="57dp"
         android:backgroundTint="#1E90FF"
-        android:drawableStart="@drawable/gio"
         android:drawablePadding="8dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
-        android:text="🛒 Add to cart"
+        android:text="Buy E-book"
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
+        android:textSize="25sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/bottomLayout"
-        android:textSize="25sp"/>
+        app:layout_constraintEnd_toEndOf="@+id/bottomLayout" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

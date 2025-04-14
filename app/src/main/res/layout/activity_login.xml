@@ -91,52 +91,46 @@
             android:id="@+id/tvRegister"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/btnLogin"
-            android:layout_marginTop="8dp"
+            android:layout_below="@+id/linearLayout"
             android:layout_centerHorizontal="true"
-            android:text="Don't have an account? Sign up"
+            android:layout_marginTop="8dp"
             android:clickable="true"
             android:focusable="true"
-            android:padding="4dp" />
+            android:padding="4dp"
+            android:text="Don't have an account? Sign up" />
 
         <!-- Divider -->
         <LinearLayout
             android:id="@+id/linearLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tvRegister"
+            android:layout_below="@id/btnLogin"
             android:layout_marginTop="16dp"
-            android:orientation="horizontal"
-            android:gravity="center">
+            android:gravity="center"
+            android:orientation="horizontal">
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="@android:color/darker_gray"/>
+                android:background="@android:color/darker_gray" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
                 android:text="or"
-                android:textSize="16sp"
                 android:textColor="@android:color/black"
-                android:paddingHorizontal="8dp"/>
+                android:textSize="16sp" />
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
-                android:background="@android:color/darker_gray"/>
+                android:background="@android:color/darker_gray" />
         </LinearLayout>
 
         <!-- Google Sign-in button -->
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/googleSignInButton"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/linearLayout"
-            android:layout_marginTop="16dp" />
 
         <!-- Progress bar -->
         <ProgressBar

@@ -84,8 +84,7 @@ public class ProfileUserActivity extends AppCompatActivity {
                 btnLoginSignup.setVisibility(View.GONE);
                 Glide.with(this)
                         .load(user.getAvatar())
-                        .placeholder(R.drawable.placeholder)
-                        .error(R.drawable.error)
+                        .placeholder(R.drawable.z6456262903514_8961d85cbd925e7e3f1929bd368cd347)
                         .into(userAvatar);
             } else {
                 userName.setText(R.string.default_username);
