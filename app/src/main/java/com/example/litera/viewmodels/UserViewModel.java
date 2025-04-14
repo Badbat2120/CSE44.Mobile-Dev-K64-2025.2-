@@ -7,13 +7,13 @@ import androidx.lifecycle.ViewModel;
 import com.example.litera.models.User;
 import com.example.litera.repositories.UserRepository;
 
-public class ProfileUserViewModel extends ViewModel {
+public class UserViewModel extends ViewModel {
     private final UserRepository userRepository;
     private final MutableLiveData<User> userLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
 
-    public ProfileUserViewModel(UserRepository userRepository) {
+    public UserViewModel(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -40,7 +40,7 @@ public class ProfileUserViewModel extends ViewModel {
 
             @Override
             public void onFailure(String error) {
-                ProfileUserViewModel.this.errorMessage.postValue(error);
+                UserViewModel.this.errorMessage.postValue(error);
                 isLoading.postValue(false);
             }
         });
@@ -57,7 +57,7 @@ public class ProfileUserViewModel extends ViewModel {
 
             @Override
             public void onFailure(String errorMessage) {
-                ProfileUserViewModel.this.errorMessage.postValue(errorMessage);
+                UserViewModel.this.errorMessage.postValue(errorMessage);
                 isLoading.postValue(false);
             }
         });

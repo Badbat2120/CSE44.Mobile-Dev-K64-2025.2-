@@ -13,20 +13,15 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.litera.R;
 import com.example.litera.repositories.UserRepository;
-import com.example.litera.viewmodels.ProfileUserViewModel;
+import com.example.litera.viewmodels.UserViewModel;
 import com.example.litera.viewmodels.ViewModelFactory;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
     private TextInputEditText inputEmail, inputPassword;
@@ -35,7 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private Button btnLogin;
     private TextView tvRegister, tvForgotPassword;
-    private ProfileUserViewModel profileUserViewModel;
+    private UserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,20 +49,20 @@ public class LoginActivity extends AppCompatActivity {
         tvRegister = findViewById(R.id.tvRegister);
         tvForgotPassword = findViewById(R.id.tvForgotPassword); // Thêm vào layout nếu chưa có
 
-        profileUserViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(ProfileUserViewModel.class);
-        profileUserViewModel.getIsLoading().observe(this, isLoading -> {
+        userViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(UserViewModel.class);
+        userViewModel.getIsLoading().observe(this, isLoading -> {
             if (isLoading) {
                 progressBar.setVisibility(View.VISIBLE);
             } else {
                 progressBar.setVisibility(View.GONE);
             }
         });
-        profileUserViewModel.getErrorMessage().observe(this, errorMessage -> {
+        userViewModel.getErrorMessage().observe(this, errorMessage -> {
             if (errorMessage != null) {
                 Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
-        profileUserViewModel.getUserLiveData().observe(this, user -> {
+        userViewModel.getUserLiveData().observe(this, user -> {
             if (user != null) {
                 // Đăng nhập thành công, chuyển đến MainActivity
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
@@ -98,7 +93,7 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
 
-                profileUserViewModel.login(email, password);
+                userViewModel.login(email, password);
 
 //                progressBar.setVisibility(View.VISIBLE);
 //

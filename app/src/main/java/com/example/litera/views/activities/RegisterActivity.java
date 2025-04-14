@@ -10,18 +10,14 @@ import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.*;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.litera.R;
 import com.example.litera.repositories.UserRepository;
-import com.example.litera.viewmodels.ProfileUserViewModel;
+import com.example.litera.viewmodels.UserViewModel;
 import com.example.litera.viewmodels.ViewModelFactory;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -32,7 +28,7 @@ public class RegisterActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private Button btnSignUp;
     private TextView tvLogin;
-    private ProfileUserViewModel profileUserViewModel;
+    private UserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,23 +47,23 @@ public class RegisterActivity extends AppCompatActivity {
         btnSignUp = findViewById(R.id.btnRegister);
         tvLogin = findViewById(R.id.tvLogin);
 
-        profileUserViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(ProfileUserViewModel.class);
+        userViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(UserViewModel.class);
 
-        profileUserViewModel.getIsLoading().observe(this, isLoading -> {
+        userViewModel.getIsLoading().observe(this, isLoading -> {
             if (isLoading) {
                 progressBar.setVisibility(View.VISIBLE);
             } else {
                 progressBar.setVisibility(View.GONE);
             }
         });
-        profileUserViewModel.getUserLiveData().observe(this, user -> {
+        userViewModel.getUserLiveData().observe(this, user -> {
             if (user != null) {
                 // Đăng nhập thành công, chuyển đến MainActivity
                 startActivity(new Intent(RegisterActivity.this, MainActivity.class));
                 finish();
             }
         });
-        profileUserViewModel.getErrorMessage().observe(this, errorMessage -> {
+        userViewModel.getErrorMessage().observe(this, errorMessage -> {
             if (errorMessage != null) {
                 // Hiển thị thông báo lỗi
                 Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_LONG).show();
@@ -102,7 +98,7 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
                 // Đăng ký người dùng mới
-                profileUserViewModel.register(email, password, name);
+                userViewModel.register(email, password, name);
 
 //                progressBar.setVisibility(View.VISIBLE);
 //

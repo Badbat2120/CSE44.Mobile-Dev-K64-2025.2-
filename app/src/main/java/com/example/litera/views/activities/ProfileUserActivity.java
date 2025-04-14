@@ -1,6 +1,5 @@
 package com.example.litera.views.activities;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,13 +16,12 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.example.litera.R;
 import com.example.litera.repositories.UserRepository;
-import com.example.litera.viewmodels.ProfileUserViewModel;
+import com.example.litera.viewmodels.UserViewModel;
 import com.example.litera.viewmodels.ViewModelFactory;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -41,7 +39,7 @@ public class ProfileUserActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
     private UserRepository userRepository;
-    private ProfileUserViewModel profileUserViewModel;
+    private UserViewModel userViewModel;
     private Button btnFavourites;
     private Button btnChangpwd;
     private Button btnTopup;
@@ -68,9 +66,9 @@ public class ProfileUserActivity extends AppCompatActivity {
         btnLoginSignup = (Button) findViewById(R.id.btn_login_signup);
 
 
-        profileUserViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(ProfileUserViewModel.class);
+        userViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(UserViewModel.class);
 
-        profileUserViewModel.getUserLiveData().observe(this, user -> {
+        userViewModel.getUserLiveData().observe(this, user -> {
             if (user != null) {
                 // User data loaded successfully
                 userName.setText(user.getName());
@@ -227,7 +225,7 @@ public class ProfileUserActivity extends AppCompatActivity {
 //
 //                // Hiển thị thông báo
 //                Toast.makeText(ProfileUserActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
-                profileUserViewModel.logout();
+                userViewModel.logout();
 
                 // Chuyển đến màn hình đăng nhập
                 Intent intent = new Intent(ProfileUserActivity.this, MainActivity.class);

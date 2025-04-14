@@ -26,7 +26,7 @@ import com.example.litera.models.Author;
 import com.example.litera.models.Book;
 import com.example.litera.repositories.BookRepository;
 import com.example.litera.repositories.UserRepository;
-import com.example.litera.viewmodels.ProfileUserViewModel;
+import com.example.litera.viewmodels.UserViewModel;
 import com.example.litera.viewmodels.ViewModelFactory;
 import com.example.litera.views.adapters.AuthorAdapter;
 import com.example.litera.views.adapters.BookAdapter;
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
     private BookAdapter continueReadingAdapter;
     private BookAdapter allBooksAdapter;
     private AuthorAdapter popularAuthorAdapter;
-    private ProfileUserViewModel profileUserViewModel;
+    private UserViewModel userViewModel;
     private UserRepository userRepository;
 
     // Các danh sách để lưu trữ dữ liệu sách sau khi tìm kiếm
@@ -105,9 +105,9 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
         TextView tvViewAllBooks = findViewById(R.id.tvViewAllBooks);
 
         userRepository = new UserRepository();
-        profileUserViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(ProfileUserViewModel.class);
+        userViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(UserViewModel.class);
 
-        profileUserViewModel.getUserLiveData().observe(this, user -> {
+        userViewModel.getUserLiveData().observe(this, user -> {
             if (user != null) {
                 tvHello.setText("Hello " + user.getName());
                 Glide.with(MainActivity.this)
@@ -196,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
     protected void onResume() {
         super.onResume();
 
-        profileUserViewModel.fetchCurrentUser();
+        userViewModel.fetchCurrentUser();
 
         // Tải lại tên người dùng mỗi khi quay lại MainActivity
 //        loadUserNameAndDisplay();

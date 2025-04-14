@@ -16,8 +16,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-        if (modelClass.isAssignableFrom(ProfileUserViewModel.class)) {
-            ProfileUserViewModel viewModel = new ProfileUserViewModel(userRepository);
+        if (modelClass.isAssignableFrom(UserViewModel.class)) {
+            UserViewModel viewModel = new UserViewModel(userRepository);
             viewModel.fetchCurrentUser(); // Automatically fetch user when ViewModel is created
             return (T) viewModel;
         }
