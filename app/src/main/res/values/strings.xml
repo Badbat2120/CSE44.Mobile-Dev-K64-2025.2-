@@ -18,4 +18,5 @@
     <string name="read">📖 Read</string>
     <string name="buy_physical_books">🛒 Buy physical books</string>
     <string name="book_cover">Book cover</string>
+    <string name="default_username">User</string>
 </resources>

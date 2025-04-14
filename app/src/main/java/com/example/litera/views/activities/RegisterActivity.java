@@ -10,15 +10,14 @@ import android.text.style.ClickableSpan;
 import android.view.View;
 import android.widget.*;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.litera.R;
 import com.example.litera.repositories.UserRepository;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.litera.viewmodels.UserViewModel;
+import com.example.litera.viewmodels.ViewModelFactory;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -29,6 +28,7 @@ public class RegisterActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private Button btnSignUp;
     private TextView tvLogin;
+    private UserViewModel userViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +46,29 @@ public class RegisterActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         btnSignUp = findViewById(R.id.btnRegister);
         tvLogin = findViewById(R.id.tvLogin);
+
+        userViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(UserViewModel.class);
+
+        userViewModel.getIsLoading().observe(this, isLoading -> {
+            if (isLoading) {
+                progressBar.setVisibility(View.VISIBLE);
+            } else {
+                progressBar.setVisibility(View.GONE);
+            }
+        });
+        userViewModel.getUserLiveData().observe(this, user -> {
+            if (user != null) {
+                // Đăng nhập thành công, chuyển đến MainActivity
+                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                finish();
+            }
+        });
+        userViewModel.getErrorMessage().observe(this, errorMessage -> {
+            if (errorMessage != null) {
+                // Hiển thị thông báo lỗi
+                Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+            }
+        });
 
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,37 +97,39 @@ public class RegisterActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Password too short, enter minimum 6 characters!", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                // Đăng ký người dùng mới
+                userViewModel.register(email, password, name);
 
-                progressBar.setVisibility(View.VISIBLE);
-
-                // Tạo người dùng với Firebase Authentication
-                auth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    // Tạo tài liệu người dùng trong Firestore
-                                    userRepository.createUser(name, email, new UserRepository.OnUserCreationListener() {
-                                        @Override
-                                        public void onSuccess() {
-                                            progressBar.setVisibility(View.GONE);
-                                            Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
-                                            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                                            finish();
-                                        }
-
-                                        @Override
-                                        public void onFailure(String error) {
-                                            progressBar.setVisibility(View.GONE);
-                                            Toast.makeText(RegisterActivity.this, "Failed to create user profile: " + error, Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-                                } else {
-                                    progressBar.setVisibility(View.GONE);
-                                    Toast.makeText(RegisterActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        });
+//                progressBar.setVisibility(View.VISIBLE);
+//
+//                // Tạo người dùng với Firebase Authentication
+//                auth.createUserWithEmailAndPassword(email, password)
+//                        .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<AuthResult> task) {
+//                                if (task.isSuccessful()) {
+//                                    // Tạo tài liệu người dùng trong Firestore
+//                                    userRepository.createUser(name, email, new UserRepository.OnUserCreationListener() {
+//                                        @Override
+//                                        public void onSuccess() {
+//                                            progressBar.setVisibility(View.GONE);
+//                                            Toast.makeText(RegisterActivity.this, "Registration successful!", Toast.LENGTH_SHORT).show();
+//                                            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+//                                            finish();
+//                                        }
+//
+//                                        @Override
+//                                        public void onFailure(String error) {
+//                                            progressBar.setVisibility(View.GONE);
+//                                            Toast.makeText(RegisterActivity.this, "Failed to create user profile: " + error, Toast.LENGTH_LONG).show();
+//                                        }
+//                                    });
+//                                } else {
+//                                    progressBar.setVisibility(View.GONE);
+//                                    Toast.makeText(RegisterActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+//                                }
+//                            }
+//                        });
             }
         });
 
