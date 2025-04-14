@@ -197,7 +197,7 @@
         android:layout_height="54dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btnAddToCart"
+        app:layout_constraintEnd_toStartOf="@+id/btn_buy_book"
         app:layout_constraintStart_toStartOf="@+id/bottomLayout">
 
         <TextView
@@ -223,7 +223,7 @@
 
     <!-- Add to cart button with icon -->
     <Button
-        android:id="@+id/btnAddToCart"
+        android:id="@+id/btn_buy_book"
         android:layout_width="220dp"
         android:layout_height="57dp"
         android:backgroundTint="#1E90FF"

@@ -105,6 +105,13 @@ public class ProfileUserActivity extends AppCompatActivity {
         setupListeners();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Reload user data when the activity is resumed
+        userViewModel.fetchCurrentUser();
+    }
+
     private void initViews() {
         userAvatar = findViewById(R.id.userAvatar);
         userName = findViewById(R.id.userName);

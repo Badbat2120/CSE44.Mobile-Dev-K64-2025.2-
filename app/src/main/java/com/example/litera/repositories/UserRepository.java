@@ -120,7 +120,6 @@ public class UserRepository {
         }
 
         // Tạo một đối tượng User mới
-        User newUser = new User(name, email);
         Map<String, Object> user = new HashMap<>();
         user.put("name", name);
         user.put("email", email);
@@ -128,6 +127,7 @@ public class UserRepository {
         user.put("continue", new ArrayList<String>());
         user.put("role", "user");
         user.put("value", "0");
+        user.put("boughtBooks", new ArrayList<String>());
 
         // Thêm người dùng vào collection "users"
         db.collection("users")
@@ -415,6 +415,151 @@ public class UserRepository {
 
     public interface AuthCallback {
         void onSuccess(User user);
+        void onFailure(String error);
+    }
+
+    public void buyBook(String bookId, double price, OnBookPurchaseListener listener) {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onFailure("User not authenticated");
+            return;
+        }
+
+        // Get the user document
+        db.collection("users").document(currentUser.getUid())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        DocumentSnapshot document = task.getResult();
+
+                        // Get current purchased list
+                        List<String> boughtBooks = (List<String>) document.get("boughtBooks");
+                        if (boughtBooks == null) {
+                            boughtBooks = new ArrayList<>();
+                        }
+
+                        // Check if already boughtBooks
+                        if (boughtBooks.contains(bookId)) {
+                            listener.onFailure("Book already boughtBooks");
+                            return;
+                        }
+
+                        // Update user's balance
+                        double currentValue = Double.parseDouble(document.getString("value"));
+                        if (currentValue < price) {
+                            listener.onFailure("Not enough balance");
+                            return;
+                        }
+                        currentValue -= price;
+
+                        // Add the book to boughtBooks list
+                        boughtBooks.add(bookId);
+
+                        // Update Firestore
+                        Map<String, Object> updates = new HashMap<>();
+                        updates.put("boughtBooks", boughtBooks);
+                        updates.put("value", String.valueOf(currentValue));
+                        db.collection("users").document(currentUser.getUid())
+                                .update(updates)
+                                .addOnSuccessListener(aVoid -> {
+                                    clearCachedUser();
+                                    listener.onSuccess();
+                                })
+                                .addOnFailureListener(e -> {
+                                    listener.onFailure("Failed to update user document: " + e.getMessage());
+                                });
+
+                    } else {
+                        listener.onFailure("Failed to get user document");
+                    }
+                });
+    }
+
+    public void checkBookPurchased(String bookId, OnBookPurchaseCheckListener listener) {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onResult(false);
+            return;
+        }
+
+        // Use cache if available
+        if (cacheUser != null) {
+            List<String> boughtBooks = cacheUser.getBoughtBooks();
+            boolean hasPurchased = boughtBooks != null && boughtBooks.contains(bookId);
+            listener.onResult(hasPurchased);
+            return;
+        }
+
+        // Query Firestore if no cache
+        // In checkBookPurchased method, update the Firestore query:
+        db.collection("users").document(currentUser.getUid())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        DocumentSnapshot document = task.getResult();
+
+                        // Add debugging to see what's actually in the document
+                        Log.d(TAG, "User document: " + document.getData());
+
+                        // Check both possible field names
+                        List<String> boughtBooks = (List<String>) document.get("boughtBooks");
+                        if (boughtBooks == null) {
+                            // Try alternative field name as fallback
+                            boughtBooks = (List<String>) document.get("purchased");
+                        }
+
+                        boolean hasPurchased = boughtBooks != null && boughtBooks.contains(bookId);
+                        Log.d(TAG, "Book " + bookId + " purchased status: " + hasPurchased);
+                        Log.d(TAG, "Bought books list: " + (boughtBooks != null ? boughtBooks.toString() : "null"));
+
+                        listener.onResult(hasPurchased);
+                    } else {
+                        listener.onResult(false);
+                    }
+                });
+    }
+
+    public void getPurchasedBooks(OnPurchasedBooksListener listener) {
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser == null) {
+            listener.onFailure("User not authenticated");
+            return;
+        }
+
+        if(cacheUser != null) {
+            List<String> purchased = cacheUser.getBoughtBooks();
+            listener.onSuccess(purchased);
+            return;
+        }
+
+        db.collection("users").document(currentUser.getUid())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        DocumentSnapshot document = task.getResult();
+                        List<String> purchased = (List<String>) document.get("boughtBooks");
+                        if (purchased == null) {
+                            purchased = new ArrayList<>();
+                        }
+                        listener.onSuccess(purchased);
+                    } else {
+                        listener.onFailure("Failed to get user document");
+                    }
+                });
+    }
+
+    // Add these interfaces for book purchase operations
+    public interface OnBookPurchaseListener {
+        void onSuccess();
+        void onFailure(String error);
+    }
+
+    public interface OnBookPurchaseCheckListener {
+        void onResult(boolean hasPurchased);
+    }
+
+    public interface OnPurchasedBooksListener {
+        void onSuccess(List<String> purchasedBookIds);
         void onFailure(String error);
     }
 }

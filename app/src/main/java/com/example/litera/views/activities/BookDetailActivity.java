@@ -19,8 +19,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.example.litera.R;
 import com.example.litera.repositories.BookRepository;
+import com.example.litera.repositories.UserRepository;
 import com.example.litera.utils.GoogleDriveUtils;
 import com.example.litera.viewmodels.BookDetailViewModel;
+import com.example.litera.viewmodels.UserViewModel;
+import com.example.litera.viewmodels.ViewModelFactory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -28,6 +31,7 @@ public class BookDetailActivity extends AppCompatActivity {
 
     private static final String TAG = "BookDetailActivity";
     private BookDetailViewModel bookDetailViewModel;
+    private UserViewModel userViewModel;
     private ProgressBar progressBar;
     private RatingBar ratingBar;
     private TextView ratingText;
@@ -50,7 +54,7 @@ public class BookDetailActivity extends AppCompatActivity {
         TextView bookDescription = findViewById(R.id.tvDescription);
         TextView priceValue = findViewById(R.id.priceValue);
         ImageButton btnFavorite = findViewById(R.id.btnFavorite);
-        Button addToCart = findViewById(R.id.btnAddToCart);
+        Button btnBuyBook = findViewById(R.id.btn_buy_book);
         ImageButton btnBack = findViewById(R.id.btnBack);
         ImageButton btnShare = findViewById(R.id.shareButton);
         ratingBar = findViewById(R.id.ratingBar);
@@ -58,10 +62,11 @@ public class BookDetailActivity extends AppCompatActivity {
 
         // Đặt ratingBar là chỉ hiển thị (không cho người dùng đánh giá trong màn hình này)
         ratingBar.setIsIndicator(true);
+        ratingBar.setFocusable(false);
 
         // Initialize ViewModel
         bookDetailViewModel = new ViewModelProvider(this).get(BookDetailViewModel.class);
-
+        userViewModel = new ViewModelProvider(this, new ViewModelFactory(new UserRepository())).get(UserViewModel.class);
         // Observe LiveData
         bookDetailViewModel.getSelectedBook().observe(this, book -> {
             if (book != null) {
@@ -159,12 +164,51 @@ public class BookDetailActivity extends AppCompatActivity {
         }
 
         // Set up button click listener
-        addToCart.setOnClickListener(v -> {
+        btnBuyBook.setOnClickListener(v -> {
             if(FirebaseAuth.getInstance().getCurrentUser() != null) {
-                Intent intent = new Intent(BookDetailActivity.this, AddToCartActivity.class);
-                // Pass the book ID to the AddToCartActivity
-                intent.putExtra("bookId", bookId);
-                startActivity(intent);
+                runOnUiThread(() -> {
+                    String price = "Free";
+                    if (bookDetailViewModel.getSelectedBook().getValue() != null &&
+                            bookDetailViewModel.getSelectedBook().getValue().getPrice() != null) {
+                        price = bookDetailViewModel.getSelectedBook().getValue().getPrice();
+                        if (!price.startsWith("$")) {
+                            price = "$" + price;
+                        }
+                    }
+
+                    new androidx.appcompat.app.AlertDialog.Builder(BookDetailActivity.this)
+                            .setTitle("Confirm Purchase")
+                            .setMessage("Do you want to buy this book for " + price + "?")
+                            .setPositiveButton("Buy Now", (dialog, which) -> {
+                                // Show loading indicator
+                                Toast.makeText(BookDetailActivity.this, "Processing your purchase...", Toast.LENGTH_SHORT).show();
+
+                                // Call viewModel to buy the book
+                                double bookPrice = Double.parseDouble(bookDetailViewModel.getSelectedBook().getValue().getPrice());
+                                userViewModel.buyBook(bookId, bookPrice, new UserRepository.OnBookPurchaseListener() {
+                                    @Override
+                                    public void onSuccess() {
+                                        runOnUiThread(() -> {
+                                            Toast.makeText(BookDetailActivity.this, "Book purchased successfully!", Toast.LENGTH_SHORT).show();
+
+                                            Intent intent = new Intent(BookDetailActivity.this, AddToCartActivity.class);
+                                            intent.putExtra("bookId", bookId);
+                                            startActivity(intent);
+                                        });
+                                    };
+
+                                    @Override
+                                    public void onFailure(String error) {
+                                        runOnUiThread(() -> {
+                                            Toast.makeText(BookDetailActivity.this, "Purchase failed: " + error, Toast.LENGTH_SHORT).show();
+                                        });
+                                    }
+                                });
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                });
+
             } else {
                 Toast.makeText(this, "Log in to add to cart", Toast.LENGTH_SHORT).show();
             }

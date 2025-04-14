@@ -13,13 +13,19 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.litera.R;
 import com.example.litera.models.Book;
+import com.example.litera.repositories.UserRepository;
 import com.example.litera.utils.GoogleDriveUtils;
 import com.example.litera.viewmodels.MainViewModel;
+import com.example.litera.viewmodels.UserViewModel;
+import com.example.litera.viewmodels.ViewModelFactory;
+import com.example.litera.views.activities.AddToCartActivity;
 import com.example.litera.views.activities.BookDetailActivity;
 
 import java.util.ArrayList;
@@ -40,6 +46,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
     private boolean isTrendingView;
     private MainViewModel viewModel;
     private LifecycleOwner lifecycleOwner;
+    private UserViewModel userViewModel;
     private int viewType = VIEW_TYPE_CONTINUE_READING;
 
     // Cache tên tác giả để tránh truy vấn nhiều lần
@@ -129,7 +136,13 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
         Book book = books.get(position);
         if (book == null) return;
 
-        String authorId = book.getAuthorId(); // Sử dụng getAuthorId() thay vì getAuthor()
+        String authorId = book.getAuthorId();// Sử dụng getAuthorId() thay vì getAuthor()
+        if (lifecycleOwner instanceof ViewModelStoreOwner) {
+            userViewModel = new ViewModelProvider(
+                    (ViewModelStoreOwner) lifecycleOwner,
+                    new ViewModelFactory(new UserRepository())
+            ).get(UserViewModel.class);
+        }
 
         if (holder instanceof TrendingBookViewHolder) {
             // Binding cho trending book view holder
@@ -236,14 +249,28 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.BookViewHolder
 
         // Set click listener cho tất cả loại layout
         holder.itemView.setOnClickListener(v -> {
-            Context context = holder.itemView.getContext();
-            Intent intent = new Intent(context, BookDetailActivity.class);
-            intent.putExtra("bookId", book.getId());
-            context.startActivity(intent);
+            Log.d(TAG, "Checking if book " + book.getId() + " is purchased");
+            userViewModel.checkBookPurchased(book.getId(), new UserRepository.OnBookPurchaseCheckListener() {
+                @Override
+                public void onResult(boolean hasPurchased) {
+                    Log.d(TAG, "Result for book " + book.getId() + ": " + hasPurchased);
+                    if (hasPurchased) {
+                        Log.d(TAG, "Book is already purchased, opening AddToCartActivity");
+                        Context context = holder.itemView.getContext();
+                        Intent intent = new Intent(context, AddToCartActivity.class);
+                        intent.putExtra("bookId", book.getId());
+                        context.startActivity(intent);
+                    } else {
+                        Log.d(TAG, "Book is not purchased, opening BookDetailActivity");
+                        Context context = holder.itemView.getContext();
+                        Intent intent = new Intent(context, BookDetailActivity.class);
+                        intent.putExtra("bookId", book.getId());
+                        context.startActivity(intent);
+                    }
+                }
+            });
         });
-
     }
-
     // Helper method to load book images
     private void loadBookImage(String imageUrl, ImageView imageView) {
         String directUrl = GoogleDriveUtils.convertToDirect(imageUrl);

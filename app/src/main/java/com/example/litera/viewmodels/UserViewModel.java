@@ -81,6 +81,19 @@ public class UserViewModel extends ViewModel {
         });
     }
 
+    // Add to UserViewModel class
+    public void buyBook(String bookId, double price, UserRepository.OnBookPurchaseListener listener) {
+        userRepository.buyBook(bookId, price, listener);
+    }
+
+    public void checkBookPurchased(String bookId, UserRepository.OnBookPurchaseCheckListener listener) {
+        userRepository.checkBookPurchased(bookId, listener);
+    }
+
+    public void getPurchasedBooks(UserRepository.OnPurchasedBooksListener listener) {
+        userRepository.getPurchasedBooks(listener);
+    }
+
     public void logout() {
         userRepository.signOut();
         userLiveData.postValue(null);

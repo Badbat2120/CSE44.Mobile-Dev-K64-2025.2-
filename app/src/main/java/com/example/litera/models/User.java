@@ -15,6 +15,7 @@ public class User {
     private String value;
     private String avatar;
     private Map<String, Integer> ratings;
+    private List<String> boughtBooks;
 
     // No-argument constructor cho Firestore
     public User() {
@@ -30,6 +31,7 @@ public class User {
         this.role = "user";
         this.value = "0";
         this.ratings = new HashMap<>();
+        this.boughtBooks = new ArrayList<>();
     }
 
     // Constructor đầy đủ
@@ -43,6 +45,7 @@ public class User {
         this.role = role;
         this.value = value;
         this.ratings = new HashMap<>();
+        this.boughtBooks = new ArrayList<>();
     }
 
     // Getters và Setters
@@ -147,6 +150,21 @@ public class User {
         ratings.put(bookId, rating);
     }
 
+    public List<String> getBoughtBooks() {
+        if (boughtBooks == null) {
+            boughtBooks = new ArrayList<>();
+        }
+        return boughtBooks;
+    }
+
+    public void setBoughtBooks(List<String> boughtBooks) {
+        this.boughtBooks = boughtBooks;
+    }
+
+    public boolean hasBoughtBook(String bookId) {
+        return boughtBooks != null && boughtBooks.contains(bookId);
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -159,6 +177,7 @@ public class User {
                 ", value='" + value + '\'' +
                 ", avatar='" + avatar + '\'' +
                 ", ratings=" + ratings +
+                ", boughtBooks=" + boughtBooks +
                 '}';
     }
 }

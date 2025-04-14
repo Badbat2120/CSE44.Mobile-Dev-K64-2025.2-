@@ -120,7 +120,6 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
             }
         });
 
-//        profileUserViewModel.fetchCurrentUser();
 
         // Hiển thị tên người dùng
 //        loadUserNameAndDisplay();
