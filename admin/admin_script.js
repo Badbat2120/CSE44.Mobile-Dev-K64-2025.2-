@@ -1,4 +1,4 @@
-// Firebase configuration - replace with your project's config
+// Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyB0mjMEG4whE15eaFq73yXi21GouoOTTnI",
     authDomain: "litera-a760b.firebaseapp.com",
@@ -16,7 +16,7 @@ const auth = firebase.auth();
 // Global variables
 let authorsList = [];
 let currentEditMode = false;
-let bookModalBS, authorModalBS, userModalBS, deleteModalBS, viewBookModalBS, viewUserModalBS;
+let bookModalBS, authorModalBS, userModalBS, deleteModalBS, viewBookModalBS, viewUserModalBS, viewAuthorModalBS;
 
 // DOM Elements
 const loginSection = document.getElementById('loginSection');
@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     deleteModalBS = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
     viewBookModalBS = new bootstrap.Modal(document.getElementById('viewBookModal'));
     viewUserModalBS = new bootstrap.Modal(document.getElementById('viewUserModal'));
+    viewAuthorModalBS = new bootstrap.Modal(document.getElementById('viewAuthorModal'));
     
     // Set up event listeners
     setupEventListeners();
@@ -63,6 +64,10 @@ function checkAuthState() {
                         adminDashboard.classList.add('hidden');
                     });
                 }
+            }).catch(error => {
+                console.error("Error checking user role:", error);
+                alert("Error checking user role: " + error.message);
+                auth.signOut();
             });
         } else {
             // Not logged in
@@ -94,16 +99,29 @@ function setupEventListeners() {
     // Delete confirmation
     document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
     
+    // Preview images
+    document.getElementById('bookCover').addEventListener('blur', function() {
+        previewImage('bookCover', 'coverPreview');
+    });
+    
+    document.getElementById('authorPfp').addEventListener('blur', function() {
+        previewImage('authorPfp', 'profilePicPreview');
+    });
+    
     // Modal resets
     document.getElementById('addBookModal').addEventListener('hidden.bs.modal', () => {
         document.getElementById('addBookForm').reset();
         document.getElementById('bookId').value = '';
+        document.getElementById('addBookModalLabel').textContent = 'Add New Book';
+        document.getElementById('coverPreview').innerHTML = '';
         currentEditMode = false;
     });
     
     document.getElementById('addAuthorModal').addEventListener('hidden.bs.modal', () => {
         document.getElementById('addAuthorForm').reset();
         document.getElementById('authorId').value = '';
+        document.getElementById('addAuthorModalLabel').textContent = 'Add New Author';
+        document.getElementById('profilePicPreview').innerHTML = '';
         currentEditMode = false;
     });
     
@@ -111,17 +129,42 @@ function setupEventListeners() {
         document.getElementById('addUserForm').reset();
         document.getElementById('userId').value = '';
         document.getElementById('userPassword').disabled = false;
+        document.getElementById('userPassword').required = true;
+        document.querySelector('.password-label').classList.add('form-required');
+        document.getElementById('addUserModalLabel').textContent = 'Add New User';
         currentEditMode = false;
     });
 }
 
+// Preview image function
+function previewImage(inputId, previewId) {
+    const url = document.getElementById(inputId).value;
+    const previewDiv = document.getElementById(previewId);
+    
+    if (url) {
+        previewDiv.innerHTML = `<img src="${url}" alt="Preview" class="preview-image">`;
+    } else {
+        previewDiv.innerHTML = '';
+    }
+}
+
 // Login handler
 function handleLogin() {
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
     const loginError = document.getElementById('loginError');
     
+    if (!email || !password) {
+        loginError.textContent = "Please enter both email and password";
+        return;
+    }
+    
+    loginError.textContent = "Logging in...";
+    
     auth.signInWithEmailAndPassword(email, password)
+        .then(() => {
+            loginError.textContent = "";
+        })
         .catch(error => {
             loginError.textContent = error.message;
         });
@@ -146,11 +189,13 @@ function loadAuthors() {
             const row = `
                 <tr>
                     <td>${author.id}</td>
-                    <td>${author.name}</td>
+                    <td>${author.name || 'No name'}</td>
+                    <td>${author.email || 'No email'}</td>
                     <td>
                         <a href="${author.pfp}" target="_blank">View Image</a>
                     </td>
                     <td class="action-buttons">
+                        <button class="btn btn-sm btn-info" onclick="viewAuthorDetails('${author.id}')">View</button>
                         <button class="btn btn-sm btn-primary" onclick="editAuthor('${author.id}')">Edit</button>
                         <button class="btn btn-sm btn-danger" onclick="deleteItem('${author.id}', 'author')">Delete</button>
                     </td>
@@ -225,6 +270,7 @@ function loadUsers() {
                     <td>${user.name || 'No name'}</td>
                     <td>${user.email}</td>
                     <td>${user.role || 'user'}</td>
+                    <td>${user.value || '0.00'}</td>
                     <td class="action-buttons">
                         <button class="btn btn-sm btn-info" onclick="viewUserDetails('${user.id}')">View</button>
                         <button class="btn btn-sm btn-primary" onclick="editUser('${user.id}')">Edit</button>
@@ -237,6 +283,36 @@ function loadUsers() {
     }).catch(error => {
         console.error("Error loading users:", error);
         alert("Error loading users: " + error.message);
+    });
+}
+
+// View author details
+function viewAuthorDetails(authorId) {
+    db.collection('authors').doc(authorId).get().then(doc => {
+        if (doc.exists) {
+            const author = doc.data();
+            
+            // Display author details
+            const detailsHTML = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="${author.pfp}" alt="${author.name}" class="img-fluid mb-3">
+                    </div>
+                    <div class="col-md-8">
+                        <h4>${author.name}</h4>
+                        <p><strong>Email:</strong> ${author.email || 'Not provided'}</p>
+                        <p><strong>Description:</strong></p>
+                        <p>${author.description || 'No description available'}</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('authorDetailsBody').innerHTML = detailsHTML;
+            viewAuthorModalBS.show();
+        }
+    }).catch(error => {
+        console.error("Error getting author details:", error);
+        alert("Error getting author details: " + error.message);
     });
 }
 
@@ -375,6 +451,9 @@ function editBook(bookId) {
             document.getElementById('bookContent').value = book.content || '';
             document.getElementById('bookTrending').checked = book.trending || false;
             
+            // Show cover preview
+            previewImage('bookCover', 'coverPreview');
+            
             // Change modal title
             document.getElementById('addBookModalLabel').textContent = 'Edit Book';
             
@@ -398,7 +477,12 @@ function editAuthor(authorId) {
             // Populate form
             document.getElementById('authorId').value = authorId;
             document.getElementById('authorName').value = author.name || '';
+            document.getElementById('authorEmail').value = author.email || '';
+            document.getElementById('authorDescription').value = author.description || '';
             document.getElementById('authorPfp').value = author.pfp || '';
+            
+            // Show profile picture preview
+            previewImage('authorPfp', 'profilePicPreview');
             
             // Change modal title
             document.getElementById('addAuthorModalLabel').textContent = 'Edit Author';
@@ -425,9 +509,12 @@ function editUser(userId) {
             document.getElementById('userName').value = user.name || '';
             document.getElementById('userEmail').value = user.email || '';
             document.getElementById('userRole').value = user.role || 'user';
+            document.getElementById('userValue').value = user.value || '0.00';
             
             // Disable password field for edits
             document.getElementById('userPassword').disabled = true;
+            document.getElementById('userPassword').required = false;
+            document.querySelector('.password-label').classList.remove('form-required');
             
             // Change modal title
             document.getElementById('addUserModalLabel').textContent = 'Edit User';
@@ -444,14 +531,27 @@ function editUser(userId) {
 // Save book
 function saveBook() {
     const bookId = document.getElementById('bookId').value;
+    const bookTitle = document.getElementById('bookTitle').value.trim();
+    const bookAuthor = document.getElementById('bookAuthor').value.trim();
+    const bookPrice = document.getElementById('bookPrice').value.trim();
+    const bookDescription = document.getElementById('bookDescription').value.trim();
+    const bookCover = document.getElementById('bookCover').value.trim();
+    const bookContent = document.getElementById('bookContent').value.trim();
+    
+    // Validation
+    if (!bookTitle || !bookAuthor || !bookPrice || !bookDescription || !bookCover || !bookContent) {
+        alert("Please fill in all required fields");
+        return;
+    }
+    
     const bookData = {
-        title: document.getElementById('bookTitle').value,
-        author: document.getElementById('bookAuthor').value,
-        price: document.getElementById('bookPrice').value,
-        pricePhysic: document.getElementById('bookPricePhysic').value || '',
-        description: document.getElementById('bookDescription').value,
-        cover: document.getElementById('bookCover').value,
-        content: document.getElementById('bookContent').value,
+        title: bookTitle,
+        author: bookAuthor,
+        price: bookPrice,
+        pricePhysic: document.getElementById('bookPricePhysic').value.trim() || '',
+        description: bookDescription,
+        cover: bookCover,
+        content: bookContent,
         trending: document.getElementById('bookTrending').checked
     };
     
@@ -483,9 +583,22 @@ function saveBook() {
 // Save author
 function saveAuthor() {
     const authorId = document.getElementById('authorId').value;
+    const authorName = document.getElementById('authorName').value.trim();
+    const authorEmail = document.getElementById('authorEmail').value.trim();
+    const authorPfp = document.getElementById('authorPfp').value.trim();
+    const authorDescription = document.getElementById('authorDescription').value.trim();
+    
+    // Validation
+    if (!authorName || !authorEmail || !authorPfp) {
+        alert("Please fill in all required fields");
+        return;
+    }
+    
     const authorData = {
-        name: document.getElementById('authorName').value,
-        pfp: document.getElementById('authorPfp').value
+        name: authorName,
+        email: authorEmail,
+        pfp: authorPfp,
+        description: authorDescription
     };
     
     let savePromise;
@@ -508,14 +621,32 @@ function saveAuthor() {
 
 // Save user
 function saveUser() {
-    const userId = document.getElementById('userId').value;
-    const userData = {
-        name: document.getElementById('userName').value,
-        email: document.getElementById('userEmail').value,
-        role: document.getElementById('userRole').value
-    };
-    
+    // Get form field values with trimming to remove whitespace
+    const userId = document.getElementById('userId').value.trim();
+    const userName = document.getElementById('userName').value.trim();
+    const userEmail = document.getElementById('userEmail').value.trim();
+    const userRole = document.getElementById('userRole').value.trim();
+    const userValue = document.getElementById('userValue').value.trim() || '0.00';
     const password = document.getElementById('userPassword').value;
+    
+    // Validation for required fields
+    if (!userName || !userEmail || !userRole) {
+        alert("Please fill in all required fields (Name, Email, and Role)");
+        return;
+    }
+    
+    // Additional validation for new users
+    if (!userId && !password) {
+        alert("Password is required for new users");
+        return;
+    }
+    
+    const userData = {
+        name: userName,
+        email: userEmail,
+        role: userRole,
+        value: userValue
+    };
     
     if (userId) {
         // Update existing user
@@ -525,27 +656,78 @@ function saveUser() {
                 loadUsers();
             })
             .catch(error => {
-                console.error("Error updating user:", error);
                 alert("Error updating user: " + error.message);
             });
     } else {
-        // Add new user with authentication
-        if (!password) {
-            alert("Password is required for new users");
-            return;
-        }
-        
-        auth.createUserWithEmailAndPassword(userData.email, password)
-            .then(userCredential => {
-                // Add user data to Firestore
-                return db.collection('users').doc(userCredential.user.uid).set(userData);
+        // For new users, give options to handle existing emails
+        auth.fetchSignInMethodsForEmail(userEmail)
+            .then((signInMethods) => {
+                if (signInMethods && signInMethods.length > 0) {
+                    // Email exists in Authentication
+                    const options = [
+                        "Use a different email address",
+                        "Create Firestore document with custom ID (manual linking)",
+                        "Create Firestore document with auto-generated ID (no linking)"
+                    ];
+                    
+                    const selectedOption = prompt(
+                        `Email ${userEmail} already exists in Authentication system. Choose an option:\n` +
+                        `1. ${options[0]}\n` +
+                        `2. ${options[1]}\n` +
+                        `3. ${options[2]}\n` +
+                        "\nEnter option number (1-3):"
+                    );
+                    
+                    switch (selectedOption) {
+                        case "1":
+                            // Use different email
+                            throw new Error("Please try again with a different email address.");
+                            
+                        case "2":
+                            // Create with custom ID
+                            const customId = prompt("Enter user ID to use for this document:");
+                            if (!customId) throw new Error("Operation cancelled.");
+                            
+                            // Initialize empty collections for new users
+                            userData.favourite = {};
+                            userData.continue = {};
+                            userData.ratings = {};
+                            
+                            return db.collection('users').doc(customId).set(userData);
+                            
+                        case "3":
+                            // Create with auto-generated ID
+                            
+                            // Initialize empty collections for new users
+                            userData.favourite = {};
+                            userData.continue = {};
+                            userData.ratings = {};
+                            
+                            return db.collection('users').add(userData);
+                            
+                        default:
+                            throw new Error("Invalid option or operation cancelled.");
+                    }
+                } else {
+                    // Email doesn't exist, create new authentication + document
+                    return auth.createUserWithEmailAndPassword(userEmail, password)
+                        .then(userCredential => {
+                            // Initialize empty collections for new users
+                            userData.favourite = {};
+                            userData.continue = {};
+                            userData.ratings = {};
+                            
+                            // Add user data to Firestore
+                            return db.collection('users').doc(userCredential.user.uid).set(userData);
+                        });
+                }
             })
-            .then(() => {
+            .then((result) => {
                 userModalBS.hide();
                 loadUsers();
+                alert("User saved successfully!");
             })
             .catch(error => {
-                console.error("Error creating user:", error);
                 alert("Error creating user: " + error.message);
             });
     }
@@ -569,8 +751,23 @@ function confirmDelete() {
             deletePromise = db.collection('books').doc(id).delete();
             break;
         case 'author':
-            deletePromise = db.collection('authors').doc(id).delete();
-            break;
+            // Check if any books use this author
+            db.collection('books').where('author', '==', id).get()
+                .then(snapshot => {
+                    if (!snapshot.empty) {
+                        throw new Error(`Cannot delete author: ${snapshot.size} book(s) are using this author. Please reassign those books first.`);
+                    }
+                    return db.collection('authors').doc(id).delete();
+                })
+                .then(() => {
+                    deleteModalBS.hide();
+                    loadAuthors();
+                })
+                .catch(error => {
+                    console.error("Error deleting author:", error);
+                    alert(error.message);
+                });
+            return;
         case 'user':
             deletePromise = db.collection('users').doc(id).delete();
             break;

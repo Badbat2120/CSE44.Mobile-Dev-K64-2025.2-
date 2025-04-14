@@ -46,6 +46,22 @@
         .hidden {
             display: none;
         }
+        .form-required:after {
+            content: " *";
+            color: red;
+        }
+        img.preview-image {
+            max-height: 150px;
+            margin-top: 10px;
+        }
+        .debug-info {
+            padding: 10px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -53,12 +69,12 @@
     <div id="loginSection" class="card p-4">
         <h2 class="text-center mb-4">Litera Admin Login</h2>
         <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" placeholder="Enter email">
+            <label for="email" class="form-label form-required">Email</label>
+            <input type="email" class="form-control" id="email" placeholder="Enter email" required>
         </div>
         <div class="mb-3">
-            <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" placeholder="Password">
+            <label for="password" class="form-label form-required">Password</label>
+            <input type="password" class="form-control" id="password" placeholder="Password" required>
         </div>
         <button id="loginBtn" class="btn btn-primary w-100">Login</button>
         <div id="loginError" class="mt-3 text-danger"></div>
@@ -126,6 +142,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Name</th>
+                                <th>Email</th>
                                 <th>Profile Picture</th>
                                 <th>Actions</th>
                             </tr>
@@ -151,6 +168,7 @@
                                 <th>Name</th>
                                 <th>Email</th>
                                 <th>Role</th>
+                                <th>Value</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -176,11 +194,11 @@
                         <input type="hidden" id="bookId">
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="bookTitle" class="form-label">Title</label>
+                                <label for="bookTitle" class="form-label form-required">Title</label>
                                 <input type="text" class="form-control" id="bookTitle" required>
                             </div>
                             <div class="col-md-6">
-                                <label for="bookAuthor" class="form-label">Author</label>
+                                <label for="bookAuthor" class="form-label form-required">Author</label>
                                 <select class="form-select" id="bookAuthor" required>
                                     <!-- Authors will be loaded dynamically -->
                                 </select>
@@ -188,7 +206,7 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="bookPrice" class="form-label">Price</label>
+                                <label for="bookPrice" class="form-label form-required">Price</label>
                                 <input type="number" step="0.01" class="form-control" id="bookPrice" required>
                             </div>
                             <div class="col-md-6">
@@ -197,16 +215,17 @@
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label for="bookDescription" class="form-label">Description</label>
+                            <label for="bookDescription" class="form-label form-required">Description</label>
                             <textarea class="form-control" id="bookDescription" rows="3" required></textarea>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="bookCover" class="form-label">Cover URL (Google Drive Link)</label>
+                                <label for="bookCover" class="form-label form-required">Cover URL (Google Drive Link)</label>
                                 <input type="text" class="form-control" id="bookCover" required>
+                                <div id="coverPreview"></div>
                             </div>
                             <div class="col-md-6">
-                                <label for="bookContent" class="form-label">Content URL (Google Drive Link for epub3)</label>
+                                <label for="bookContent" class="form-label form-required">Content URL (Google Drive Link for epub3)</label>
                                 <input type="text" class="form-control" id="bookContent" required>
                             </div>
                         </div>
@@ -238,12 +257,21 @@
                     <form id="addAuthorForm">
                         <input type="hidden" id="authorId">
                         <div class="mb-3">
-                            <label for="authorName" class="form-label">Name</label>
+                            <label for="authorName" class="form-label form-required">Name</label>
                             <input type="text" class="form-control" id="authorName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="authorPfp" class="form-label">Profile Picture URL (Google Drive Link)</label>
+                            <label for="authorEmail" class="form-label form-required">Email</label>
+                            <input type="email" class="form-control" id="authorEmail" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="authorDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="authorDescription" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="authorPfp" class="form-label form-required">Profile Picture URL (Google Drive Link)</label>
                             <input type="text" class="form-control" id="authorPfp" required>
+                            <div id="profilePicPreview"></div>
                         </div>
                     </form>
                 </div>
@@ -267,23 +295,27 @@
                     <form id="addUserForm">
                         <input type="hidden" id="userId">
                         <div class="mb-3">
-                            <label for="userName" class="form-label">Name</label>
+                            <label for="userName" class="form-label form-required">Name</label>
                             <input type="text" class="form-control" id="userName" required>
                         </div>
                         <div class="mb-3">
-                            <label for="userEmail" class="form-label">Email</label>
+                            <label for="userEmail" class="form-label form-required">Email</label>
                             <input type="email" class="form-control" id="userEmail" required>
                         </div>
                         <div class="mb-3">
-                            <label for="userPassword" class="form-label">Password (for new users only)</label>
-                            <input type="password" class="form-control" id="userPassword">
+                            <label for="userPassword" class="form-label password-label form-required">Password (for new users only)</label>
+                            <input type="password" class="form-control" id="userPassword" required>
                         </div>
                         <div class="mb-3">
-                            <label for="userRole" class="form-label">Role</label>
+                            <label for="userRole" class="form-label form-required">Role</label>
                             <select class="form-select" id="userRole" required>
                                 <option value="user">User</option>
                                 <option value="admin">Admin</option>
                             </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="userValue" class="form-label">Value</label>
+                            <input type="text" class="form-control" id="userValue" placeholder="0.00">
                         </div>
                     </form>
                 </div>
@@ -319,6 +351,20 @@
                 </div>
                 <div class="modal-body" id="userDetailsBody">
                     <!-- User details will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="viewAuthorModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Author Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="authorDetailsBody">
+                    <!-- Author details will be displayed here -->
                 </div>
             </div>
         </div>
