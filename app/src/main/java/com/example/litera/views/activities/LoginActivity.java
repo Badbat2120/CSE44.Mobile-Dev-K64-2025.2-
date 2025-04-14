@@ -47,7 +47,6 @@ public class LoginActivity extends AppCompatActivity {
         progressBar = findViewById(R.id.progressBar);
         btnLogin = findViewById(R.id.btnLogin);
         tvRegister = findViewById(R.id.tvRegister);
-        tvForgotPassword = findViewById(R.id.tvForgotPassword); // Thêm vào layout nếu chưa có
 
         userViewModel = new ViewModelProvider(this, new ViewModelFactory(userRepository)).get(UserViewModel.class);
         userViewModel.getIsLoading().observe(this, isLoading -> {
