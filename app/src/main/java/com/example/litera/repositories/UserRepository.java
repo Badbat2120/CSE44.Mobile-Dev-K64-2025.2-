@@ -18,10 +18,18 @@ public class UserRepository {
     private static final String TAG = "UserRepository";
     private final FirebaseFirestore db;
     private final FirebaseAuth auth;
+    private User cacheUser;
+    private long lastFetchTime = 0;
+    private static final long CACHE_EXPIRATION_TIME = 5 * 60 * 1000; // 5 phút
 
     public UserRepository() {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
+    }
+
+    public void clearCachedUser() {
+        cacheUser = null;
+        lastFetchTime = 0;
     }
 
     public void loginWithEmail(String email, String password, AuthCallback callback) {
@@ -41,6 +49,8 @@ public class UserRepository {
                                                 User currentUser = document.toObject(User.class);
                                                 if (currentUser != null) {
                                                     currentUser.setId(document.getId());
+                                                    cacheUser = currentUser;
+                                                    lastFetchTime = System.currentTimeMillis();
                                                     callback.onSuccess(currentUser);
                                                 } else {
                                                     callback.onFailure("Failed to parse user data");
@@ -71,7 +81,20 @@ public class UserRepository {
                             createUser(name, email, new OnUserCreationListener() {
                                 @Override
                                 public void onSuccess() {
-                                    callback.onSuccess(new User(user.getUid(), email));
+                                    getCurrentUser(new OnUserFetchListener() {
+                                        @Override
+                                        public void onSuccess(User user) {
+                                            cacheUser = user;
+                                            lastFetchTime = System.currentTimeMillis();
+                                            callback.onSuccess(user);
+                                        }
+
+                                        @Override
+                                        public void onFailure(String error) {
+                                            // Still return success but without cache
+                                            callback.onSuccess(new User(user.getUid(), email));
+                                        }
+                                    });
                                 }
 
                                 @Override
@@ -132,6 +155,12 @@ public class UserRepository {
             return;
         }
 
+        long currentTime = System.currentTimeMillis();
+        if (cacheUser != null && currentTime - lastFetchTime < CACHE_EXPIRATION_TIME) {
+            listener.onSuccess(cacheUser);
+            return;
+        }
+
         db.collection("users")
                 .document(currentUser.getUid())
                 .get()
@@ -143,6 +172,8 @@ public class UserRepository {
                                 User user = document.toObject(User.class);
                                 if (user != null) {
                                     user.setId(document.getId());
+                                    cacheUser = user;
+                                    lastFetchTime = System.currentTimeMillis();
                                     listener.onSuccess(user);
                                 } else {
                                     listener.onFailure("Failed to parse user data");
@@ -201,6 +232,7 @@ public class UserRepository {
                 .document(currentUser.getUid())
                 .update(updates)
                 .addOnSuccessListener(aVoid -> {
+                    clearCachedUser();
                     Log.d(TAG, "User updated successfully");
                     listener.onSuccess();
                 })
@@ -226,6 +258,7 @@ public class UserRepository {
                         user.updatePassword(newPassword)
                                 .addOnCompleteListener(passwordTask -> {
                                     if (passwordTask.isSuccessful()) {
+                                        clearCachedUser();
                                         listener.onSuccess();
                                     } else {
                                         listener.onFailure(passwordTask.getException().getMessage());
@@ -239,6 +272,7 @@ public class UserRepository {
 
     public void signOut() {
         auth.signOut();
+        clearCachedUser();
     }
 
     // Interface cho callbacks
@@ -289,6 +323,7 @@ public class UserRepository {
                         db.collection("users").document(currentUser.getUid())
                                 .update("ratings", ratings)
                                 .addOnSuccessListener(aVoid -> {
+                                    clearCachedUser();
                                     listener.onSuccess();
                                 })
                                 .addOnFailureListener(e -> {

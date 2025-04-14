@@ -42,6 +42,7 @@ public class BookDetailActivity extends AppCompatActivity {
         BookRepository.getInstance().clearCache();
 
 
+
         // Initialize UI elements
         ImageView bookCover = findViewById(R.id.bookCover);
         TextView bookTitle = findViewById(R.id.bookTitle);
@@ -158,10 +159,14 @@ public class BookDetailActivity extends AppCompatActivity {
 
         // Set up button click listener
         addToCart.setOnClickListener(v -> {
-            Intent intent = new Intent(BookDetailActivity.this, AddToCartActivity.class);
-            // Pass the book ID to the AddToCartActivity
-            intent.putExtra("bookId", bookId);
-            startActivity(intent);
+            if(FirebaseAuth.getInstance().getCurrentUser() != null) {
+                Intent intent = new Intent(BookDetailActivity.this, AddToCartActivity.class);
+                // Pass the book ID to the AddToCartActivity
+                intent.putExtra("bookId", bookId);
+                startActivity(intent);
+            } else {
+                Toast.makeText(this, "Log in to add to cart", Toast.LENGTH_SHORT).show();
+            }
         });
 
         // Back button

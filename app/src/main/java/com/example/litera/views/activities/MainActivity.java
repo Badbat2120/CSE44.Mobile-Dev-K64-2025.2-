@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -317,13 +318,22 @@ public class MainActivity extends AppCompatActivity implements AuthorAdapter.OnA
 
     private void observeViewModel() {
         // Lấy dữ liệu từ ViewModel cho Continue Reading và Trending Books
-        mainViewModel.getContinueReadingBooks().observe(this, books -> {
-            if (books != null && !books.isEmpty()) {
-                continueReadingAdapter.submitList(books);
-                continueReadingBooks.clear();
-                continueReadingBooks.addAll(books);
-            }
-        });
+        if(mAuth.getCurrentUser() != null) {
+            mainViewModel.getContinueReadingBooks().observe(this, books -> {
+                if (books != null && !books.isEmpty()) {
+                    continueReadingAdapter.submitList(books);
+                    continueReadingBooks.clear();
+                    continueReadingBooks.addAll(books);
+                }
+            });
+            LinearLayout continueReadingLayout = findViewById(R.id.container_continue_reading);
+            continueReadingLayout.setVisibility(View.VISIBLE);
+            rvContinueReading.setVisibility(View.VISIBLE);
+        } else {
+            LinearLayout continueReadingLayout = findViewById(R.id.container_continue_reading);
+            continueReadingLayout.setVisibility(View.GONE);
+            rvContinueReading.setVisibility(View.GONE);
+        }
 
         mainViewModel.getTrendingBooks().observe(this, books -> {
             if (books != null && !books.isEmpty()) {
