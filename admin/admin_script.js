@@ -33,6 +33,11 @@ document.addEventListener('DOMContentLoaded', function() {
     viewUserModalBS = new bootstrap.Modal(document.getElementById('viewUserModal'));
     viewAuthorModalBS = new bootstrap.Modal(document.getElementById('viewAuthorModal'));
     
+    // Hide the "Add New User" button
+    if (document.querySelector('button[data-bs-target="#addUserModal"]')) {
+        document.querySelector('button[data-bs-target="#addUserModal"]').style.display = 'none';
+    }
+    
     // Set up event listeners
     setupEventListeners();
     
@@ -128,10 +133,28 @@ function setupEventListeners() {
     document.getElementById('addUserModal').addEventListener('hidden.bs.modal', () => {
         document.getElementById('addUserForm').reset();
         document.getElementById('userId').value = '';
-        document.getElementById('userPassword').disabled = false;
-        document.getElementById('userPassword').required = true;
-        document.querySelector('.password-label').classList.add('form-required');
-        document.getElementById('addUserModalLabel').textContent = 'Add New User';
+        
+        // Show all form fields for future use
+        const form = document.getElementById('addUserForm');
+        for (let i = 0; i < form.elements.length; i++) {
+            const element = form.elements[i];
+            if (element.id !== 'userPassword') {
+                const elementLabel = document.querySelector(`label[for="${element.id}"]`);
+                if (elementLabel) elementLabel.style.display = '';
+                element.style.display = '';
+            }
+        }
+        
+        // But still hide password field
+        const passwordField = document.getElementById('userPassword');
+        const passwordLabel = document.querySelector('label[for="userPassword"]');
+        if (passwordField) passwordField.style.display = 'none';
+        if (passwordLabel) passwordLabel.style.display = 'none';
+        
+        // Reset readOnly on email field
+        document.getElementById('userEmail').readOnly = false;
+        
+        document.getElementById('addUserModalLabel').textContent = 'Edit User';
         currentEditMode = false;
     });
 }
@@ -507,14 +530,44 @@ function editUser(userId) {
             // Populate form
             document.getElementById('userId').value = userId;
             document.getElementById('userName').value = user.name || '';
-            document.getElementById('userEmail').value = user.email || '';
+            
+            // Hide email field completely
+            const emailField = document.getElementById('userEmail');
+            const emailLabel = document.querySelector('label[for="userEmail"]');
+            if (emailField) emailField.style.display = 'none';
+            if (emailLabel) emailLabel.style.display = 'none';
+            
+            // Set email value in hidden field for validation
+            if (emailField) emailField.value = user.email || '';
+            
+            // Show only role field
             document.getElementById('userRole').value = user.role || 'user';
+            
+            // Show only value field
             document.getElementById('userValue').value = user.value || '0.00';
             
-            // Disable password field for edits
-            document.getElementById('userPassword').disabled = true;
-            document.getElementById('userPassword').required = false;
-            document.querySelector('.password-label').classList.remove('form-required');
+            // Hide password field
+            const passwordField = document.getElementById('userPassword');
+            const passwordLabel = document.querySelector('label[for="userPassword"]');
+            if (passwordField) passwordField.style.display = 'none';
+            if (passwordLabel) passwordLabel.style.display = 'none';
+            
+            // Hide any other fields in the form
+            const form = document.getElementById('addUserForm');
+            for (let i = 0; i < form.elements.length; i++) {
+                const element = form.elements[i];
+                if (element.id !== 'userId' && 
+                    element.id !== 'userName' && 
+                    element.id !== 'userRole' && 
+                    element.id !== 'userValue') {
+                    
+                    if (element.type !== 'hidden') {
+                        const elementLabel = document.querySelector(`label[for="${element.id}"]`);
+                        if (elementLabel) elementLabel.style.display = 'none';
+                        element.style.display = 'none';
+                    }
+                }
+            }
             
             // Change modal title
             document.getElementById('addUserModalLabel').textContent = 'Edit User';
@@ -619,118 +672,59 @@ function saveAuthor() {
     });
 }
 
-// Save user
+// Save user - modified to only allow editing name, role, and value
 function saveUser() {
     // Get form field values with trimming to remove whitespace
     const userId = document.getElementById('userId').value.trim();
     const userName = document.getElementById('userName').value.trim();
-    const userEmail = document.getElementById('userEmail').value.trim();
+    const userEmail = document.getElementById('userEmail').value.trim(); // Hidden but still needed for validation
     const userRole = document.getElementById('userRole').value.trim();
     const userValue = document.getElementById('userValue').value.trim() || '0.00';
-    const password = document.getElementById('userPassword').value;
+    
+    // This function now only supports editing existing users
+    if (!userId) {
+        alert("Adding new users has been disabled by administrator");
+        return;
+    }
     
     // Validation for required fields
-    if (!userName || !userEmail || !userRole) {
-        alert("Please fill in all required fields (Name, Email, and Role)");
+    if (!userName || !userRole) {
+        alert("Please fill in all required fields (Name and Role)");
         return;
     }
     
-    // Additional validation for new users
-    if (!userId && !password) {
-        alert("Password is required for new users");
-        return;
-    }
-    
-    const userData = {
-        name: userName,
-        email: userEmail,
-        role: userRole,
-        value: userValue
-    };
-    
-    if (userId) {
-        // Update existing user
-        db.collection('users').doc(userId).update(userData)
-            .then(() => {
-                userModalBS.hide();
-                loadUsers();
-            })
-            .catch(error => {
-                alert("Error updating user: " + error.message);
-            });
-    } else {
-        // For new users, give options to handle existing emails
-        auth.fetchSignInMethodsForEmail(userEmail)
-            .then((signInMethods) => {
-                if (signInMethods && signInMethods.length > 0) {
-                    // Email exists in Authentication
-                    const options = [
-                        "Use a different email address",
-                        "Create Firestore document with custom ID (manual linking)",
-                        "Create Firestore document with auto-generated ID (no linking)"
-                    ];
-                    
-                    const selectedOption = prompt(
-                        `Email ${userEmail} already exists in Authentication system. Choose an option:\n` +
-                        `1. ${options[0]}\n` +
-                        `2. ${options[1]}\n` +
-                        `3. ${options[2]}\n` +
-                        "\nEnter option number (1-3):"
-                    );
-                    
-                    switch (selectedOption) {
-                        case "1":
-                            // Use different email
-                            throw new Error("Please try again with a different email address.");
-                            
-                        case "2":
-                            // Create with custom ID
-                            const customId = prompt("Enter user ID to use for this document:");
-                            if (!customId) throw new Error("Operation cancelled.");
-                            
-                            // Initialize empty collections for new users
-                            userData.favourite = {};
-                            userData.continue = {};
-                            userData.ratings = {};
-                            
-                            return db.collection('users').doc(customId).set(userData);
-                            
-                        case "3":
-                            // Create with auto-generated ID
-                            
-                            // Initialize empty collections for new users
-                            userData.favourite = {};
-                            userData.continue = {};
-                            userData.ratings = {};
-                            
-                            return db.collection('users').add(userData);
-                            
-                        default:
-                            throw new Error("Invalid option or operation cancelled.");
-                    }
-                } else {
-                    // Email doesn't exist, create new authentication + document
-                    return auth.createUserWithEmailAndPassword(userEmail, password)
-                        .then(userCredential => {
-                            // Initialize empty collections for new users
-                            userData.favourite = {};
-                            userData.continue = {};
-                            userData.ratings = {};
-                            
-                            // Add user data to Firestore
-                            return db.collection('users').doc(userCredential.user.uid).set(userData);
-                        });
-                }
-            })
-            .then((result) => {
-                userModalBS.hide();
-                loadUsers();
-                alert("User saved successfully!");
-            })
-            .catch(error => {
-                alert("Error creating user: " + error.message);
-            });
-    }
+    // Get the current user data to compare
+    db.collection('users').doc(userId).get()
+        .then(doc => {
+            if (!doc.exists) {
+                throw new Error("User not found");
+            }
+            
+            const currentUserData = doc.data();
+            
+            // Check if email is being changed
+            if (userEmail !== currentUserData.email) {
+                throw new Error("Changing email addresses is not allowed");
+            }
+            
+            // Prepare update data - only name, role, and value
+            const userData = {
+                name: userName,
+                role: userRole,
+                value: userValue
+            };
+            
+            // Update user
+            return db.collection('users').doc(userId).update(userData);
+        })
+        .then(() => {
+            userModalBS.hide();
+            loadUsers();
+            alert("User updated successfully");
+        })
+        .catch(error => {
+            alert("Error: " + error.message);
+        });
 }
 
 // Delete item setup
